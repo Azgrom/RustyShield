@@ -1,9 +1,11 @@
+use crate::lib::constants::{H_0, H_1, H_2, H_3, H_4};
+use crate::ABC_L;
 use std::ops::Range;
 
 const SHA_PADDING_LEN: usize = 4;
 
 #[derive(Debug)]
-struct SHAPadding([u8; SHA_PADDING_LEN]);
+pub struct SHAPadding([u8; SHA_PADDING_LEN]);
 
 impl PartialEq for SHAPadding {
     fn eq(&self, other: &Self) -> bool {
@@ -16,7 +18,7 @@ impl PartialEq for SHAPadding {
 }
 
 impl SHAPadding {
-    fn new(stream: String) -> Self {
+    pub fn new(stream: String) -> Self {
         let byte_stream = stream.as_bytes();
         let range = Range {
             start: 0,
@@ -36,8 +38,8 @@ impl SHAPadding {
             }
         }
 
-        let o = overflowed_array.len();
-        overflowed_array[o - 1] = 128;
+        let last_e = overflowed_array.len() - 1;
+        overflowed_array[last_e] = 0x80;
 
         let bit_amount_of_byte_stream: usize = byte_stream.len() * 8;
 
@@ -71,18 +73,26 @@ impl SHAPadding {
 
 #[cfg(test)]
 mod SHAPadding_tests {
-    use crate::{ABC_L, ABC_U};
-    use std::str::from_utf8;
+    use crate::lib::constants::{ABC_L, ABC_U};
     use crate::lib::SHAPadding;
+    use std::str::from_utf8;
 
     #[test]
     fn overflowed_array_construction() {
         let resultant_OArray = SHAPadding::new(String::from(from_utf8(ABC_L).ok().unwrap()));
-        let expected_OArray = SHAPadding([97, 98, 99, 152]);
+        let expected_OArray = SHAPadding([
+            97, 98, 99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 152,
+        ]);
         assert_eq!(resultant_OArray, expected_OArray);
 
         let resultant_OArray = SHAPadding::new(String::from(from_utf8(ABC_U).ok().unwrap()));
-        let expected_OArray = SHAPadding([65, 66, 67, 152]);
+        let expected_OArray = SHAPadding([
+            65, 66, 67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 152,
+        ]);
         assert_eq!(resultant_OArray, expected_OArray);
     }
 }

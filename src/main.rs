@@ -1,17 +1,8 @@
+use lib::constants::{ABC_L, ABC_U};
 use std::borrow::BorrowMut;
 use std::ops::Range;
 
 mod lib;
-
-const ABC_L: &[u8; 3] = b"abc";
-const ABC_U: &[u8; 3] = b"ABC";
-
-const H_0: &[u8; 8] = b"67DE2A01";
-const H_1: &[u8; 8] = b"BB03E28C";
-const H_2: &[u8; 8] = b"011EF1DC";
-const H_3: &[u8; 8] = b"9293E9E2";
-const H_4: &[u8; 8] = b"CDEF23A9";
-
 
 fn main() {
     // let message = Message::new(ABC_L);
