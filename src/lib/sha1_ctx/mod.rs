@@ -5,7 +5,7 @@
 * https://opensource.org/licenses/MIT
 ***/
 
-use crate::lib::constants::{H_0, H_1, H_2, H_3, H_4};
+use crate::constants::{H_0, H_1, H_2, H_3, H_4};
 use disturbance_vectors_constants::DV_MASK_SIZE;
 use sha1_ctx_constants::{
     DO_STORE_STATE_00, DO_STORE_STATE_01, DO_STORE_STATE_02, DO_STORE_STATE_03, DO_STORE_STATE_04,
@@ -29,7 +29,7 @@ use sha1_ctx_constants::{
 use std::ops::{Add, BitAnd, BitOr, BitXor, Range};
 use std::vec;
 use ubc_check::{Sha1DisturbanceVector, ubc_check};
-use crate::lib::sha1_ctx::sha1_ctx_constants::SHA_PADDING;
+use crate::sha1_ctx::sha1_ctx_constants::SHA_PADDING;
 
 pub(crate) mod sha1_ctx_constants;
 mod ubc_check;
@@ -109,7 +109,7 @@ impl Sha1Ctx {
     }
 }
 
-trait DC {
+pub(crate) trait DC {
     fn init() -> Self;
 
     fn set_safe_hash(&mut self, safe_hash: bool);
@@ -272,7 +272,7 @@ impl DC for Sha1Ctx {
 
 // Main business
 impl Sha1Ctx {
-    fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Sha1Ctx::init()
     }
 

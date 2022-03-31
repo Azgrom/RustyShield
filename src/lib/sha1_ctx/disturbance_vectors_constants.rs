@@ -5,7 +5,7 @@
 * https://opensource.org/licenses/MIT
 ***/
 
-use crate::lib::sha1_ctx::ubc_check::Sha1DisturbanceVector;
+use crate::sha1_ctx::ubc_check::Sha1DisturbanceVector;
 
 pub(crate) const DV_MASK_SIZE: u8 = 1;
 

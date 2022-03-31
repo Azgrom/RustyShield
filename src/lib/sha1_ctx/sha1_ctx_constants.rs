@@ -17,6 +17,8 @@ pub const SHA_PADDING: [u8; 64] = [
     0, 0, 0, 0, 0, 0, 0,
 ];
 
+pub const DC_SHA1_EXTERNAL: bool = false;
+
 pub const SHA1DC_BIG_ENDIAN: bool = false;
 
 pub const DO_STORE_STATE_00: bool = false;
@@ -106,3 +108,5 @@ pub const DO_STORE_STATE_76: bool = false;
 pub const DO_STORE_STATE_77: bool = false;
 pub const DO_STORE_STATE_78: bool = false;
 pub const DO_STORE_STATE_79: bool = false;
+
+pub const SHA_PADDING_LEN: usize = 64;

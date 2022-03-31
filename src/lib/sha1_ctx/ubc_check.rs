@@ -5,7 +5,7 @@
 * https://opensource.org/licenses/MIT
 ***/
 
-use crate::lib::sha1_ctx::disturbance_vectors_constants::{DV_I_43_0_BIT, DV_I_44_0_BIT, DV_I_45_0_BIT, DV_I_46_0_BIT, DV_I_46_2_BIT, DV_I_47_0_BIT, DV_I_47_2_BIT, DV_I_48_0_BIT, DV_I_48_2_BIT, DV_I_49_0_BIT, DV_I_49_2_BIT, DV_I_50_0_BIT, DV_I_50_2_BIT, DV_I_51_0_BIT, DV_I_51_2_BIT, DV_I_52_0_BIT, DV_II_45_0_BIT, DV_II_46_0_BIT, DV_II_46_2_BIT, DV_II_47_0_BIT, DV_II_48_0_BIT, DV_II_49_0_BIT, DV_II_49_2_BIT, DV_II_50_0_BIT, DV_II_50_2_BIT, DV_II_51_0_BIT, DV_II_51_2_BIT, DV_II_52_0_BIT, DV_II_53_0_BIT, DV_II_54_0_BIT, DV_II_55_0_BIT, DV_II_56_0_BIT, DV_MASK_SIZE};
+use crate::sha1_ctx::disturbance_vectors_constants::{DV_I_43_0_BIT, DV_I_44_0_BIT, DV_I_45_0_BIT, DV_I_46_0_BIT, DV_I_46_2_BIT, DV_I_47_0_BIT, DV_I_47_2_BIT, DV_I_48_0_BIT, DV_I_48_2_BIT, DV_I_49_0_BIT, DV_I_49_2_BIT, DV_I_50_0_BIT, DV_I_50_2_BIT, DV_I_51_0_BIT, DV_I_51_2_BIT, DV_I_52_0_BIT, DV_II_45_0_BIT, DV_II_46_0_BIT, DV_II_46_2_BIT, DV_II_47_0_BIT, DV_II_48_0_BIT, DV_II_49_0_BIT, DV_II_49_2_BIT, DV_II_50_0_BIT, DV_II_50_2_BIT, DV_II_51_0_BIT, DV_II_51_2_BIT, DV_II_52_0_BIT, DV_II_53_0_BIT, DV_II_54_0_BIT, DV_II_55_0_BIT, DV_II_56_0_BIT, DV_MASK_SIZE};
 
 pub struct Sha1DisturbanceVector {
     pub dv_type: u32,
@@ -55,8 +55,8 @@ pub fn ubc_check(w: &[u32; 80], dv_mask: &mut [u32; DV_MASK_SIZE as usize]) {
 
     let mut mask: u32 = !0u32;
 
-    mask &= (((((w[44] ^ w[45]) >> 29) & 1) - 1)
-        | !(dv_i_48_0 | dv_i_51_0 | dv_i_52_0 | dv_ii_45_0 | dv_ii_46_0 | dv_ii_50_0 | dv_ii_51_0));
+    mask &= ((((w[44] ^ w[45]) >> 29) & 1) - 1)
+        | !(dv_i_48_0 | dv_i_51_0 | dv_i_52_0 | dv_ii_45_0 | dv_ii_46_0 | dv_ii_50_0 | dv_ii_51_0);
     mask &= (((((w[49] ^ w[50]) >> 29) & 1) - 1)
         | !(dv_i_46_0 | dv_ii_45_0 | dv_ii_50_0 | dv_ii_51_0 | dv_ii_55_0 | dv_ii_56_0));
     mask &= (((((w[48] ^ w[49]) >> 29) & 1) - 1)

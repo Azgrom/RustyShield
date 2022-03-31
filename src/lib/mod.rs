@@ -1,13 +1,27 @@
-use crate::lib::constants::{H_0, H_1, H_2, H_3, H_4};
-use crate::ABC_L;
+use crate::sha1_ctx::{
+    sha1_ctx_constants::{DC_SHA1_EXTERNAL, SHA_PADDING_LEN},
+    Sha1Ctx, DC,
+};
 use std::ops::Range;
-use std::str::from_utf8;
-use sha1_ctx::disturbance_vectors_constants::DV_MASK_SIZE;
 
 pub(crate) mod constants;
 pub(crate) mod sha1_ctx;
 
-const SHA_PADDING_LEN: usize = 64;
+pub fn sha1_dc_init() -> Sha1Ctx {
+    let mut ctx = Sha1Ctx::new();
+    if DC_SHA1_EXTERNAL {
+        ctx.set_safe_hash(false);
+    }
+
+    return ctx;
+}
+
+pub fn sha1_dc_final(hash: &mut [u8; 20], mut ctx: Sha1Ctx) {
+    if ctx.dc_final(hash) {
+        return;
+    }
+    panic!("SHA-1 appears to be part of a collision attack");
+}
 
 #[derive(Debug)]
 pub struct SHAPadding([u8; SHA_PADDING_LEN]);
@@ -20,12 +34,6 @@ impl PartialEq for SHAPadding {
     fn ne(&self, other: &Self) -> bool {
         self.0 != other.0
     }
-}
-
-enum SHA {
-    SHAPadding([u8; 64]),
-    IDWords([u32; 16]),
-    DWords([u32; 80]),
 }
 
 impl SHAPadding {
@@ -141,27 +149,27 @@ impl SHAPadding {
 }
 
 #[cfg(test)]
-mod SHAPadding_tests {
-    use crate::lib::constants::{ABC_L, ABC_U};
-    use crate::lib::SHAPadding;
+mod sha_padding_tests {
+    use crate::constants::{ABC_L, ABC_U};
+    use crate::SHAPadding;
     use std::str::from_utf8;
 
     #[test]
     fn overflowed_array_construction() {
-        let resultant_OArray = SHAPadding::new(String::from(from_utf8(ABC_L).ok().unwrap()));
-        let expected_OArray = SHAPadding([
+        let resultant_oarray = SHAPadding::new(String::from(from_utf8(ABC_L).ok().unwrap()));
+        let expected_oarray = SHAPadding([
             97, 98, 99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 152,
         ]);
-        assert_eq!(resultant_OArray, expected_OArray);
+        assert_eq!(resultant_oarray, expected_oarray);
 
-        let resultant_OArray = SHAPadding::new(String::from(from_utf8(ABC_U).ok().unwrap()));
-        let expected_OArray = SHAPadding([
+        let resultant_oarray = SHAPadding::new(String::from(from_utf8(ABC_U).ok().unwrap()));
+        let expected_oarray = SHAPadding([
             65, 66, 67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 152,
         ]);
-        assert_eq!(resultant_OArray, expected_OArray);
+        assert_eq!(resultant_oarray, expected_oarray);
     }
 }
