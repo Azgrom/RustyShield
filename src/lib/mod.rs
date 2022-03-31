@@ -2,11 +2,10 @@ use crate::lib::constants::{H_0, H_1, H_2, H_3, H_4};
 use crate::ABC_L;
 use std::ops::Range;
 use std::str::from_utf8;
-use ubc_check::disturbance_vectors_constants::DV_MASK_SIZE;
+use sha1_ctx::disturbance_vectors_constants::DV_MASK_SIZE;
 
 pub(crate) mod constants;
 pub(crate) mod sha1_ctx;
-mod ubc_check;
 
 const SHA_PADDING_LEN: usize = 64;
 
