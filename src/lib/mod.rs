@@ -2,7 +2,38 @@ use crate::lib::constants::{H_0, H_1, H_2, H_3, H_4};
 use crate::ABC_L;
 use std::ops::Range;
 
-const SHA_PADDING_LEN: usize = 4;
+pub(crate) mod constants;
+
+fn memcpy<T>(dst: &mut Vec<T>, src: &mut Vec<T>, n: usize, src_len: &mut usize)
+where
+    T: Copy,
+{
+    if n < *src_len {
+        for i in 0..n {
+            dst[i] = src[i];
+        }
+    } else {
+        for i in 0..*src_len {
+            dst[i] = src[i];
+        }
+    }
+}
+
+pub fn copy_array<T>(dst: &mut Vec<T>, src: &mut Vec<T>, n: usize)
+where
+    T: Copy,
+{
+    let mut src_len = src.len() - 1;
+    let mut dst_len = dst.len() - 1;
+
+    if dst_len >= src_len {
+        memcpy(dst, src, n, &mut src_len);
+    } else {
+        memcpy(dst, src, n, &mut dst_len);
+    }
+}
+
+const SHA_PADDING_LEN: usize = 64;
 
 #[derive(Debug)]
 pub struct SHAPadding([u8; SHA_PADDING_LEN]);
