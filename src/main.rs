@@ -1,6 +1,9 @@
 use lib::constants::{ABC_L, ABC_U};
+use lib::sha1_ctx::Sha1Ctx;
+use lib::SHAPadding;
 use std::borrow::BorrowMut;
 use std::ops::Range;
+use std::str::from_utf8;
 
 mod lib;
 
@@ -12,8 +15,20 @@ fn main() {
     // let message_in_bits_len = message_in_bits.len();
     // let z = message.test();
 
+    // println!("{:b}", (128 + 24) as u8);
+    // println!("{:b}", (0x80) as u8);
 
-    println!("{:b}", (128 + 24) as u8);
+    let mut x: Vec<u8> = vec![1, 2, 3];
+    let mut y: Vec<u8> = vec![3, 9, 4];
+
+    let z = x
+        .iter()
+        .zip(y.iter())
+        .fold(0, |acc, (x_i, y_i)| acc | x_i ^ y_i);
+
+    println!("{:08b}", (x[0] ^ y[0]) | (x[1] ^ y[1]) | (x[2] ^ y[2]));
+
+    let z = [[0; 80]; 5];
 }
 
 fn dev() {

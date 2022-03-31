@@ -1,37 +1,12 @@
 use crate::lib::constants::{H_0, H_1, H_2, H_3, H_4};
 use crate::ABC_L;
 use std::ops::Range;
+use std::str::from_utf8;
+use ubc_check::disturbance_vectors_constants::DV_MASK_SIZE;
 
 pub(crate) mod constants;
-
-fn memcpy<T>(dst: &mut Vec<T>, src: &mut Vec<T>, n: usize, src_len: &mut usize)
-where
-    T: Copy,
-{
-    if n < *src_len {
-        for i in 0..n {
-            dst[i] = src[i];
-        }
-    } else {
-        for i in 0..*src_len {
-            dst[i] = src[i];
-        }
-    }
-}
-
-pub fn copy_array<T>(dst: &mut Vec<T>, src: &mut Vec<T>, n: usize)
-where
-    T: Copy,
-{
-    let mut src_len = src.len() - 1;
-    let mut dst_len = dst.len() - 1;
-
-    if dst_len >= src_len {
-        memcpy(dst, src, n, &mut src_len);
-    } else {
-        memcpy(dst, src, n, &mut dst_len);
-    }
-}
+pub(crate) mod sha1_ctx;
+mod ubc_check;
 
 const SHA_PADDING_LEN: usize = 64;
 
@@ -46,6 +21,12 @@ impl PartialEq for SHAPadding {
     fn ne(&self, other: &Self) -> bool {
         self.0 != other.0
     }
+}
+
+enum SHA {
+    SHAPadding([u8; 64]),
+    IDWords([u32; 16]),
+    DWords([u32; 80]),
 }
 
 impl SHAPadding {
@@ -99,6 +80,64 @@ impl SHAPadding {
         }
 
         overflowed_array
+    }
+
+    pub fn convert_padding_to_words(&self) -> [u32; 16] {
+        let range = Range { start: 0, end: 16 };
+        let mut x: [u32; 16] = [0; 16];
+
+        for word in range {
+            let y = word * 4;
+            x[word] = ((self.0[0 + y] as u32) << 24)
+                + ((self.0[1 + y] as u32) << 16)
+                + ((self.0[2 + y] as u32) << 8)
+                + self.0[3 + y] as u32;
+        }
+
+        return x;
+    }
+
+    pub fn copy_padded_word_to_eighty_chunk(t: [u32; 16]) -> [u32; 80] {
+        let mut d_words: [u32; 80] = [0; 80];
+
+        for (i, el) in t.iter().enumerate() {
+            d_words[i] = *el;
+        }
+
+        return d_words;
+    }
+
+    pub fn eighty_chunk_loop_through(mut eighty_array: [u32; 80]) -> [u32; 80] {
+        for i in 16..eighty_array.len() {
+            let word_a = eighty_array[i - 3];
+            let word_b = eighty_array[i - 8];
+            let word_c = eighty_array[i - 14];
+            let word_d = eighty_array[i - 16];
+
+            let xor_a = word_a ^ word_b;
+            let xor_b = word_a ^ word_c;
+            let xor_c = word_a ^ word_d;
+
+            let xor_d = xor_a ^ word_c;
+            let xor_e = xor_b ^ word_d;
+            let xor_f = xor_c ^ word_b;
+
+            let xor_word = (word_a ^ word_b ^ word_c ^ word_d).rotate_left(5);
+            eighty_array[i] = xor_word ^ xor_d ^ xor_e ^ xor_f;
+        }
+
+        return eighty_array;
+    }
+
+    fn test() {
+        let resultant_OArray = SHAPadding::new(String::from(from_utf8(ABC_L).ok().unwrap()));
+        let d_words = resultant_OArray.convert_padding_to_words();
+        let initial_eighty_array = SHAPadding::copy_padded_word_to_eighty_chunk(d_words);
+
+        let h1 = H_1;
+        let h2 = H_2;
+        let h3 = H_3;
+        let h4 = H_4;
     }
 }
 
