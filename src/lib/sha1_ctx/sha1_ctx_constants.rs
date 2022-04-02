@@ -5,18 +5,6 @@
 * https://opensource.org/licenses/MIT
 ***/
 
-pub const UBC_DV_EL: u32 = 0xFFFFFFFF;
-pub const R1: u32 = 0x5A827999;
-pub const R2: u32 = 0x6ED9EBA1;
-pub const R3: u32 = 0x8F1BBCDC;
-pub const R4: u32 = 0xCA62C1D6;
-
-pub const SHA_PADDING: [u8; 64] = [
-    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0,
-];
-
 pub const DC_SHA1_EXTERNAL: bool = false;
 
 pub const SHA1DC_BIG_ENDIAN: bool = false;

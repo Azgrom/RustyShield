@@ -1,4 +1,10 @@
+use rusty_sha::{sha1_dc_final, sha1_dc_init};
+
 fn main() {
+
+    let mut ctx = sha1_dc_init();
+    let mut hash: [u8; 20] = [0; 20];
+    sha1_dc_final(&mut hash, ctx);
 
     let x: Vec<u8> = vec![1, 2, 3];
     let y: Vec<u8> = vec![3, 9, 4];

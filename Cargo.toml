@@ -10,6 +10,7 @@ readme = "README.md"
 version = "0.1.0"
 
 [lib]
+name = "lib"
 path = "src/lib/mod.rs"
 
 [[bin]]
