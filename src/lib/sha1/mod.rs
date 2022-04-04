@@ -8,13 +8,14 @@ use std::slice::Iter;
 pub(crate) mod sha1_constants;
 
 trait ShaProcess {
-    fn new() -> Self;
+    fn init() -> Self;
 
     fn update(&mut self, len: usize, data: Box<[u8]>);
 
     fn finalize(&mut self) -> Sha1Output;
 }
 
+#[derive(Debug)]
 struct SHA1 {
     h: HashValues,
     w: ShamblesMatrix,
@@ -22,13 +23,17 @@ struct SHA1 {
 }
 
 impl SHA1 {
+    fn new() -> Self {
+        SHA1::init()
+    }
+
     pub(crate) fn hash_block(&self) {
         todo!()
     }
 }
 
 impl ShaProcess for SHA1 {
-    fn new() -> Self {
+    fn init() -> Self {
         Self {
             h: [H_0, H_1, H_2, H_3, H_4],
             w: [0; 80],
@@ -37,8 +42,8 @@ impl ShaProcess for SHA1 {
     }
 
     fn update(&mut self, mut len: usize, data: Box<[u8]>) {
-        let mut lenW = self.size & 63;
-        let mut left = 64 - lenW;
+        let mut lenW = self.size & (SHA1_BLOCK_SIZE - 1) as usize;
+        let mut left = SHA1_BLOCK_SIZE as usize - lenW;
         let mut data_range = Range {
             start: 0,
             end: left,
@@ -62,7 +67,7 @@ impl ShaProcess for SHA1 {
             //     i += 1;
             // }
 
-            lenW = (lenW + left) & 63;
+            lenW = (lenW + left) & (SHA1_BLOCK_SIZE - 1) as usize;
             len -= left;
             data_range.start += left;
             data_range.end += left;
@@ -74,11 +79,11 @@ impl ShaProcess for SHA1 {
             self.hash_block();
         }
 
-        while len >= 64 {
+        while len >= SHA1_BLOCK_SIZE as usize {
             self.hash_block();
-            data_range.start += 64;
-            data_range.end += 64;
-            len -= 64;
+            data_range.start += SHA1_BLOCK_SIZE as usize;
+            data_range.end += SHA1_BLOCK_SIZE as usize;
+            len -= SHA1_BLOCK_SIZE as usize;
         }
 
         if len != 0 {
@@ -117,5 +122,34 @@ impl ShaProcess for SHA1 {
         }
 
         return hash_out;
+    }
+}
+
+impl PartialEq for SHA1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.h == other.h && self.w == other.w && self.size == self.size
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        self.h != other.h && self.w != other.w && self.size != self.size
+    }
+}
+
+#[cfg(test)]
+mod sha1_tests {
+    use crate::sha1::SHA1;
+    use crate::sha1::sha1_constants::{H_0, H_1, H_2, H_3, H_4};
+
+    #[test]
+    fn new_sha1_struct() {
+        let expected_sha1 = SHA1 {
+            h: [H_0, H_1, H_2, H_3, H_4],
+            w: [0; 80],
+            size: 0,
+        };
+
+        let resultant_sha1 = SHA1::new();
+
+        assert_eq!(expected_sha1, resultant_sha1);
     }
 }
