@@ -25,7 +25,7 @@ pub const SHA1_PADDING: [u8; SHA1_BLOCK_SIZE as usize] = [
 ];
 
 pub type Sha1Output = [u8; 20];
-type Sha1Padding = [u8; 64];
+pub type Sha1Padding = [u8; 64];
 pub type HashValues = [u32; 5];
-type DWords = [u32; 16];
+pub type DWords = [u32; 16];
 pub type ShamblesMatrix = [u32; 80];
