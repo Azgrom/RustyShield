@@ -5,7 +5,25 @@ use std::iter::{Cycle, Map};
 use std::ops::Range;
 use std::slice::Iter;
 
-pub(crate) mod sha1_constants;
+mod sha1_constants;
+
+fn f_1<T>(b: &T, c: &T, d: &T) -> T
+    where
+        T: BitAnd<Output = T> + BitXor<Output = T> + Copy,
+{
+    *d ^ (*b & (*c ^ *d))
+}
+
+fn f_2<T: BitXor<Output = T> + Copy>(b: &T, c: &T, d: &T) -> T {
+    *b ^ *c ^ *d
+}
+
+fn f_3<T>(b: &T, c: &T, d: &T) -> T
+    where
+        T: Add<Output = T> + BitAnd<Output = T> + BitXor<Output = T> + Copy,
+{
+    (*b & *c) + (*d & (*b ^ *c))
+}
 
 trait ShaProcess {
     fn init() -> Self;
