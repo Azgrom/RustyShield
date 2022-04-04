@@ -41,12 +41,51 @@ struct SHA1 {
 }
 
 impl SHA1 {
-    fn new() -> Self {
-        SHA1::init()
+    fn array_roller(i: usize, array: &[u32; 16]) -> u32 {
+        array[i & 15]
     }
 
-    pub(crate) fn hash_block(&self) {
-        todo!()
+    fn rol(x: u32, n: u32) -> u32 {
+        SHA1::rot(x, n, 32 - n)
+    }
+
+    fn ror(x: u32, n: u32) -> u32 {
+        SHA1::rot(x, 32 - n, n)
+    }
+
+    fn rot(x: u32, l: u32, r: u32) -> u32 {
+        (x << l) | (x >> r)
+    }
+
+    fn get_be32(block: &Vec<u32>) -> u8 {
+        let i1 = (block[0] << 24) as u8;
+        let i2 = (block[1] << 16) as u8;
+        let i3 = (block[2] << 8) as u8;
+        let i4 = (block[3] << 0) as u8;
+        i1 | i2 | i3 | i4
+    }
+
+    fn setW(x: usize, val: u32, array: &mut DWords) {
+        array[x] = val;
+    }
+
+    fn source(t: usize, block: &Vec<u32>) -> u32 {
+        let start = t * 4;
+        SHA1::get_be32(&block[start..].to_vec()) as u32
+    }
+
+    fn mix(t: usize, array: &[u32; 16]) -> u32 {
+        let i1 = SHA1::array_roller(t + 13, array);
+        let i2 = SHA1::array_roller(t + 8, array);
+        let i3 = SHA1::array_roller(t + 2, array);
+        let i4 = SHA1::array_roller(t + 1, array);
+        SHA1::rol(i1 ^ i2 ^ i3 ^ i4, 1)
+    }
+
+    fn round(&mut self, t: usize, input: u32, f: u32, constant: u32, array: &mut DWords) {
+        SHA1::setW(t, input, array);
+        self.h[4] = input + SHA1::rol(self.h[0], 5) + f + constant;
+        self.h[1] = SHA1::ror(self.h[1], 2);
     }
 }
 
