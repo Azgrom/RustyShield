@@ -32,7 +32,68 @@ impl SHA1 {
     }
 }
 
-impl ShaProcess for SHA1 {
+impl SHA1 {
+    /// Round 1 - Iterations 0-16 take their input from block
+    ///
+    /// # Arguments
+    ///
+    /// * `array`:
+    ///
+    /// returns: ()
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
+    fn t_0_15(&mut self, f: u32, d_words: &mut DWords, block: &Vec<u32>) {
+        let constant = R1;
+        let i = SHA1::source;
+
+        for x in 0..16 {
+            let input = SHA1::source(x, block);
+
+            self.round(x, input, f, constant, d_words);
+            self.h.rotate_right(1);
+        }
+    }
+
+    fn t_16_79(&mut self, f: u32, constant: u32, range: Range<usize>, d_words: &mut DWords) {
+        for x in range {
+            let input = SHA1::mix(x, d_words);
+
+            self.round(x, input, f, constant, d_words);
+            self.h.rotate_right(1);
+        }
+    }
+
+    fn t_16_19(&mut self, f: u32, d_words: &mut DWords) {
+        let constant = R1;
+
+        let range = 16..20;
+        self.t_16_79(f, constant, range, d_words, )
+    }
+
+    fn t_20_39(&mut self, f: u32, d_words: &mut DWords) {
+        let constant = R2;
+        let range = 20..40;
+        self.t_16_79(f, constant, range, d_words);
+    }
+
+    fn t_40_59(&mut self, f: u32, d_words: &mut DWords) {
+        let constant = R3;
+        let range = 40..60;
+        self.t_16_79(f, constant, range, d_words);
+    }
+
+    fn t_60_79(&mut self, f: u32, d_words: &mut DWords) {
+        let constant = R4;
+        let range = 60..80;
+        self.t_16_79(f, constant, range, d_words);
+    }
+}
+
+impl SHA1 {
     fn init() -> Self {
         Self {
             h: [H_0, H_1, H_2, H_3, H_4],
