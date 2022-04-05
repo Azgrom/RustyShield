@@ -185,17 +185,13 @@ impl SHA1 {
     }
 }
 
-impl SHA1 {
+impl ShaProcess for SHA1 {
     fn init() -> Self {
         Self {
             hashes: [H_0, H_1, H_2, H_3, H_4],
             d_words_shambling: [0; 80],
             size: 0,
         }
-    }
-
-    fn new() -> Self {
-        SHA1::init()
     }
 
     fn update(&mut self, data: &mut Vec<u32>, mut len: usize) {
@@ -238,25 +234,7 @@ impl SHA1 {
         }
     }
 
-    fn update_chunked(&mut self, data: &mut Vec<u32>, mut len: &mut isize) {
-        let mut total = 0;
-        let mut nr = 0;
-        let mut c_data = data.clone();
-
-        while *len < 0 {
-            nr = *len;
-
-            if nr > SHA1_BLOCK_SIZE as isize {
-                nr = SHA1_BLOCK_SIZE as isize;
-            }
-
-            self.update(&mut c_data, nr as usize);
-            total += nr;
-            *len -= nr;
-        }
-    }
-
-    fn final_block(&mut self) -> [u8; 20] {
+    fn finalize(&mut self) -> Sha1Output {
         let mut pad: [u32; 64] = [0; 64];
         let mut padlen: [u32; 2] = [0; 2];
         pad[0] = 0x80;
@@ -294,92 +272,30 @@ impl SHA1 {
         return hash_out;
     }
 }
-//
-// impl ShaProcess for SHA1 {
-//     fn init() -> Self {
-//         Self {
-//             h: [H_0, H_1, H_2, H_3, H_4],
-//             w: [0; 80],
-//             size: 0,
-//         }
-//     }
-//
-//     fn update(&mut self, mut len: usize, data: &mut Box<[u8]>) {
-//         let mut lenW = self.size & (SHA1_BLOCK_SIZE - 1) as usize;
-//         let mut left = SHA1_BLOCK_SIZE as usize - lenW;
-//         let mut data_range = Range {
-//             start: 0,
-//             end: left,
-//         };
-//
-//         self.size += len;
-//
-//         if lenW != 0 {
-//             if len < left {
-//                 left = len;
-//             }
-//
-//             self.w[lenW..]
-//                 .iter_mut()
-//                 .zip(data[data_range.clone()].iter())
-//                 .map(|(x, y)| *x = *y as u32);
-//
-//             // let mut i = lenW;
-//             // for k in data_range {
-//             //     self.w[i] = data[k] as u32;
-//             //     i += 1;
-//             // }
-//
-//             lenW = (lenW + left) & (SHA1_BLOCK_SIZE - 1) as usize;
-//             len -= left;
-//             data_range.start += left;
-//             data_range.end += left;
-//
-//             if lenW != 0 {
-//                 return;
-//             }
-//
-//             self.hash_block();
-//         }
-//
-//         while len >= SHA1_BLOCK_SIZE as usize {
-//             self.hash_block();
-//             data_range.start += SHA1_BLOCK_SIZE as usize;
-//             data_range.end += SHA1_BLOCK_SIZE as usize;
-//             len -= SHA1_BLOCK_SIZE as usize;
-//         }
-//
-//         if len != 0 {
-//             // let x = &data[data_range].iter().map(|x| x as u32).collect();
-//             // self.w.clone_from_slice(x);
-//             self.w
-//                 .iter_mut()
-//                 .zip(data[len..].iter())
-//                 .map(|(x, y)| *x = *y as u32);
-//         }
-//     }
-//
-//     fn finalize(&mut self) -> Sha1Output {
-//         let mut pad: Box<[u8]> = [0; 8].to_vec().into_boxed_slice();
-//         let mut padding: Box<[u8]> = SHA1_PADDING.to_vec().into_boxed_slice();
-//         let mut bit_shifting: Cycle<Iter<u32>> = [24, 16, 8, 0].iter().cycle();
-//
-//         pad.iter_mut().map(|_| (self.size >> bit_shifting.next().unwrap()).swap_bytes() as u8);
-//         // let x = pad.iter().map(|_| (self.size >> bit_shifting.next().unwrap()).swap_bytes()).collect();
-//
-//         let i = self.size & 63;
-//         self.update(1 + (63 & (55 - i)), &mut pad);
-//         self.update(8, &mut padding);
-//
-//         let mut h_value = self.h.iter().cycle();
-//         let mut hash_out: Sha1Output = [0; 20];
-//         for el in hash_out.iter_mut() {
-//             *el = (h_value.next().unwrap() >> bit_shifting.next().unwrap()) as u8;
-//         }
-//
-//         return hash_out;
-//     }
-// }
+
+impl SHA1 {
+    fn new() -> Self {
+        SHA1::init()
+    }
+
+    fn update_chunked(&mut self, data: &mut Vec<u32>, mut len: &mut isize) {
+        let mut total = 0;
+        let mut nr = 0;
+        let mut c_data = data.clone();
+
+        while *len < 0 {
+            nr = *len;
+
+            if nr > SHA1_BLOCK_SIZE as isize {
+                nr = SHA1_BLOCK_SIZE as isize;
+            }
+
+            self.update(&mut c_data, nr as usize);
+            total += nr;
+            *len -= nr;
+        }
+    }
+}
 
 impl PartialEq for SHA1 {
     fn eq(&self, other: &Self) -> bool {
