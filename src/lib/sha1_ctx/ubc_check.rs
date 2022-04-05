@@ -7,7 +7,7 @@
 
 use crate::sha1_ctx::disturbance_vectors_constants::{DV_I_43_0_BIT, DV_I_44_0_BIT, DV_I_45_0_BIT, DV_I_46_0_BIT, DV_I_46_2_BIT, DV_I_47_0_BIT, DV_I_47_2_BIT, DV_I_48_0_BIT, DV_I_48_2_BIT, DV_I_49_0_BIT, DV_I_49_2_BIT, DV_I_50_0_BIT, DV_I_50_2_BIT, DV_I_51_0_BIT, DV_I_51_2_BIT, DV_I_52_0_BIT, DV_II_45_0_BIT, DV_II_46_0_BIT, DV_II_46_2_BIT, DV_II_47_0_BIT, DV_II_48_0_BIT, DV_II_49_0_BIT, DV_II_49_2_BIT, DV_II_50_0_BIT, DV_II_50_2_BIT, DV_II_51_0_BIT, DV_II_51_2_BIT, DV_II_52_0_BIT, DV_II_53_0_BIT, DV_II_54_0_BIT, DV_II_55_0_BIT, DV_II_56_0_BIT, DV_MASK_SIZE};
 
-pub struct Sha1DisturbanceVector {
+pub struct DisturbanceVectorInfo {
     pub dv_type: u32,
     pub dv_k: u32,
     pub dv_b: u32,

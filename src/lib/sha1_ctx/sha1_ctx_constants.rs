@@ -96,5 +96,3 @@ pub const DO_STORE_STATE_76: bool = false;
 pub const DO_STORE_STATE_77: bool = false;
 pub const DO_STORE_STATE_78: bool = false;
 pub const DO_STORE_STATE_79: bool = false;
-
-pub const SHA_PADDING_LEN: usize = 64;

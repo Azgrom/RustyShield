@@ -1,7 +1,5 @@
 use crate::sha1::sha1_constants::{R1, R2, R3, R4, SHA1_PADDING};
-use sha1_constants::{
-    HashValues, Sha1Output, ShambleMatrix, H_0, H_1, H_2, H_3, H_4,
-};
+use sha1_constants::{HashValues, Sha1Output, ShambleMatrix, H_0, H_1, H_2, H_3, H_4};
 use std::ops::{Add, BitAnd, BitXor, Index, Range};
 
 pub(super) use sha1_constants::SHA1_BLOCK_SIZE;

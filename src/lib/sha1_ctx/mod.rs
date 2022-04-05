@@ -5,35 +5,18 @@
 * https://opensource.org/licenses/MIT
 ***/
 
-use crate::constants::{H_0, H_1, H_2, H_3, H_4};
-use disturbance_vectors_constants::DV_MASK_SIZE;
-use sha1_ctx_constants::{
-    DO_STORE_STATE_00, DO_STORE_STATE_01, DO_STORE_STATE_02, DO_STORE_STATE_03, DO_STORE_STATE_04,
-    DO_STORE_STATE_05, DO_STORE_STATE_06, DO_STORE_STATE_07, DO_STORE_STATE_08, DO_STORE_STATE_09,
-    DO_STORE_STATE_10, DO_STORE_STATE_11, DO_STORE_STATE_12, DO_STORE_STATE_13, DO_STORE_STATE_14,
-    DO_STORE_STATE_15, DO_STORE_STATE_16, DO_STORE_STATE_17, DO_STORE_STATE_18, DO_STORE_STATE_19,
-    DO_STORE_STATE_20, DO_STORE_STATE_21, DO_STORE_STATE_22, DO_STORE_STATE_23, DO_STORE_STATE_24,
-    DO_STORE_STATE_25, DO_STORE_STATE_26, DO_STORE_STATE_27, DO_STORE_STATE_28, DO_STORE_STATE_29,
-    DO_STORE_STATE_30, DO_STORE_STATE_31, DO_STORE_STATE_32, DO_STORE_STATE_33, DO_STORE_STATE_34,
-    DO_STORE_STATE_35, DO_STORE_STATE_36, DO_STORE_STATE_37, DO_STORE_STATE_38, DO_STORE_STATE_39,
-    DO_STORE_STATE_40, DO_STORE_STATE_41, DO_STORE_STATE_42, DO_STORE_STATE_43, DO_STORE_STATE_44,
-    DO_STORE_STATE_45, DO_STORE_STATE_46, DO_STORE_STATE_47, DO_STORE_STATE_48, DO_STORE_STATE_49,
-    DO_STORE_STATE_50, DO_STORE_STATE_51, DO_STORE_STATE_52, DO_STORE_STATE_53, DO_STORE_STATE_54,
-    DO_STORE_STATE_55, DO_STORE_STATE_56, DO_STORE_STATE_57, DO_STORE_STATE_58, DO_STORE_STATE_59,
-    DO_STORE_STATE_60, DO_STORE_STATE_61, DO_STORE_STATE_62, DO_STORE_STATE_63, DO_STORE_STATE_64,
-    DO_STORE_STATE_65, DO_STORE_STATE_66, DO_STORE_STATE_67, DO_STORE_STATE_68, DO_STORE_STATE_69,
-    DO_STORE_STATE_70, DO_STORE_STATE_71, DO_STORE_STATE_72, DO_STORE_STATE_73, DO_STORE_STATE_74,
-    DO_STORE_STATE_75, DO_STORE_STATE_76, DO_STORE_STATE_77, DO_STORE_STATE_78, DO_STORE_STATE_79,
-    R1, R2, R3, R4, SHA1DC_BIG_ENDIAN, UBC_DV_EL,
-};
+use disturbance_vectors_constants::{DV_MASK_SIZE, UBC_DV_EL};
+use sha1_ctx_constants::{DO_STORE_STATE_00, DO_STORE_STATE_01, DO_STORE_STATE_02, DO_STORE_STATE_03, DO_STORE_STATE_04, DO_STORE_STATE_05, DO_STORE_STATE_06, DO_STORE_STATE_07, DO_STORE_STATE_08, DO_STORE_STATE_09, DO_STORE_STATE_10, DO_STORE_STATE_11, DO_STORE_STATE_12, DO_STORE_STATE_13, DO_STORE_STATE_14, DO_STORE_STATE_15, DO_STORE_STATE_16, DO_STORE_STATE_17, DO_STORE_STATE_18, DO_STORE_STATE_19, DO_STORE_STATE_20, DO_STORE_STATE_21, DO_STORE_STATE_22, DO_STORE_STATE_23, DO_STORE_STATE_24, DO_STORE_STATE_25, DO_STORE_STATE_26, DO_STORE_STATE_27, DO_STORE_STATE_28, DO_STORE_STATE_29, DO_STORE_STATE_30, DO_STORE_STATE_31, DO_STORE_STATE_32, DO_STORE_STATE_33, DO_STORE_STATE_34, DO_STORE_STATE_35, DO_STORE_STATE_36, DO_STORE_STATE_37, DO_STORE_STATE_38, DO_STORE_STATE_39, DO_STORE_STATE_40, DO_STORE_STATE_41, DO_STORE_STATE_42, DO_STORE_STATE_43, DO_STORE_STATE_44, DO_STORE_STATE_45, DO_STORE_STATE_46, DO_STORE_STATE_47, DO_STORE_STATE_48, DO_STORE_STATE_49, DO_STORE_STATE_50, DO_STORE_STATE_51, DO_STORE_STATE_52, DO_STORE_STATE_53, DO_STORE_STATE_54, DO_STORE_STATE_55, DO_STORE_STATE_56, DO_STORE_STATE_57, DO_STORE_STATE_58, DO_STORE_STATE_59, DO_STORE_STATE_60, DO_STORE_STATE_61, DO_STORE_STATE_62, DO_STORE_STATE_63, DO_STORE_STATE_64, DO_STORE_STATE_65, DO_STORE_STATE_66, DO_STORE_STATE_67, DO_STORE_STATE_68, DO_STORE_STATE_69, DO_STORE_STATE_70, DO_STORE_STATE_71, DO_STORE_STATE_72, DO_STORE_STATE_73, DO_STORE_STATE_74, DO_STORE_STATE_75, DO_STORE_STATE_76, DO_STORE_STATE_77, DO_STORE_STATE_78, DO_STORE_STATE_79, H_0, H_1, H_2, H_3, H_4, R1, R2, R3, R4, SHA1DC_BIG_ENDIAN};
 use std::ops::{Add, BitAnd, BitOr, BitXor, Range};
 use std::vec;
-use ubc_check::{Sha1DisturbanceVector, ubc_check};
+use types::{CollisionBlockCallback, DC};
+use ubc_check::{DisturbanceVectorInfo, ubc_check};
 use crate::sha1_ctx::sha1_ctx_constants::SHA_PADDING;
 
 pub(crate) mod sha1_ctx_constants;
 mod ubc_check;
 pub(crate) mod disturbance_vectors_constants;
+mod types;
 
 #[derive(Copy, Clone)]
 struct SHA1States {
@@ -56,7 +39,7 @@ impl SHA1States {
     }
 }
 
-pub struct Sha1Ctx {
+pub struct Sha1Context {
     total: usize,
     ihv: [u32; 5],
     buffer: [u8; 64],
@@ -65,33 +48,15 @@ pub struct Sha1Ctx {
     safe_hash: bool,
     ubc_check: bool,
     reduced_round_collision: bool,
-    callback: bool,
+    callback: Option<CollisionBlockCallback>,
     states: SHA1States,
 }
 
 // Library implementations
-impl Sha1Ctx {
-    fn f1<T>(b: &T, c: &T, d: &T) -> T
-    where
-        T: BitAnd<Output = T> + BitXor<Output = T> + Copy,
-    {
-        *d ^ (*b & (*c ^ *d))
-    }
-
-    fn f2<T: BitXor<Output = T> + Copy>(b: &T, c: &T, d: &T) -> T {
-        *b ^ *c ^ *d
-    }
-
-    fn f3<T>(b: &T, c: &T, d: &T) -> T
-    where
-        T: Add<Output = T> + BitAnd<Output = T> + BitXor<Output = T> + Copy,
-    {
-        (*b & *c) + (*d & (*b ^ *c))
-    }
-
+impl Sha1Context {
     fn choke_array<T>(x: &[T], y: &[T]) -> T
-    where
-        T: BitXor<Output = T> + BitOr<Output = T> + Copy + From<u32>,
+        where
+            T: BitXor<Output = T> + BitOr<Output = T> + Copy + From<u32>,
     {
         x.iter()
             .zip(y.iter())
@@ -100,7 +65,7 @@ impl Sha1Ctx {
             })
     }
 
-    fn mix(d_words: &[u32; 64], i: &u8) -> u32 {
+    fn mix(d_words: &[u32; 80], i: &u8) -> u32 {
         let mut x = d_words[*i as usize - 3]
             ^ d_words[*i as usize - 8]
             ^ d_words[*i as usize - 14]
@@ -109,25 +74,7 @@ impl Sha1Ctx {
     }
 }
 
-pub(crate) trait DC {
-    fn init() -> Self;
-
-    fn set_safe_hash(&mut self, safe_hash: bool);
-
-    fn set_use_ubc(&mut self, ubc_check: bool);
-
-    fn set_detect_collision(&mut self, detect_collision: bool);
-
-    fn set_detect_reduced_round_collision(&mut self, reduced_round_coll: bool);
-
-    fn set_callback(&mut self, callback: bool);
-
-    fn dc_update(&mut self, buffer: [u8; 64], len: usize);
-
-    fn dc_final(&mut self, output: &mut [u8; 20]) -> bool;
-}
-
-impl DC for Sha1Ctx {
+impl DC for Sha1Context {
     fn init() -> Self {
         Self {
             total: 0,
@@ -138,11 +85,34 @@ impl DC for Sha1Ctx {
             safe_hash: true,
             ubc_check: true,
             reduced_round_collision: false,
-            callback: false,
+            callback: Some(CollisionBlockCallback),
             states: SHA1States::new(),
         }
     }
 
+    /// Function to enable safe SHA-1 hashing:
+    /// Collision attacks are thwarted by hashing a detected near-collision block 3 times.
+    /// Think of it as extending SHA-1 from 80-steps to 240-steps for such blocks:
+    ///     The best collision attacks against SHA-1 have complexity about 2^60,
+    ///     thus for 240-steps an immediate lower-bound for the best cryptanalytic attacks would be 2^180.
+    ///     An attacker would be better off using a generic birthday search of complexity 2^80.
+    ///
+    /// Enabling safe SHA-1 hashing will result in the correct SHA-1 hash for messages where no collision attack was detected,
+    /// but it will result in a different SHA-1 hash for messages where a collision attack was detected.
+    /// This will automatically invalidate SHA-1 based digital signature forgeries.
+    /// Enabled by default.
+    ///
+    /// # Arguments
+    ///
+    /// * `safe_hash`:
+    ///
+    /// returns: ()
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
     fn set_safe_hash(&mut self, safe_hash: bool) {
         if safe_hash {
             self.safe_hash = true;
@@ -151,6 +121,20 @@ impl DC for Sha1Ctx {
         }
     }
 
+    /// Function to disable or enable the use of Unavoidable Bitconditions (provides a significant speed up).
+    /// Enabled by default
+    ///
+    /// # Arguments
+    ///
+    /// * `ubc_check`:
+    ///
+    /// returns: ()
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
     fn set_use_ubc(&mut self, ubc_check: bool) {
         if ubc_check {
             self.ubc_check = true;
@@ -159,6 +143,20 @@ impl DC for Sha1Ctx {
         }
     }
 
+    /// Function to disable or enable the use of Collision Detection.
+    /// Enabled by default.
+    ///
+    /// # Arguments
+    ///
+    /// * `detect_collision`:
+    ///
+    /// returns: ()
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
     fn set_detect_collision(&mut self, detect_collision: bool) {
         if detect_collision {
             self.detect_collision = true;
@@ -167,6 +165,20 @@ impl DC for Sha1Ctx {
         }
     }
 
+    /// Function to disable or enable the detection of reduced-round SHA-1 collisions
+    /// Disabled by default
+    ///
+    /// # Arguments
+    ///
+    /// * `reduced_round_coll`:
+    ///
+    /// returns: ()
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
     fn set_detect_reduced_round_collision(&mut self, reduced_round_coll: bool) {
         if reduced_round_coll {
             self.reduced_round_collision = true;
@@ -175,11 +187,39 @@ impl DC for Sha1Ctx {
         }
     }
 
-    fn set_callback(&mut self, callback: bool) {
+    /// Function to set a callback function, pass NULL to disable.
+    /// By default no callback set
+    ///
+    /// # Arguments
+    ///
+    /// * `callback`:
+    ///
+    /// returns: ()
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
+    fn set_callback(&mut self, callback: Option<CollisionBlockCallback>) {
         self.callback = callback;
     }
 
-    fn dc_update(&mut self, buffer: [u8; 64], mut len: usize) {
+    /// Update SHA-1 context with buffer contents
+    ///
+    /// # Arguments
+    ///
+    /// * `buffer`:
+    /// * `len`:
+    ///
+    /// returns: ()
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
+    fn dc_update(&mut self, buffer: [u8; 80], mut len: usize) {
         if len == 0 {
             return;
         }
@@ -218,6 +258,20 @@ impl DC for Sha1Ctx {
         }
     }
 
+    /// Obtain SHA-1 hash from SHA-1 context
+    ///
+    /// # Arguments
+    ///
+    /// * `output`:
+    ///
+    /// returns: bool
+    /// returns: 0 = no collision detected, otherwise = collision found => warn user for active attack
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
     fn dc_final(&mut self, output: &mut [u8; 20]) -> bool {
         let last = self.total & 63;
         let mut padn;
@@ -226,7 +280,7 @@ impl DC for Sha1Ctx {
         } else {
             padn = 120 - last;
         }
-        let mut total = self.total - padn;
+        let mut total = self.total.wrapping_sub(padn);
         total <<= 3;
 
         self.buffer[56] = (total >> 56) as u8;
@@ -271,9 +325,9 @@ impl DC for Sha1Ctx {
 }
 
 // Main business
-impl Sha1Ctx {
+impl Sha1Context {
     pub(crate) fn new() -> Self {
-        Sha1Ctx::init()
+        Sha1Context::init()
     }
 
 
@@ -285,11 +339,11 @@ impl Sha1Ctx {
         }
     }
 
-    fn store(w: &mut [u32; 64], i: u8, x: &u32) {
+    fn store(w: &mut [u32; 80], i: u8, x: &u32) {
         w[i as usize] = *x;
     }
 
-    fn process(&mut self, block: &mut [u32; 64]) {
+    fn process(&mut self, block: &mut [u32; 80]) {
         let mut ubc_dv_mask: [u32; DV_MASK_SIZE as usize] = [UBC_DV_EL];
         let mut ihv_tmp: [u32; 5] = [0; 5];
 
@@ -323,9 +377,9 @@ impl Sha1Ctx {
 
                     self.recompress_fast(i, ihv_tmp, &sha1_dvs);
 
-                    if 0 == Sha1Ctx::choke_array(&self.ihv, ihv_tmp)
+                    if 0 == Sha1Context::choke_array(&self.ihv, ihv_tmp)
                         || (self.reduced_round_collision
-                            && 0 == Sha1Ctx::choke_array(&self.states.ihv1, &self.states.ihv2))
+                            && 0 == Sha1Context::choke_array(&self.states.ihv1, &self.states.ihv2))
                     {
                         self.found_collision = true;
 
@@ -351,7 +405,7 @@ impl Sha1Ctx {
 }
 
 // Compression steps
-impl Sha1Ctx {
+impl Sha1Context {
     fn hash_clash_compress_round1_step(
         a: &u32,
         b: &mut u32,
@@ -361,7 +415,7 @@ impl Sha1Ctx {
         t: u8,
         m: &[u32; 80],
     ) {
-        *e += a.rotate_left(5) + Sha1Ctx::f1::<u32>(b, c, d) + R1 + m[t as usize];
+        *e += a.rotate_left(5) + Sha1Context::f1::<u32>(b, c, d) + R1 + m[t as usize];
         *b = b.rotate_left(30);
     }
 
@@ -374,7 +428,7 @@ impl Sha1Ctx {
         t: u8,
         m: &[u32; 80],
     ) {
-        *e += a.rotate_left(5) + Sha1Ctx::f2(b, c, d) + R2 + m[t as usize];
+        *e += a.rotate_left(5) + Sha1Context::f2(b, c, d) + R2 + m[t as usize];
         *b = b.rotate_left(30);
     }
 
@@ -387,7 +441,7 @@ impl Sha1Ctx {
         t: u8,
         m: &[u32; 80],
     ) {
-        *e += a.rotate_left(5) + Sha1Ctx::f3(b, c, d) + R3 + m[t as usize];
+        *e += a.rotate_left(5) + Sha1Context::f3(b, c, d) + R3 + m[t as usize];
         *b = b.rotate_left(30);
     }
 
@@ -400,7 +454,7 @@ impl Sha1Ctx {
         t: u8,
         m: &[u32; 80],
     ) {
-        *e += a.rotate_left(5) + Sha1Ctx::f2(b, c, d) + R4 + m[t as usize];
+        *e += a.rotate_left(5) + Sha1Context::f2(b, c, d) + R4 + m[t as usize];
         *b = b.rotate_left(30);
     }
 
@@ -414,7 +468,7 @@ impl Sha1Ctx {
         m: &[u32; 80],
     ) {
         *b = b.rotate_right(30);
-        *e -= a.rotate_left(5) + Sha1Ctx::f1(b, c, d) + R1 + m[t as usize];
+        *e -= a.rotate_left(5) + Sha1Context::f1(b, c, d) + R1 + m[t as usize];
     }
 
     fn hash_clash_compress_round2_step_bw(
@@ -427,7 +481,7 @@ impl Sha1Ctx {
         m: &[u32; 80],
     ) {
         *b = b.rotate_right(30);
-        *e -= a.rotate_left(5) + Sha1Ctx::f2(b, c, d) + R2 + m[t as usize];
+        *e -= a.rotate_left(5) + Sha1Context::f2(b, c, d) + R2 + m[t as usize];
     }
 
     fn hash_clash_compress_round3_step_bw(
@@ -440,7 +494,7 @@ impl Sha1Ctx {
         m: &[u32; 80],
     ) {
         *b = b.rotate_right(30);
-        *e -= a.rotate_left(5) + Sha1Ctx::f3(b, c, d) + R3 + m[t as usize];
+        *e -= a.rotate_left(5) + Sha1Context::f3(b, c, d) + R3 + m[t as usize];
     }
 
     fn hash_clash_compress_round4_step_bw(
@@ -453,7 +507,7 @@ impl Sha1Ctx {
         m: &[u32; 80],
     ) {
         *b = b.rotate_right(30);
-        *e -= a.rotate_left(5) + Sha1Ctx::f2(b, c, d) + R4 + m[t as usize];
+        *e -= a.rotate_left(5) + Sha1Context::f2(b, c, d) + R4 + m[t as usize];
     }
 
     fn compress_full_round1_step_load(
@@ -464,12 +518,12 @@ impl Sha1Ctx {
         e: &mut u32,
         t: u8,
         temp: &mut u32,
-        d_words: &mut [u32; 64],
+        d_words: &mut [u32; 80],
         m: &mut [u32; 80],
     ) {
-        Sha1Ctx::load(t, temp, m);
-        Sha1Ctx::store(d_words, t, temp);
-        *e += *temp + a.rotate_left(5) + Sha1Ctx::f1(b, c, d) + R1;
+        Sha1Context::load(t, temp, m);
+        Sha1Context::store(d_words, t, temp);
+        *e = e.wrapping_add(temp.wrapping_add(a.rotate_left(5).wrapping_add(Sha1Context::f1(b, c, d).wrapping_add(R1))));
         *b = b.rotate_left(30);
     }
 
@@ -481,11 +535,11 @@ impl Sha1Ctx {
         e: &mut u32,
         t: u8,
         temp: &mut u32,
-        d_words: &mut [u32; 64],
+        d_words: &mut [u32; 80],
     ) {
-        *temp = Sha1Ctx::mix(d_words, &t);
-        Sha1Ctx::store(d_words, t, temp);
-        *e += *temp + a.rotate_left(5) + Sha1Ctx::f1(b, c, d) + R1;
+        *temp = Sha1Context::mix(d_words, &t);
+        Sha1Context::store(d_words, t, temp);
+        *e = e.wrapping_add(temp.wrapping_add(a.rotate_left(5).wrapping_add(Sha1Context::f1(b, c, d).wrapping_add(R1))));
         *b = b.rotate_left(30);
     }
 
@@ -497,11 +551,11 @@ impl Sha1Ctx {
         e: &mut u32,
         t: u8,
         temp: &mut u32,
-        d_words: &mut [u32; 64],
+        d_words: &mut [u32; 80],
     ) {
-        *temp = Sha1Ctx::mix(d_words, &t);
-        Sha1Ctx::store(d_words, t, temp);
-        *e += *temp + a.rotate_left(5) + Sha1Ctx::f2(b, c, d) + R2;
+        *temp = Sha1Context::mix(d_words, &t);
+        Sha1Context::store(d_words, t, temp);
+        *e = e.wrapping_add(temp.wrapping_add(a.rotate_left(5).wrapping_add(Sha1Context::f2(b, c, d).wrapping_add(R2))));
         *b = b.rotate_left(30);
     }
 
@@ -513,11 +567,11 @@ impl Sha1Ctx {
         e: &mut u32,
         t: u8,
         temp: &mut u32,
-        d_words: &mut [u32; 64],
+        d_words: &mut [u32; 80],
     ) {
-        *temp = Sha1Ctx::mix(d_words, &t);
-        Sha1Ctx::store(d_words, t, temp);
-        *e += *temp + a.rotate_left(5) + Sha1Ctx::f3(b, c, d) + R3;
+        *temp = Sha1Context::mix(d_words, &t);
+        Sha1Context::store(d_words, t, temp);
+        *e = e.wrapping_add(temp.wrapping_add(a.rotate_left(5).wrapping_add(Sha1Context::f3(b, c, d).wrapping_add(R3))));
         *b = b.rotate_left(30);
     }
 
@@ -529,19 +583,19 @@ impl Sha1Ctx {
         e: &mut u32,
         t: u8,
         temp: &mut u32,
-        d_words: &mut [u32; 64],
+        d_words: &mut [u32; 80],
     ) {
-        *temp = Sha1Ctx::mix(d_words, &t);
-        Sha1Ctx::store(d_words, t, temp);
-        *e += *temp + a.rotate_left(5) + Sha1Ctx::f2(b, c, d) + R4;
+        *temp = Sha1Context::mix(d_words, &t);
+        Sha1Context::store(d_words, t, temp);
+        *e = e.wrapping_add(temp.wrapping_add(a.rotate_left(5).wrapping_add(Sha1Context::f2(b, c, d).wrapping_add(R4))));
         *b = b.rotate_left(30);
     }
 }
 
 // Compression processes
-impl Sha1Ctx {
+impl Sha1Context {
     //TODO - Check later how to resume this process with iterators
-    fn compression_states(&mut self, block: &mut [u32; 64]) {
+    fn compression_states(&mut self, block: &mut [u32; 80]) {
         let mut a = self.ihv[0];
         let mut b = self.ihv[1];
         let mut c = self.ihv[2];
@@ -550,14 +604,14 @@ impl Sha1Ctx {
         let mut temp: u32 = 0;
 
         self.full_compress_load_round1_process(
-            block, &mut a, &mut b, &mut c, &mut d, &mut e, &mut temp,
+            &mut a, &mut b, &mut c, &mut d, &mut e, &mut temp, block,
         );
         self.full_compress_expand_round1_process(
-            block, &mut a, &mut b, &mut c, &mut d, &mut e, &mut temp,
+            &mut a, &mut b, &mut c, &mut d, &mut e, &mut temp, block,
         );
-        self.full_compress_round2_process(block, &mut a, &mut b, &mut c, &mut d, &mut e, &mut temp);
-        self.full_compress_round3_process(block, &mut a, &mut b, &mut c, &mut d, &mut e, &mut temp);
-        self.full_compress_round4_process(block, &mut a, &mut b, &mut c, &mut d, &mut e, &mut temp);
+        self.full_compress_round2_process(&mut a, &mut b, &mut c, &mut d, &mut e, &mut temp, block);
+        self.full_compress_round3_process(&mut a, &mut b, &mut c, &mut d, &mut e, &mut temp, block);
+        self.full_compress_round4_process(&mut a, &mut b, &mut c, &mut d, &mut e, &mut temp, block);
 
         self.ihv[0] += a;
         self.ihv[1] += b;
@@ -574,15 +628,15 @@ impl Sha1Ctx {
 
     fn full_compress_load_round1_process(
         &mut self,
-        block: &mut [u32; 64],
         mut a: &mut u32,
         mut b: &mut u32,
         mut c: &mut u32,
         mut d: &mut u32,
         mut e: &mut u32,
         mut temp: &mut u32,
+        d_word_block: &mut [u32; 80],
     ) {
-        let round1_load_step = Sha1Ctx::compress_full_round1_step_load;
+        let round1_load_step = Sha1Context::compress_full_round1_step_load;
 
         if DO_STORE_STATE_00 {
             let state_number = 0;
@@ -843,15 +897,15 @@ impl Sha1Ctx {
 
     fn full_compress_expand_round1_process(
         &mut self,
-        block: &mut [u32; 64],
         mut a: &mut u32,
         mut b: &mut u32,
         mut c: &mut u32,
         mut d: &mut u32,
         mut e: &mut u32,
         mut temp: &mut u32,
+        d_word_block: &mut [u32; 80],
     ) {
-        let round1_expand_step = Sha1Ctx::compress_full_round1_step_expand;
+        let round1_expand_step = Sha1Context::compress_full_round1_step_expand;
 
         if DO_STORE_STATE_16 {
             let state_number = 16;
@@ -880,15 +934,15 @@ impl Sha1Ctx {
 
     fn full_compress_round2_process(
         &mut self,
-        block: &mut [u32; 64],
         mut a: &mut u32,
         mut b: &mut u32,
         mut c: &mut u32,
         mut d: &mut u32,
         mut e: &mut u32,
         mut temp: &mut u32,
+        d_word_block: &mut [u32; 80],
     ) {
-        let round2_step = Sha1Ctx::compress_full_round2_step;
+        let round2_step = Sha1Context::compress_full_round2_step;
 
         if DO_STORE_STATE_20 {
             let state_number = 20;
@@ -1013,15 +1067,15 @@ impl Sha1Ctx {
 
     fn full_compress_round3_process(
         &mut self,
-        block: &mut [u32; 64],
         mut a: &mut u32,
         mut b: &mut u32,
         mut c: &mut u32,
         mut d: &mut u32,
         mut e: &mut u32,
         mut temp: &mut u32,
+        d_word_block: &mut [u32; 80],
     ) {
-        let round3_step = Sha1Ctx::compress_full_round3_step;
+        let round3_step = Sha1Context::compress_full_round3_step;
 
         if DO_STORE_STATE_40 {
             let state_number = 40;
@@ -1146,15 +1200,15 @@ impl Sha1Ctx {
 
     fn full_compress_round4_process(
         &mut self,
-        block: &mut [u32; 64],
         mut a: &mut u32,
         mut b: &mut u32,
         mut c: &mut u32,
         mut d: &mut u32,
         mut e: &mut u32,
         mut temp: &mut u32,
+        d_word_block: &mut [u32; 80],
     ) {
-        let round4_step = Sha1Ctx::compress_full_round4_step;
+        let round4_step = Sha1Context::compress_full_round4_step;
 
         if DO_STORE_STATE_60 {
             let state_number = 60;
@@ -1285,7 +1339,7 @@ impl Sha1Ctx {
         let mut d = self.ihv[3];
         let mut e = self.ihv[4];
 
-        let hash_clash_round1 = Sha1Ctx::hash_clash_compress_round1_step;
+        let hash_clash_round1 = Sha1Context::hash_clash_compress_round1_step;
         hash_clash_round1(&a, &mut b, &c, &d, &mut e, 0u8, &mut self.states.m1);
         hash_clash_round1(&e, &mut a, &b, &c, &mut d, 1u8, &mut self.states.m1);
         hash_clash_round1(&d, &mut e, &a, &b, &mut c, 2u8, &mut self.states.m1);
@@ -1307,7 +1361,7 @@ impl Sha1Ctx {
         hash_clash_round1(&c, &mut d, &e, &a, &mut b, 18u8, &mut self.states.m1);
         hash_clash_round1(&b, &mut c, &d, &e, &mut a, 19u8, &mut self.states.m1);
 
-        let hash_clash_round2 = Sha1Ctx::hash_clash_compress_round2_step;
+        let hash_clash_round2 = Sha1Context::hash_clash_compress_round2_step;
         hash_clash_round2(&a, &mut b, &c, &d, &mut e, 20u8, &mut self.states.m1);
         hash_clash_round2(&e, &mut a, &b, &c, &mut d, 21u8, &mut self.states.m1);
         hash_clash_round2(&d, &mut e, &a, &b, &mut c, 22u8, &mut self.states.m1);
@@ -1329,7 +1383,7 @@ impl Sha1Ctx {
         hash_clash_round2(&c, &mut d, &e, &a, &mut b, 38u8, &mut self.states.m1);
         hash_clash_round2(&b, &mut c, &d, &e, &mut a, 39u8, &mut self.states.m1);
 
-        let hash_clash_round3 = Sha1Ctx::hash_clash_compress_round3_step;
+        let hash_clash_round3 = Sha1Context::hash_clash_compress_round3_step;
         hash_clash_round3(&a, &mut b, &c, &d, &mut e, 40u8, &mut self.states.m1);
         hash_clash_round3(&e, &mut a, &b, &c, &mut d, 41u8, &mut self.states.m1);
         hash_clash_round3(&d, &mut e, &a, &b, &mut c, 42u8, &mut self.states.m1);
@@ -1351,7 +1405,7 @@ impl Sha1Ctx {
         hash_clash_round3(&c, &mut d, &e, &a, &mut b, 58u8, &mut self.states.m1);
         hash_clash_round3(&b, &mut c, &d, &e, &mut a, 59u8, &mut self.states.m1);
 
-        let hash_clash_round4 = Sha1Ctx::hash_clash_compress_round4_step;
+        let hash_clash_round4 = Sha1Context::hash_clash_compress_round4_step;
         hash_clash_round4(&a, &mut b, &c, &d, &mut e, 60u8, &mut self.states.m1);
         hash_clash_round4(&e, &mut a, &b, &c, &mut d, 61u8, &mut self.states.m1);
         hash_clash_round4(&d, &mut e, &a, &b, &mut c, 62u8, &mut self.states.m1);
@@ -1385,7 +1439,7 @@ impl Sha1Ctx {
         &mut self,
         index: usize,
         ihv_temp: &mut [u32; 5],
-        dvs: &[Sha1DisturbanceVector; 33],
+        dvs: &[DisturbanceVectorInfo; 33],
     ) {
         let step = dvs[index].test_t as usize;
         let mut ihv_in: &mut [u32; 5] = &mut self.states.ihv2.clone();
@@ -1440,7 +1494,7 @@ impl Sha1Ctx {
         mut e: &mut u32,
     ) {
         if (step > 79) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1451,7 +1505,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 78) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1462,7 +1516,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 77) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1473,7 +1527,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 76) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1484,7 +1538,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 75) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1495,7 +1549,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 74) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1506,7 +1560,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 73) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1517,7 +1571,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 72) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1528,7 +1582,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 71) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1539,7 +1593,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 70) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1550,7 +1604,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 69) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1561,7 +1615,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 68) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1572,7 +1626,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 67) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1583,7 +1637,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 66) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1594,7 +1648,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 65) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1605,7 +1659,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 64) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1616,7 +1670,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 63) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1627,7 +1681,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 62) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1638,7 +1692,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 61) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1649,7 +1703,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 60) {
-            Sha1Ctx::hash_clash_compress_round4_step_bw(
+            Sha1Context::hash_clash_compress_round4_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1660,7 +1714,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 59) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1671,7 +1725,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 58) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1682,7 +1736,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 57) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1693,7 +1747,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 56) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1704,7 +1758,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 55) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1715,7 +1769,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 54) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1726,7 +1780,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 53) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1737,7 +1791,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 52) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1748,7 +1802,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 51) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1759,7 +1813,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 50) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1770,7 +1824,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 49) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1781,7 +1835,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 48) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1792,7 +1846,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 47) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1803,7 +1857,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 46) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1814,7 +1868,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 45) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1825,7 +1879,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 44) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1836,7 +1890,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 43) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1847,7 +1901,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 42) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1858,7 +1912,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 41) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1869,7 +1923,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 40) {
-            Sha1Ctx::hash_clash_compress_round3_step_bw(
+            Sha1Context::hash_clash_compress_round3_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1880,7 +1934,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 39) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1891,7 +1945,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 38) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1902,7 +1956,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 37) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1913,7 +1967,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 36) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1924,7 +1978,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 35) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1935,7 +1989,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 34) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -1946,7 +2000,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 33) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -1957,7 +2011,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 32) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -1968,7 +2022,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 31) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -1979,7 +2033,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 30) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -1990,7 +2044,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 29) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -2001,7 +2055,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 28) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -2012,7 +2066,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 27) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -2023,7 +2077,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 26) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -2034,7 +2088,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 25) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -2045,7 +2099,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 24) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -2056,7 +2110,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 23) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -2067,7 +2121,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 22) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -2078,7 +2132,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 21) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -2089,7 +2143,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 20) {
-            Sha1Ctx::hash_clash_compress_round2_step_bw(
+            Sha1Context::hash_clash_compress_round2_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -2100,7 +2154,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 19) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -2111,7 +2165,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 18) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -2122,7 +2176,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 17) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -2133,7 +2187,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 16) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -2144,7 +2198,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 15) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -2155,7 +2209,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 14) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -2166,7 +2220,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 13) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -2177,7 +2231,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 12) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -2188,7 +2242,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 11) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -2199,7 +2253,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 10) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -2210,7 +2264,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 9) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -2221,7 +2275,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 8) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -2232,7 +2286,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 7) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -2243,7 +2297,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 6) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -2254,7 +2308,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 5) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -2265,7 +2319,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 4) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &b,
                 &mut c,
                 &d,
@@ -2276,7 +2330,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 3) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &c,
                 &mut d,
                 &e,
@@ -2287,7 +2341,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 2) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &d,
                 &mut e,
                 &a,
@@ -2298,7 +2352,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 1) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &e,
                 &mut a,
                 &b,
@@ -2309,7 +2363,7 @@ impl Sha1Ctx {
             );
         }
         if (step > 0) {
-            Sha1Ctx::hash_clash_compress_round1_step_bw(
+            Sha1Context::hash_clash_compress_round1_step_bw(
                 &a,
                 &mut b,
                 &c,
@@ -2331,7 +2385,7 @@ impl Sha1Ctx {
         mut e: &mut u32,
     ) {
         if (step <= 0) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &a,
                 &mut b,
                 &c,
@@ -2342,7 +2396,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 1) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &e,
                 &mut a,
                 &b,
@@ -2353,7 +2407,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 2) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &d,
                 &mut e,
                 &a,
@@ -2364,7 +2418,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 3) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &c,
                 &mut d,
                 &e,
@@ -2375,7 +2429,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 4) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &b,
                 &mut c,
                 &d,
@@ -2386,7 +2440,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 5) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &a,
                 &mut b,
                 &c,
@@ -2397,7 +2451,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 6) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &e,
                 &mut a,
                 &b,
@@ -2408,7 +2462,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 7) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &d,
                 &mut e,
                 &a,
@@ -2419,7 +2473,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 8) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &c,
                 &mut d,
                 &e,
@@ -2430,7 +2484,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 9) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &b,
                 &mut c,
                 &d,
@@ -2441,7 +2495,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 10) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &a,
                 &mut b,
                 &c,
@@ -2452,7 +2506,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 11) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &e,
                 &mut a,
                 &b,
@@ -2463,7 +2517,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 12) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &d,
                 &mut e,
                 &a,
@@ -2474,7 +2528,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 13) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &c,
                 &mut d,
                 &e,
@@ -2485,7 +2539,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 14) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &b,
                 &mut c,
                 &d,
@@ -2496,7 +2550,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 15) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &a,
                 &mut b,
                 &c,
@@ -2507,7 +2561,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 16) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &e,
                 &mut a,
                 &b,
@@ -2518,7 +2572,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 17) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &d,
                 &mut e,
                 &a,
@@ -2529,7 +2583,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 18) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &c,
                 &mut d,
                 &e,
@@ -2540,7 +2594,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 19) {
-            Sha1Ctx::hash_clash_compress_round1_step(
+            Sha1Context::hash_clash_compress_round1_step(
                 &b,
                 &mut c,
                 &d,
@@ -2551,7 +2605,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 20) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &a,
                 &mut b,
                 &c,
@@ -2562,7 +2616,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 21) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &e,
                 &mut a,
                 &b,
@@ -2573,7 +2627,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 22) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &d,
                 &mut e,
                 &a,
@@ -2584,7 +2638,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 23) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &c,
                 &mut d,
                 &e,
@@ -2595,7 +2649,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 24) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &b,
                 &mut c,
                 &d,
@@ -2606,7 +2660,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 25) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &a,
                 &mut b,
                 &c,
@@ -2617,7 +2671,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 26) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &e,
                 &mut a,
                 &b,
@@ -2628,7 +2682,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 27) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &d,
                 &mut e,
                 &a,
@@ -2639,7 +2693,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 28) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &c,
                 &mut d,
                 &e,
@@ -2650,7 +2704,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 29) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &b,
                 &mut c,
                 &d,
@@ -2661,7 +2715,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 30) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &a,
                 &mut b,
                 &c,
@@ -2672,7 +2726,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 31) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &e,
                 &mut a,
                 &b,
@@ -2683,7 +2737,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 32) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &d,
                 &mut e,
                 &a,
@@ -2694,7 +2748,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 33) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &c,
                 &mut d,
                 &e,
@@ -2705,7 +2759,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 34) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &b,
                 &mut c,
                 &d,
@@ -2716,7 +2770,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 35) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &a,
                 &mut b,
                 &c,
@@ -2727,7 +2781,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 36) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &e,
                 &mut a,
                 &b,
@@ -2738,7 +2792,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 37) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &d,
                 &mut e,
                 &a,
@@ -2749,7 +2803,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 38) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &c,
                 &mut d,
                 &e,
@@ -2760,7 +2814,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 39) {
-            Sha1Ctx::hash_clash_compress_round2_step(
+            Sha1Context::hash_clash_compress_round2_step(
                 &b,
                 &mut c,
                 &d,
@@ -2771,7 +2825,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 40) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &a,
                 &mut b,
                 &c,
@@ -2782,7 +2836,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 41) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &e,
                 &mut a,
                 &b,
@@ -2793,7 +2847,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 42) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &d,
                 &mut e,
                 &a,
@@ -2804,7 +2858,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 43) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &c,
                 &mut d,
                 &e,
@@ -2815,7 +2869,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 44) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &b,
                 &mut c,
                 &d,
@@ -2826,7 +2880,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 45) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &a,
                 &mut b,
                 &c,
@@ -2837,7 +2891,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 46) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &e,
                 &mut a,
                 &b,
@@ -2848,7 +2902,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 47) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &d,
                 &mut e,
                 &a,
@@ -2859,7 +2913,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 48) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &c,
                 &mut d,
                 &e,
@@ -2870,7 +2924,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 49) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &b,
                 &mut c,
                 &d,
@@ -2881,7 +2935,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 50) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &a,
                 &mut b,
                 &c,
@@ -2892,7 +2946,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 51) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &e,
                 &mut a,
                 &b,
@@ -2903,7 +2957,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 52) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &d,
                 &mut e,
                 &a,
@@ -2914,7 +2968,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 53) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &c,
                 &mut d,
                 &e,
@@ -2925,7 +2979,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 54) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &b,
                 &mut c,
                 &d,
@@ -2936,7 +2990,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 55) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &a,
                 &mut b,
                 &c,
@@ -2947,7 +3001,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 56) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &e,
                 &mut a,
                 &b,
@@ -2958,7 +3012,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 57) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &d,
                 &mut e,
                 &a,
@@ -2969,7 +3023,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 58) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &c,
                 &mut d,
                 &e,
@@ -2980,7 +3034,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 59) {
-            Sha1Ctx::hash_clash_compress_round3_step(
+            Sha1Context::hash_clash_compress_round3_step(
                 &b,
                 &mut c,
                 &d,
@@ -2991,7 +3045,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 60) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &a,
                 &mut b,
                 &c,
@@ -3002,7 +3056,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 61) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &e,
                 &mut a,
                 &b,
@@ -3013,7 +3067,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 62) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &d,
                 &mut e,
                 &a,
@@ -3024,7 +3078,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 63) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &c,
                 &mut d,
                 &e,
@@ -3035,7 +3089,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 64) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &b,
                 &mut c,
                 &d,
@@ -3046,7 +3100,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 65) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &a,
                 &mut b,
                 &c,
@@ -3057,7 +3111,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 66) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &e,
                 &mut a,
                 &b,
@@ -3068,7 +3122,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 67) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &d,
                 &mut e,
                 &a,
@@ -3079,7 +3133,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 68) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &c,
                 &mut d,
                 &e,
@@ -3090,7 +3144,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 69) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &b,
                 &mut c,
                 &d,
@@ -3101,7 +3155,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 70) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &a,
                 &mut b,
                 &c,
@@ -3112,7 +3166,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 71) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &e,
                 &mut a,
                 &b,
@@ -3123,7 +3177,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 72) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &d,
                 &mut e,
                 &a,
@@ -3134,7 +3188,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 73) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &c,
                 &mut d,
                 &e,
@@ -3145,7 +3199,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 74) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &b,
                 &mut c,
                 &d,
@@ -3156,7 +3210,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 75) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &a,
                 &mut b,
                 &c,
@@ -3167,7 +3221,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 76) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &e,
                 &mut a,
                 &b,
@@ -3178,7 +3232,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 77) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &d,
                 &mut e,
                 &a,
@@ -3189,7 +3243,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 78) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &c,
                 &mut d,
                 &e,
@@ -3200,7 +3254,7 @@ impl Sha1Ctx {
             );
         }
         if (step <= 79) {
-            Sha1Ctx::hash_clash_compress_round4_step(
+            Sha1Context::hash_clash_compress_round4_step(
                 &b,
                 &mut c,
                 &d,

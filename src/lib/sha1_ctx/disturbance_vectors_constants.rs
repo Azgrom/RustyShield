@@ -5,7 +5,7 @@
 * https://opensource.org/licenses/MIT
 ***/
 
-use crate::sha1_ctx::ubc_check::Sha1DisturbanceVector;
+use crate::sha1_ctx::ubc_check::DisturbanceVectorInfo;
 
 pub(crate) const DV_MASK_SIZE: u8 = 1;
 
@@ -43,8 +43,8 @@ pub(crate) const DV_II_54_0_BIT: u32 = 1u32 << 29;
 pub(crate) const DV_II_55_0_BIT: u32 = 1u32 << 30;
 pub(crate) const DV_II_56_0_BIT: u32 = 1u32 << 31;
 
-pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
-    Sha1DisturbanceVector {
+pub(crate) const SHA1_DISTURBANCE_VECTORS: [DisturbanceVectorInfo; 33] = [
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 43,
         dv_b: 0,
@@ -66,7 +66,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000803, 0x80000161, 0x80000599,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 44,
         dv_b: 0,
@@ -88,7 +88,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x8000004c, 0x00000803, 0x80000161,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 45,
         dv_b: 0,
@@ -110,7 +110,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x800000e6, 0x8000004c, 0x00000803,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 46,
         dv_b: 0,
@@ -132,7 +132,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000408, 0x800000e6, 0x8000004c,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 46,
         dv_b: 2,
@@ -154,7 +154,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00001020, 0x0000039a, 0x00000132,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 47,
         dv_b: 0,
@@ -176,7 +176,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000164, 0x00000408, 0x800000e6,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 47,
         dv_b: 2,
@@ -198,7 +198,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000590, 0x00001020, 0x0000039a,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 48,
         dv_b: 0,
@@ -220,7 +220,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000018, 0x00000164, 0x00000408,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 48,
         dv_b: 2,
@@ -242,7 +242,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000060, 0x00000590, 0x00001020,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 49,
         dv_b: 0,
@@ -264,7 +264,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x80000202, 0x00000018, 0x00000164,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 49,
         dv_b: 2,
@@ -286,7 +286,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x0000080a, 0x00000060, 0x00000590,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 50,
         dv_b: 0,
@@ -308,7 +308,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x80000012, 0x80000202, 0x00000018,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 50,
         dv_b: 2,
@@ -330,7 +330,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x0000004a, 0x0000080a, 0x00000060,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 51,
         dv_b: 0,
@@ -352,7 +352,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x80000009, 0x80000012, 0x80000202,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 51,
         dv_b: 2,
@@ -374,7 +374,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000026, 0x0000004a, 0x0000080a,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 1,
         dv_k: 52,
         dv_b: 0,
@@ -396,7 +396,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000103, 0x80000009, 0x80000012,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 45,
         dv_b: 0,
@@ -418,7 +418,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x000002e4, 0x80000054, 0x00000967,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 46,
         dv_b: 0,
@@ -440,7 +440,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x8000041a, 0x000002e4, 0x80000054,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 46,
         dv_b: 2,
@@ -462,7 +462,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x0000106a, 0x00000b90, 0x00000152,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 47,
         dv_b: 0,
@@ -484,7 +484,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x8000016d, 0x8000041a, 0x000002e4,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 48,
         dv_b: 0,
@@ -506,7 +506,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x0000011b, 0x8000016d, 0x8000041a,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 49,
         dv_b: 0,
@@ -528,7 +528,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x8000024b, 0x0000011b, 0x8000016d,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 49,
         dv_b: 2,
@@ -550,7 +550,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x0000092e, 0x0000046c, 0x000005b6,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 50,
         dv_b: 0,
@@ -572,7 +572,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000014, 0x8000024b, 0x0000011b,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 50,
         dv_b: 2,
@@ -594,7 +594,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000050, 0x0000092e, 0x0000046c,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 51,
         dv_b: 0,
@@ -616,7 +616,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000089, 0x00000014, 0x8000024b,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 51,
         dv_b: 2,
@@ -638,7 +638,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x00000224, 0x00000050, 0x0000092e,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 52,
         dv_b: 0,
@@ -660,7 +660,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x80000107, 0x00000089, 0x00000014,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 53,
         dv_b: 0,
@@ -682,7 +682,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x4000004b, 0x80000107, 0x00000089,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 54,
         dv_b: 0,
@@ -704,7 +704,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0xc0000046, 0x4000004b, 0x80000107,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 55,
         dv_b: 0,
@@ -726,7 +726,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0xc0000082, 0xc0000046, 0x4000004b,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 2,
         dv_k: 56,
         dv_b: 0,
@@ -748,7 +748,7 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
             0x80000005, 0xc0000082, 0xc0000046,
         ],
     },
-    Sha1DisturbanceVector {
+    DisturbanceVectorInfo {
         dv_type: 0,
         dv_k: 0,
         dv_b: 0,
@@ -762,3 +762,5 @@ pub(crate) const SHA1_DISTURBANCE_VECTORS: [Sha1DisturbanceVector; 33] = [
         ],
     },
 ];
+
+pub const UBC_DV_EL: u32 = 0xFFFFFFFF;
