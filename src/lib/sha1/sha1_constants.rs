@@ -28,4 +28,4 @@ pub type Sha1Output = [u8; 20];
 pub type Sha1Padding = [u8; 64];
 pub type HashValues = [u32; 5];
 pub type DWords = [u32; 16];
-pub type ShamblesMatrix = [u32; 80];
+pub type ShambleMatrix = [u32; 80];
