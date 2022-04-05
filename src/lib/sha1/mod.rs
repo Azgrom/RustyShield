@@ -1,11 +1,13 @@
+use crate::sha1::sha1_constants::{R1, R2, R3, R4, SHA1_PADDING};
 use sha1_constants::{
-    HashValues, Sha1Output, ShambleMatrix, H_0, H_1, H_2, H_3, H_4, SHA1_BLOCK_SIZE,
+    HashValues, Sha1Output, ShambleMatrix, H_0, H_1, H_2, H_3, H_4,
 };
-use std::iter::{Cycle, Map};
-use std::ops::Range;
-use std::slice::Iter;
+use std::ops::{Add, BitAnd, BitXor, Index, Range};
+
+pub(super) use sha1_constants::SHA1_BLOCK_SIZE;
 
 mod sha1_constants;
+mod sha1_padding;
 
 fn f_1<T>(b: &T, c: &T, d: &T) -> T
 where
@@ -35,7 +37,7 @@ fn swab32(val: &u32) -> u32 {
 trait ShaProcess {
     fn init() -> Self;
 
-    fn update(&mut self, data: &mut Vec<[u8]>, len: usize);
+    fn update(&mut self, data: &mut Vec<u32>, len: usize);
 
     fn finalize(&mut self) -> Sha1Output;
 }
@@ -252,21 +254,21 @@ impl ShaProcess for SHA1 {
             (self.hashes[2] >> 8) as u8,
             (self.hashes[3] >> 0) as u8,
             (self.hashes[4] >> 16) as u8,
-            (self.hashes[5] >> 8) as u8,
-            (self.hashes[6] >> 0) as u8,
-            (self.hashes[7] >> 16) as u8,
-            (self.hashes[8] >> 8) as u8,
-            (self.hashes[9] >> 0) as u8,
+            (self.hashes[0] >> 8) as u8,
+            (self.hashes[1] >> 0) as u8,
+            (self.hashes[2] >> 16) as u8,
+            (self.hashes[3] >> 8) as u8,
+            (self.hashes[4] >> 0) as u8,
             (self.hashes[0] >> 24) as u8,
-            (self.hashes[11] >> 8) as u8,
-            (self.hashes[12] >> 0) as u8,
-            (self.hashes[13] >> 16) as u8,
-            (self.hashes[14] >> 8) as u8,
-            (self.hashes[15] >> 0) as u8,
-            (self.hashes[16] >> 24) as u8,
-            (self.hashes[17] >> 24) as u8,
-            (self.hashes[18] >> 24) as u8,
-            (self.hashes[19] >> 24) as u8,
+            (self.hashes[1] >> 8) as u8,
+            (self.hashes[2] >> 0) as u8,
+            (self.hashes[3] >> 16) as u8,
+            (self.hashes[4] >> 8) as u8,
+            (self.hashes[0] >> 0) as u8,
+            (self.hashes[1] >> 24) as u8,
+            (self.hashes[2] >> 24) as u8,
+            (self.hashes[3] >> 24) as u8,
+            (self.hashes[4] >> 24) as u8,
         ];
 
         return hash_out;
@@ -295,19 +297,39 @@ impl SHA1 {
             *len -= nr;
         }
     }
+
+    fn hash_eq(&self, other: &Self) -> bool {
+        self.hashes == other.hashes
+    }
+
+    fn d_words_eq(&self, other: &Self) -> bool {
+        self.d_words_shambling == other.d_words_shambling
+    }
+
+    fn size_eq(&self, other: &Self) -> bool {
+        self.size == other.size
+    }
+
+    fn hash_ne(&self, other: &Self) -> bool {
+        !self.hash_eq(other)
+    }
+
+    fn d_words_ne(&self, other: &Self) -> bool {
+        !self.d_words_eq(other)
+    }
+
+    fn size_ne(&self, other: &Self) -> bool {
+        !self.size_eq(other)
+    }
 }
 
 impl PartialEq for SHA1 {
     fn eq(&self, other: &Self) -> bool {
-        self.hashes == other.hashes
-            && self.d_words_shambling == other.d_words_shambling
-            && self.size == self.size
+        self.hash_eq(&other) && self.d_words_eq(&other) && self.size_eq(other)
     }
 
     fn ne(&self, other: &Self) -> bool {
-        self.hashes != other.hashes
-            && self.d_words_shambling != other.d_words_shambling
-            && self.size != self.size
+        self.hash_ne(&other) && self.d_words_ne(&other) && self.size_ne(other)
     }
 }
 
