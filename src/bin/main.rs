@@ -5,7 +5,6 @@ use std::ops::Range;
 fn main() {
     let x: [u8; 3] = [1, 2, 3];
     let mut y: [u8; 2] = [0; 2];
-    let z = x.iter();
 
     let mut range = Range { start: 0, end: 2 };
     y.clone_from_slice(&x[range.clone()]);

@@ -1,9 +1,6 @@
 /// Length in bytes of SHA-1 value
 const SHA1_RAW_SIZE: u8 = 20;
 
-/// Length in bytes of SHA-1 value
-const SHA1_HEX_SIZE: u8 = 2 * SHA1_RAW_SIZE;
-
 /// Block size of SHA-1
 pub const SHA1_BLOCK_SIZE: u8 = 64;
 
@@ -23,7 +20,7 @@ pub const SHA1_PADDING: [u8; SHA1_BLOCK_SIZE as usize] = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 
-pub type Sha1Output = [u8; 20];
+pub type Sha1Output = [u8; SHA1_RAW_SIZE as usize];
 pub type ShaPadding = [u8; SHA1_BLOCK_SIZE as usize];
 pub type HashValues = [u32; 5];
 pub type DWords = [u32; 16];

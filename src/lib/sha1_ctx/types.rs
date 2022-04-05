@@ -3,10 +3,6 @@ use crate::sha1_ctx::sha1_ctx_constants::{H_0, H_1, H_2, H_3, H_4, SHA_PADDING};
 use crate::sha1_ctx::SHA1States;
 use crate::Sha1Context;
 
-type Sha1Output = [u8; 20];
-type Sha1Padding = [u8; 64];
-type Sha1ConfusingMatrix = [u32; 16];
-
 /// Function type for sha1_recompression_step_T (uint32_t ihvin[5], uint32_t ihvout[5], const uint32_t me2[80], const uint32_t state[5]).
 /// Where 0 <= T < 80
 ///     me2 is an expanded message (the expansion of an original message block XOR'ed with a disturbance vector's message block difference.)

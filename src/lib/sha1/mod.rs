@@ -1,11 +1,15 @@
-use crate::sha1::sha1_constants::{R1, R2, R3, R4, SHA1_PADDING};
-use sha1_constants::{HashValues, Sha1Output, ShambleMatrix, H_0, H_1, H_2, H_3, H_4};
+use crate::sha1::sha1_constants::{
+    HashValues, Sha1Output, ShambleMatrix, H_0, H_1, H_2, H_3, H_4, R1, R2, R3, R4,
+    SHA1_BLOCK_SIZE,
+};
 use std::ops::{Add, BitAnd, BitXor, Index, Range};
-
-pub(super) use sha1_constants::SHA1_BLOCK_SIZE;
 
 mod sha1_constants;
 mod sha1_padding;
+#[cfg(test)]
+mod sha1_tests;
+#[cfg(test)]
+mod sha1_padding_tests;
 
 fn f_1<T>(b: &T, c: &T, d: &T) -> T
 where
@@ -25,7 +29,7 @@ where
     (*b & *c) + (*d & (*b ^ *c))
 }
 
-fn swab32(val: &u32) -> u32 {
+pub fn swab32(val: &u32) -> u32 {
     ((*val & 0xff000000) >> 24)
         | ((*val & 0x00ff0000) >> 8)
         | ((*val & 0x0000ff00) << 8)
@@ -52,9 +56,9 @@ impl SHA1 {
         SHA1::rot(x, n, 32 - n)
     }
 
-    fn ror(x: u32, n: u32) -> u32 {
-        SHA1::rot(x, 32 - n, n)
-    }
+    // fn ror(x: u32, n: u32) -> u32 {
+    //     SHA1::rot(x, 32 - n, n)
+    // }
 
     fn rot(x: u32, l: u32, r: u32) -> u32 {
         (x << l) | (x >> r)
@@ -91,7 +95,7 @@ impl SHA1 {
         let i2 = SHA1::array_roller(index + 8, array);
         let i3 = SHA1::array_roller(index + 2, array);
         let i4 = SHA1::array_roller(index + 1, array);
-        //TODO - Check later if this rol function is the sabe as {integer}::rotate_left
+        //TODO - Check later if this rol function has same speed as {integer}::rotate_left
         SHA1::rol(i1 ^ i2 ^ i3 ^ i4, 1)
     }
 
@@ -199,7 +203,7 @@ impl ShaProcess for SHA1 {
         self.size += len;
 
         if len_w != 0 {
-            let mut left = 64 - len_w;
+            let mut left = (SHA1_BLOCK_SIZE as usize) - len_w;
             if len < left {
                 left = len;
             }
@@ -221,9 +225,9 @@ impl ShaProcess for SHA1 {
             self.hash_block::<[u32; 80]>(&mut struct_d_words);
         }
 
-        while len >= 64 {
+        while len >= SHA1_BLOCK_SIZE as usize {
             self.hash_block::<Vec<u32>>(data);
-            len -= 64;
+            len -= SHA1_BLOCK_SIZE as usize;
         }
 
         if len != 0 {
@@ -235,7 +239,7 @@ impl ShaProcess for SHA1 {
     }
 
     fn finalize(&mut self) -> Sha1Output {
-        let mut pad: [u32; 64] = [0; 64];
+        let mut pad: [u32; SHA1_BLOCK_SIZE as usize] = [0; SHA1_BLOCK_SIZE as usize];
         let mut padlen: [u32; 2] = [0; 2];
         pad[0] = 0x80;
 
@@ -278,24 +282,6 @@ impl SHA1 {
         SHA1::init()
     }
 
-    fn update_chunked(&mut self, data: &mut Vec<u32>, mut len: &mut isize) {
-        let mut total = 0;
-        let mut nr = 0;
-        let mut c_data = data.clone();
-
-        while *len < 0 {
-            nr = *len;
-
-            if nr > SHA1_BLOCK_SIZE as isize {
-                nr = SHA1_BLOCK_SIZE as isize;
-            }
-
-            self.update(&mut c_data, nr as usize);
-            total += nr;
-            *len -= nr;
-        }
-    }
-
     fn hash_eq(&self, other: &Self) -> bool {
         self.hashes == other.hashes
     }
@@ -329,47 +315,4 @@ impl PartialEq for SHA1 {
     fn ne(&self, other: &Self) -> bool {
         self.hash_ne(&other) && self.d_words_ne(&other) && self.size_ne(other)
     }
-}
-
-#[cfg(test)]
-mod sha1_tests {
-    use super::*;
-
-    #[test]
-    fn new_sha1_struct() {
-        let expected_sha1 = SHA1 {
-            hashes: [H_0, H_1, H_2, H_3, H_4],
-            d_words_shambling: [0; 80],
-            size: 0,
-        };
-
-        let resultant_sha1 = SHA1::new();
-
-        assert_eq!(expected_sha1, resultant_sha1);
-    }
-
-    #[test]
-    fn update_sha1_struct() {
-        let mut x = SHA1::new();
-        let mut padding: Vec<u32> = SHA1_PADDING
-            .to_vec()
-            .iter()
-            .map(|x| *x as u32)
-            .collect::<Vec<u32>>();
-        let mut pad: [u32; 2] = [
-            swab32(&((x.size >> 29) as u32)),
-            swab32(&((x.size << 3) as u32)),
-        ];
-
-        let i = 1 + (63 & (55 - (x.size & 63)));
-        x.update(&mut padding, i);
-        x.update(&mut pad.to_vec(), 8);
-
-        println!("test");
-    }
-
-    // #[test]
-    // fn finalize_sha1() {
-    //
-    // }
 }
