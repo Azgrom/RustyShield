@@ -1,2 +1,2 @@
-mod sha1;
 mod constants;
+mod sha1;

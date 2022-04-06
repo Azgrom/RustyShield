@@ -1,15 +1,16 @@
 use crate::sha1::sha1_constants::{
-    HashValues, Sha1Output, ShambleMatrix, H_0, H_1, H_2, H_3, H_4, R1, R2, R3, R4,
-    SHA1_BLOCK_SIZE,
+    HashValues, Sha1Output, ShambleMatrix, H_0, H_1, H_2, H_3, H_4, R1, R2, R3, R4, SHA1_BLOCK_SIZE,
 };
+use std::iter::Cycle;
 use std::ops::{Add, BitAnd, BitXor, Index, Range};
+use std::slice::Iter;
 
 mod sha1_constants;
 mod sha1_padding;
 #[cfg(test)]
-mod sha1_tests;
-#[cfg(test)]
 mod sha1_padding_tests;
+#[cfg(test)]
+mod sha1_tests;
 
 fn f_1<T>(b: &T, c: &T, d: &T) -> T
 where
@@ -39,7 +40,7 @@ pub fn swab32(val: &u32) -> u32 {
 trait ShaProcess {
     fn init() -> Self;
 
-    fn update(&mut self, data: &mut Vec<u32>, len: usize);
+    fn update(&mut self, data: &mut Vec<u32>, len: usize) -> Self;
 
     fn finalize(&mut self) -> Sha1Output;
 }
@@ -68,11 +69,11 @@ impl SHA1 {
         array[index & 15]
     }
 
-    fn get_be32(block: &[u32]) -> u8 {
-        let i1 = (block[0] << 24) as u8;
-        let i2 = (block[1] << 16) as u8;
-        let i3 = (block[2] << 8) as u8;
-        let i4 = (block[3] << 0) as u8;
+    fn get_be32(block: &[u32]) -> u32 {
+        let i1 = block[0] << 24;
+        let i2 = block[1] << 16;
+        let i3 = block[2] << 8;
+        let i4 = block[3] << 0;
         i1 | i2 | i3 | i4
     }
 
@@ -198,7 +199,7 @@ impl ShaProcess for SHA1 {
         }
     }
 
-    fn update(&mut self, data: &mut Vec<u32>, mut len: usize) {
+    fn update(&mut self, data: &mut Vec<u32>, mut len: usize) -> Self {
         let mut len_w = self.size & 63;
         self.size += len;
 
@@ -218,7 +219,7 @@ impl ShaProcess for SHA1 {
             len -= left;
 
             if len_w != 0 {
-                return;
+                return self.to_owned();
             }
 
             let mut struct_d_words = self.d_words_shambling.clone();
@@ -236,46 +237,97 @@ impl ShaProcess for SHA1 {
             }
             //TODO - Maybe its beneficial to change to `clonefrom`
         }
+
+        return self.to_owned();
     }
 
     fn finalize(&mut self) -> Sha1Output {
         let mut pad: [u32; SHA1_BLOCK_SIZE as usize] = [0; SHA1_BLOCK_SIZE as usize];
-        let mut padlen: [u32; 2] = [0; 2];
+        let mut pad_len: [u32; 2] = [0; 2];
         pad[0] = 0x80;
 
-        padlen[0] = (self.size >> 29).swap_bytes() as u32;
-        padlen[1] = (self.size << 3).swap_bytes() as u32;
+        pad_len[0] = swab32(&((&self.size >> 29) as u32));
+        pad_len[1] = swab32(&((&self.size << 3) as u32));
 
         let i = 1 + (63 & (55 - (self.size & 63)));
         self.update(&mut pad.to_vec(), i);
-        self.update(&mut padlen.to_vec(), 8);
+        self.update(&mut pad_len.to_vec(), 8);
 
-        let hash_out: [u8; 20] = [
-            (self.hashes[0] >> 24) as u8,
-            (self.hashes[1] >> 16) as u8,
-            (self.hashes[2] >> 8) as u8,
-            (self.hashes[3] >> 0) as u8,
-            (self.hashes[4] >> 16) as u8,
-            (self.hashes[0] >> 8) as u8,
-            (self.hashes[1] >> 0) as u8,
-            (self.hashes[2] >> 16) as u8,
-            (self.hashes[3] >> 8) as u8,
-            (self.hashes[4] >> 0) as u8,
-            (self.hashes[0] >> 24) as u8,
-            (self.hashes[1] >> 8) as u8,
-            (self.hashes[2] >> 0) as u8,
-            (self.hashes[3] >> 16) as u8,
-            (self.hashes[4] >> 8) as u8,
-            (self.hashes[0] >> 0) as u8,
-            (self.hashes[1] >> 24) as u8,
-            (self.hashes[2] >> 24) as u8,
-            (self.hashes[3] >> 24) as u8,
-            (self.hashes[4] >> 24) as u8,
-        ];
+        let mut u32_bytes: Cycle<Iter<u32>> = [24, 18, 12, 6, 0].iter().cycle();
+        let mut hash: Sha1Output = [0; 20];
 
-        return hash_out;
+        hash[0] = (self.hashes[0] >> u32_bytes.next().unwrap()) as u8;
+        hash[1] = (self.hashes[0] >> u32_bytes.next().unwrap()) as u8;
+        hash[2] = (self.hashes[0] >> u32_bytes.next().unwrap()) as u8;
+        hash[3] = (self.hashes[0] >> u32_bytes.next().unwrap()) as u8;
+        hash[4] = (self.hashes[0] >> u32_bytes.next().unwrap()) as u8;
+
+        hash[5] = (self.hashes[1] >> u32_bytes.next().unwrap()) as u8;
+        hash[6] = (self.hashes[1] >> u32_bytes.next().unwrap()) as u8;
+        hash[7] = (self.hashes[1] >> u32_bytes.next().unwrap()) as u8;
+        hash[8] = (self.hashes[1] >> u32_bytes.next().unwrap()) as u8;
+        hash[9] = (self.hashes[1] >> u32_bytes.next().unwrap()) as u8;
+
+        hash[10] = (self.hashes[2] >> u32_bytes.next().unwrap()) as u8;
+        hash[11] = (self.hashes[2] >> u32_bytes.next().unwrap()) as u8;
+        hash[12] = (self.hashes[2] >> u32_bytes.next().unwrap()) as u8;
+        hash[13] = (self.hashes[2] >> u32_bytes.next().unwrap()) as u8;
+        hash[14] = (self.hashes[2] >> u32_bytes.next().unwrap()) as u8;
+
+        hash[15] = (self.hashes[3] >> u32_bytes.next().unwrap()) as u8;
+        hash[16] = (self.hashes[3] >> u32_bytes.next().unwrap()) as u8;
+        hash[17] = (self.hashes[3] >> u32_bytes.next().unwrap()) as u8;
+        hash[18] = (self.hashes[3] >> u32_bytes.next().unwrap()) as u8;
+        hash[19] = (self.hashes[3] >> u32_bytes.next().unwrap()) as u8;
+
+        return hash;
     }
 }
+
+// fn linear_interpolation(y: i16, hy: i16, ly: i16, hx: i16, lx: i16) -> u8 {
+//     let mut i = (y - ly);
+//     if i < 0 {
+//         i *= -1;
+//     }
+//     (((hx - lx) * i / (hy - ly)) + lx) as u8
+// }
+
+/// Single byte characters are every character with index from 0 to 127 on ASCII table. This
+/// function, though, will parse any single byte value integer outside the 48..=57 and 97..=122
+/// intervals to a given value inside one of them. Which interval digit will the input be parsed
+/// to will be calculated in function of the distance the input finds itself to the
+/// nearest interval.
+///
+/// Since the upper limit of the lower case digits (97..=122) is closer to the upper limit of the
+/// single byte characters on ASCII table (127), values between 0..=20 will be considered as closer
+/// to 97..=122 interval to provide a equal probability of a letter or a number.
+///
+/// # Arguments
+///
+/// * `u8_shift_byte`:
+///
+/// returns: u8
+///
+/// # Examples
+///
+/// ```
+///
+/// ```
+// fn to_single_byte_char(mut u8_shift_byte: u8) -> u8 {
+//     if u8_shift_byte > 127 {
+//         u8_shift_byte -= 128;
+//     }
+//     return u8_shift_byte;
+
+// return match u8_shift_byte {
+//     n @ 0..=20 => linear_interpolation(u8_shift_byte as i16, 20, 0, 122, 112),
+//     n @ 21..=47 => linear_interpolation(u8_shift_byte as i16, 47, 21, 52, 48),
+//     n @ 58..=76 => linear_interpolation(u8_shift_byte as i16, 76, 58, 57, 53),
+//     n @ 77..=96 => linear_interpolation(u8_shift_byte as i16, 96, 77, 109, 97),
+//     n @ 123..=127 => linear_interpolation(u8_shift_byte as i16, 127, 123, 111, 110),
+//     _ => u8_shift_byte,
+// };
+// }
 
 impl SHA1 {
     fn new() -> Self {
@@ -304,6 +356,10 @@ impl SHA1 {
 
     fn size_ne(&self, other: &Self) -> bool {
         !self.size_eq(other)
+    }
+
+    pub fn unwrap_hashes(&self) -> HashValues {
+        self.hashes
     }
 }
 

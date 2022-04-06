@@ -6,11 +6,10 @@ use std::ops::Range;
 pub struct SHA1Padding(ShaPadding);
 
 impl SHA1Padding {
-    pub fn new(stream: String) -> Self {
-        let byte_stream = stream.as_bytes();
-        let byte_stream_len = byte_stream.len();
+    pub fn new(stream: &[u8]) -> Self {
+        let byte_stream_len = stream.len();
 
-        let padding = Self::wrap_pad(byte_stream, byte_stream_len);
+        let padding = Self::wrap_pad(stream, byte_stream_len);
         let mut padding = Self::init(padding);
 
         let bit_amount_of_byte_stream: usize = byte_stream_len * mem::size_of_val(&byte_stream_len);
@@ -23,7 +22,7 @@ impl SHA1Padding {
         self.0
     }
 
-    pub fn convert_padding_to_words(&self) -> DWords {
+    pub fn convert_to_d_words(&self) -> DWords {
         let range = Range { start: 0, end: 16 };
         let mut x: DWords = [0; 16];
 
@@ -60,7 +59,7 @@ impl SHA1Padding {
         }
 
         if wrapped_array.len() > 63 {
-          wrapped_array[last_index % 64] = 0x80;
+            wrapped_array[last_index % 64] = 0x80;
         } else {
             wrapped_array.push(0x80);
         }
@@ -102,22 +101,24 @@ impl PartialEq for SHA1Padding {
 #[cfg(test)]
 mod partial_eq_padding_tests {
     use super::*;
-    use std::str::from_utf8;
     use crate::constants::HEIKE_MONOGATARI;
+    use std::str::from_utf8;
 
     #[test]
     fn padding_eq_test() {
-        let x = SHA1Padding::new(String::from(from_utf8(HEIKE_MONOGATARI).ok().unwrap()));
-        let expected = SHA1Padding([128, 104, 101, 32, 115, 111, 117, 110, 100, 32, 111, 102, 32, 116, 104, 101, 32, 71, 105,
-            111, 110, 32, 83, 104, 197, 141, 106, 97, 32, 98, 101, 108, 108, 115, 32, 101, 99, 104,
-            111, 101, 115, 32, 116, 104, 101, 32, 105, 109, 112, 101, 114, 109, 97, 110, 101, 110, 99,
-            101, 32, 111, 102, 10, 107, 220,]);
+        let x = SHA1Padding::new(HEIKE_MONOGATARI);
+        let expected = SHA1Padding([
+            128, 104, 101, 32, 115, 111, 117, 110, 100, 32, 111, 102, 32, 116, 104, 101, 32, 71,
+            105, 111, 110, 32, 83, 104, 197, 141, 106, 97, 32, 98, 101, 108, 108, 115, 32, 101, 99,
+            104, 111, 101, 115, 32, 116, 104, 101, 32, 105, 109, 112, 101, 114, 109, 97, 110, 101,
+            110, 99, 101, 32, 111, 102, 10, 107, 220,
+        ]);
         assert_eq!(x, expected);
     }
 
     #[test]
     fn padding_ne_test() {
-        let x = SHA1Padding::new(String::from(from_utf8(HEIKE_MONOGATARI).ok().unwrap()));
+        let x = SHA1Padding::new(HEIKE_MONOGATARI);
         let expected = SHA1Padding([0; 64]);
         assert_ne!(x, expected);
     }
