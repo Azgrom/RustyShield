@@ -1,6 +1,7 @@
 use crate::sha1::sha1_constants::{DWords, ShaPadding, SHA1_PADDING};
 use std::mem;
 use std::ops::Range;
+use crate::bit_length;
 
 #[derive(Debug)]
 pub struct SHA1Padding(ShaPadding);
@@ -12,7 +13,7 @@ impl SHA1Padding {
         let padding = Self::wrap_pad(stream, byte_stream_len);
         let mut padding = Self::init(padding);
 
-        let bit_amount_of_byte_stream: usize = byte_stream_len * mem::size_of_val(&byte_stream_len);
+        let bit_amount_of_byte_stream: usize = bit_length(stream);
         padding.push_stream_len(bit_amount_of_byte_stream);
 
         return padding;
@@ -83,7 +84,7 @@ impl SHA1Padding {
 
         for (index, el) in vec.iter().enumerate() {
             let x_in = self.0.len() - 1 - index;
-            self.0[x_in] += el;
+            self.0[x_in] += el.to_be();
         }
     }
 }
@@ -102,7 +103,6 @@ impl PartialEq for SHA1Padding {
 mod partial_eq_padding_tests {
     use super::*;
     use crate::constants::HEIKE_MONOGATARI;
-    use std::str::from_utf8;
 
     #[test]
     fn padding_eq_test() {
