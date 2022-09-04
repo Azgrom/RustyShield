@@ -1,9 +1,10 @@
 use crate::sha1::sha1_constants::{
-    HashValues, Sha1Output, ShambleMatrix, H_0, H_1, H_2, H_3, H_4, R1, R2, R3, R4, SHA1_BLOCK_SIZE,
+    H_0, H_1, H_2, H_3, H_4, HashValues, R1, R2, R3, R4, SHA1_BLOCK_SIZE, ShambleMatrix,
 };
 use std::iter::Cycle;
 use std::ops::{Add, BitAnd, BitXor, Index, Range};
 use std::slice::Iter;
+use sha1_output::Sha1Output;
 
 mod sha1_constants;
 mod sha1_padding;
@@ -11,6 +12,7 @@ mod sha1_padding;
 mod sha1_padding_tests;
 #[cfg(test)]
 mod sha1_tests;
+mod sha1_output;
 
 fn f_1<T>(b: &T, c: &T, d: &T) -> T
 where
@@ -254,7 +256,7 @@ impl ShaProcess for SHA1 {
         self.update(&mut pad_len.to_vec(), 8);
 
         let mut u32_bytes: Cycle<Iter<u32>> = [24, 18, 12, 6, 0].iter().cycle();
-        let mut hash: Sha1Output = [0; 20];
+        let mut hash = Sha1Output::default();
 
         hash[0] = (self.hashes[0] >> u32_bytes.next().unwrap()) as u8;
         hash[1] = (self.hashes[0] >> u32_bytes.next().unwrap()) as u8;
