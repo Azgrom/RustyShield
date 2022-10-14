@@ -18,3 +18,10 @@ name = "main"
 path = "src/bin/main.rs"
 
 [dependencies]
+
+[dev-dependencies]
+criterion = "0.3.6"
+
+[[bench]]
+name = "benches"
+harness = false

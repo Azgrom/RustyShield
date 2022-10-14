@@ -6,6 +6,16 @@ pub struct Sha1Output {
     hash: [u8; SHA1_RAW_SIZE as usize]
 }
 
+impl Sha1Output {
+    fn to_hex_string(&self) -> String {
+        let mut buf = String::with_capacity((4 * SHA1_RAW_SIZE) as usize);
+        for u in self.iter() {
+            buf.push_str(&*format!("{:02x}", u));
+        }
+        buf
+    }
+}
+
 impl Default for Sha1Output {
     fn default() -> Self {
         Self { hash: [0; 20] }
@@ -39,16 +49,12 @@ impl PartialEq<[u8; 20]> for Sha1Output {
 
 impl PartialEq<&str> for Sha1Output {
     fn eq(&self, other: &&str) -> bool {
-        self.to_string() == *other
+        self.to_hex_string() == *other
     }
 }
 
 impl ToString for Sha1Output {
     fn to_string(&self) -> String {
-        let mut buf = String::with_capacity((4 * SHA1_RAW_SIZE) as usize);
-        for u in self.iter() {
-           buf.push_str(&*format!("{:02x}", u));
-        }
-        buf
+        format!("{:?}", &self.hash)
     }
 }

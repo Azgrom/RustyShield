@@ -34,9 +34,7 @@ fn update_sha1_struct() {
     x.update(&mut padding, i);
     x.update(&mut pad.to_vec(), 8);
 
-    let mut h = SHA1Padding::new(HEIKE_MONOGATARI)
-        .to_d_words()
-        .to_vec();
+    let mut h = SHA1Padding::new(HEIKE_MONOGATARI).to_d_words().to_vec();
     let h_len = h.len();
     x.update(&mut h, h_len);
 
@@ -47,9 +45,7 @@ fn update_sha1_struct() {
 
 #[test]
 fn finalize_sha1() {
-    let mut dwords1 = SHA1Padding::new(HEIKE_MONOGATARI)
-        .to_d_words()
-        .to_vec();
+    let mut dwords1 = SHA1Padding::new(HEIKE_MONOGATARI).to_d_words().to_vec();
     let dwords1_len = dwords1.len();
     let hash1 = SHA1::new().update(&mut dwords1, dwords1_len).finalize();
     let expected_hash_1 = [
@@ -58,9 +54,7 @@ fn finalize_sha1() {
     assert_eq!(hash1, expected_hash_1);
     assert_eq!(hash1, "0ab3e55fd3d3d15fec056aad4c117ac68e9d7161");
 
-    let mut dwords2 = SHA1Padding::new(QUICK_FOX)
-        .to_d_words()
-        .to_vec();
+    let mut dwords2 = SHA1Padding::new(QUICK_FOX).to_d_words().to_vec();
     let dwords2_len = dwords2.len();
     let hash2 = SHA1::new().update(&mut dwords2, dwords2_len).finalize();
     let expected_hash2 = [
@@ -68,4 +62,5 @@ fn finalize_sha1() {
     ];
     assert_eq!(hash2, expected_hash2);
     assert_eq!(hash2, "92a57e83fbc2840d514f694bd6a423642c0942bc");
+    assert_eq!(hash2.to_string(), "[146, 165, 126, 131, 251, 194, 132, 13, 81, 79, 105, 75, 214, 164, 35, 100, 44, 9, 66, 188]")
 }
