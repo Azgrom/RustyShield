@@ -1,0 +1,27 @@
+[package]
+authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
+description = "a Secure Hash Algorithm library based on git's implementation of SHA, but refactored to make it easier to port, maintain, expand and use"
+categories = ["data-structures", "development-tools"]
+edition = "2021"
+keywords = ["sha", "sha_1", "sha-1"]
+license = "GPL-2.0-only"
+name = "rusty_sha"
+readme = "README.md"
+version = "0.1.0"
+
+[lib]
+name = "lib"
+path = "src/lib/mod.rs"
+
+#[[bin]]
+#name = "main"
+#path = "src/bin/mod"
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.4.0"
+
+[[bench]]
+name = "benches"
+harness = false
