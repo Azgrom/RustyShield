@@ -10,47 +10,11 @@ const T_40_59: u32 = 0x8f1bbcdc;
 const T_60_79: u32 = 0xca62c1d6;
 const U8_TO_U32: [u8; 4] = [0, 8, 16, 24];
 
-trait ShiftSideways:
-    Shl<Output = Self> + Shr<Output = Self> + BitOr<Output = Self> + Copy + Sized
-{
-}
-
-impl ShiftSideways for u32 {}
-
-fn rotate<R: ShiftSideways>(x: R, l: R, r: R) -> R {
-    (x << l) | (x >> r)
-}
-
-fn rotate_left(x: u32, n: u32) -> u32 {
-    rotate(x, n, 32 - n)
-}
-
-fn rotate_right(x: u32, n: u32) -> u32 {
-    rotate(x, 32 - n, n)
-}
-
-fn get_dst_range<T>(src: &[T], dest: &[u32], dest_offset: usize) -> Range<usize> {
-    let dst_start = dest_offset & (dest.len() - 1);
-    let dst_end = dst_start + src.len();
-
-    Range {
-        start: dst_start,
-        end: dst_end,
-    }
-}
-
-fn get_src_range<T>(src: &[T], src_slice_len: usize) -> Range<usize> {
-    if src_slice_len > src.len() {
-        return Range {
-            start: 0,
-            end: src.len(),
-        };
-    }
-
-    Range {
-        start: 0,
-        end: (src_slice_len & (src.len() - 1)) % src.len(),
-    }
+fn swab32(val: &u32) -> u32 {
+    ((*val & 0xff000000) >> 24)
+        | ((*val & 0x00ff0000) >> 8)
+        | ((*val & 0x0000ff00) << 8)
+        | ((*val & 0x000000ff) << 24)
 }
 
 pub trait Sha1 {
@@ -59,19 +23,13 @@ pub trait Sha1 {
     fn finalize(&mut self) -> [u8; 20];
 }
 
-pub struct ShaContext {
-    size: usize,
-    h: [u32; 5],
-    w: [u32; 16],
-}
-
 trait MemoryCopy<D, S> {
     /// Copies n bytes from src to memory dest, using a reference receiving point in dest
     fn mem_cpy(dest: &mut [D], src: &[S]);
 }
 
 trait ShaSource<T> {
-    fn src(v: &[T], i: usize) -> u32;
+    fn src(vec: &[T], i: usize) -> u32;
     fn t_0_15(
         t: u8,
         block: &[T],
@@ -84,6 +42,12 @@ trait ShaSource<T> {
     );
     fn block(h: &mut [u32; 5], block: &[T]);
     fn process(&mut self, data_in: &[T], len: usize);
+}
+
+pub struct ShaContext {
+    size: usize,
+    h: [u32; 5],
+    w: [u32; 16],
 }
 
 impl MemoryCopy<u8, u8> for ShaContext {
@@ -121,13 +85,22 @@ impl MemoryCopy<u32, u32> for ShaContext {
 }
 
 impl ShaSource<u8> for ShaContext {
-    fn src(v: &[u8], i: usize) -> u32 {
+    fn src(vec: &[u8], i: usize) -> u32 {
         // TODO: See if there should have validation here
-        let s = i * 4;
-        ((v[s] as u32).shl(24))
-            | ((v[s + 1] as u32).shl(16))
-            | ((v[s + 2] as u32).shl(8))
-            | (v[s + 3] as u32)
+        let stepped_size = (i * 4) & (vec.len() - 1);
+
+        let a = |v: &[u8]| -> u32 { (v[stepped_size] as u32).shl(24) };
+        let b = |v: &[u8]| -> u32 { (v[stepped_size + 1] as u32).shl(16) };
+        let c = |v: &[u8]| -> u32 { (v[stepped_size + 2] as u32).shl(8) };
+        let d = |v: &[u8]| -> u32 { v[stepped_size + 3] as u32 };
+
+        match vec.len() - stepped_size {
+            n if n > 3 => a(vec) | b(vec) | c(vec) | d(vec),
+            3 => a(vec) | b(vec) | c(vec),
+            2 => a(vec) | b(vec),
+            1 => a(vec),
+            _ => 0,
+        }
     }
 
     fn t_0_15(
@@ -282,19 +255,22 @@ impl ShaSource<u8> for ShaContext {
 
         while len >= 64 {
             Self::block(&mut self.h, data_in);
-            data_in = &data_in[64..];
+            data_in = &data_in[(64 & data_in.len() - 1)..];
             len -= 64;
         }
 
         if len > 0 {
+            if len > data_in.len() {
+                len = data_in.len()
+            }
             Self::mem_cpy(&mut self.w, &data_in[..len]);
         }
     }
 }
 
 impl ShaSource<u32> for ShaContext {
-    fn src(v: &[T], i: usize) -> u32 {
-        v[i].to_be()
+    fn src(vec: &[u32], i: usize) -> u32 {
+        vec[i].to_be()
     }
 
     fn t_0_15(
@@ -499,7 +475,7 @@ impl ShaContext {
         let z = array[(i + 2) & 15];
         let t = array[i & 15];
 
-        rotate_left(x ^ y ^ z ^ t, 1)
+        (x ^ y ^ z ^ t).rotate_left(1)
     }
 
     fn f1(b: u32, c: u32, d: u32) -> u32 {
@@ -531,10 +507,11 @@ impl ShaContext {
     ) {
         let temp = Self::mix(t as usize, block);
         Self::set_w(t as usize, temp, block);
-        *e = (*e).wrapping_add(
-            temp.wrapping_add(rotate_left(a, 5).wrapping_add(f_n.wrapping_add(constant))),
-        );
-        *b = rotate_right(*b, 2);
+        *e = (*e)
+            .wrapping_add(temp)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(f_n.wrapping_add(constant));
+        *b = (*b).rotate_right(2);
     }
 
     fn t_16_19(t: u8, shamble_arr: &mut [u32], a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
@@ -588,6 +565,7 @@ impl ShaContext {
     pub fn digest(data: &[u8]) -> String {
         let mut ctx = Self::init();
         ctx.update(data, data.len() * 4);
+
         Self::hex_hash(ctx.finalize().as_ref())
     }
 }
@@ -618,6 +596,9 @@ impl Sha1 for ShaContext {
         let mut pad_len: [u32; 2] = [0; 2];
         pad[0] = 0x80;
 
+        pad_len[0] = swab32(&(self.size as u32).shr(29));
+        pad_len[1] = swab32(&(self.size as u32).shl(3));
+
         let i = self.size & 63;
         self.process(&pad, 1 + (63 & (55 - i)));
         self.process(&pad_len, 8);
@@ -628,10 +609,11 @@ impl Sha1 for ShaContext {
 
 #[cfg(test)]
 mod test {
-    use crate::{rotate_left, rotate_right, MemoryCopy, Sha1, ShaContext};
+    use crate::{MemoryCopy, Sha1, ShaContext, ShiftSideways};
     use core::cmp::max;
     use core::fmt::Binary;
     use core::ops::{Shl, Shr};
+    use std::ops::BitOr;
 
     #[test]
     fn fips180_rotate_right_and_left_are_consistent_with_core_rotate_methods() {
@@ -782,6 +764,18 @@ mod test {
         assert_eq!((max_u32_unsigned_integer as u8) as u32, u8::MAX as u32);
     }
 
+    fn rotate<R: ShiftSideways>(x: R, l: R, r: R) -> R {
+        (x << l) | (x >> r)
+    }
+
+    fn rotate_left(x: u32, n: u32) -> u32 {
+        rotate(x, n, 32 - n)
+    }
+
+    fn rotate_right(x: u32, n: u32) -> u32 {
+        rotate(x, 32 - n, n)
+    }
+
     fn binary_representation(x: impl Copy + Binary) -> Vec<String> {
         format!("{:b}", x)
             .chars()
@@ -790,4 +784,11 @@ mod test {
             .map(|u4_bin_str| u4_bin_str.iter().collect())
             .collect::<Vec<String>>()
     }
+
+    trait ShiftSideways:
+        Shl<Output = Self> + Shr<Output = Self> + BitOr<Output = Self> + Copy + Sized
+    {
+    }
+
+    impl ShiftSideways for u32 {}
 }
