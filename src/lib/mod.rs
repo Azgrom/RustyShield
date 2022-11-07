@@ -65,13 +65,13 @@ pub struct ShaContext {
     w: [u32; 16],
 }
 
-trait MemoryCopy<S, D> {
+trait MemoryCopy<D, S> {
     /// Copies n bytes from src to memory dest, using a reference receiving point in dest
-    fn mem_cpy(dest: &mut [D], src: &[S], src_slice_len: usize, dest_offset: usize);
+    fn mem_cpy(dest: &mut [D], src: &[S]);
 }
 
 trait ShaSource<T> {
-    fn src(i: usize, v: &[T]) -> u32;
+    fn src(v: &[T], i: usize) -> u32;
     fn t_0_15(
         t: u8,
         block: &[T],
@@ -87,13 +87,13 @@ trait ShaSource<T> {
 }
 
 impl MemoryCopy<u8, u8> for ShaContext {
-    fn mem_cpy(dest: &mut [u8], src: &[u8], src_slice_len: usize, dest_offset: usize) {
-        dest[dest_offset..].clone_from_slice(&src[..src_slice_len])
+    fn mem_cpy(dest: &mut [u8], src: &[u8]) {
+        dest[..src.len()].clone_from_slice(&src)
     }
 }
 
-impl MemoryCopy<u8, u32> for ShaContext {
-    fn mem_cpy(dest: &mut [u32], src: &[u8], src_slice_len: usize, dest_offset: usize) {
+impl MemoryCopy<u32, u8> for ShaContext {
+    fn mem_cpy(dest: &mut [u32], src: &[u8]) {
         let u32_src = src
             .chunks(4)
             .map(|c| match c.len() {
@@ -115,22 +115,18 @@ impl MemoryCopy<u8, u32> for ShaContext {
 }
 
 impl MemoryCopy<u32, u32> for ShaContext {
-    fn mem_cpy(dest: &mut [u32], src: &[u32], src_slice_len: usize, dest_offset: usize) {
-        // TODO: Validar se intervalo dos vetor receptor é igual ou maio que do vetor fonte
-        let src_range = get_src_range(src, src_slice_len);
-        let dst_range = get_dst_range(src, dest, dest_offset);
-
-        dest[dst_range].clone_from_slice(&src[src_range])
+    fn mem_cpy(dest: &mut [u32], src: &[u32]) {
+        dest[..src.len()].clone_from_slice(&src)
     }
 }
 
 impl ShaSource<u8> for ShaContext {
-    fn src(i: usize, v: &[u8]) -> u32 {
+    fn src(v: &[u8], i: usize) -> u32 {
         // TODO: See if there should have validation here
         let s = i * 4;
-        ((v[s] as u32) << 24)
-            | ((v[s + 1] as u32) << 16)
-            | ((v[s + 2] as u32) << 8)
+        ((v[s] as u32).shl(24))
+            | ((v[s + 1] as u32).shl(16))
+            | ((v[s + 2] as u32).shl(8))
             | (v[s + 3] as u32)
     }
 
@@ -144,10 +140,14 @@ impl ShaSource<u8> for ShaContext {
         e: &mut u32,
         array: &mut [u32],
     ) {
-        let temp = Self::src(t as usize, block);
+        let temp = Self::src(block, t as usize);
         Self::set_w(t as usize, temp, array);
-        *e += temp + rotate_left(a, 5) + Self::f1(*b, c, d) + T_0_15;
-        *b = rotate_right(*b, 2);
+        *e = (*e)
+            .wrapping_add(temp)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(Self::f1(*b, c, d))
+            .wrapping_add(T_0_15);
+        *b = (*b).rotate_right(2);
     }
 
     fn block(h: &mut [u32; 5], block: &[u8]) {
@@ -267,7 +267,7 @@ impl ShaSource<u8> for ShaContext {
                 left = len;
             }
 
-            Self::mem_cpy(&mut self.w[(len_w & 15)..], &data_in[..len], left, len_w);
+            Self::mem_cpy(&mut self.w[(len_w & 15)..], &data_in[..left]);
 
             len_w = (len_w + left) & 63;
             len -= left;
@@ -287,13 +287,13 @@ impl ShaSource<u8> for ShaContext {
         }
 
         if len > 0 {
-            Self::mem_cpy(&mut self.w[0..], &data_in[..len], len, 0);
+            Self::mem_cpy(&mut self.w, &data_in[..len]);
         }
     }
 }
 
 impl ShaSource<u32> for ShaContext {
-    fn src(i: usize, v: &[u32]) -> u32 {
+    fn src(v: &[T], i: usize) -> u32 {
         v[i].to_be()
     }
 
@@ -307,13 +307,14 @@ impl ShaSource<u32> for ShaContext {
         e: &mut u32,
         array: &mut [u32],
     ) {
-        let temp = Self::src(t as usize, block);
+        let temp = Self::src(block, t as usize);
         Self::set_w(t as usize, temp, array);
-        *e =
-            (*e).wrapping_add(temp.wrapping_add(
-                rotate_left(a, 5).wrapping_add(Self::f1(*b, c, d).wrapping_add(T_0_15)),
-            ));
-        *b = rotate_right(*b, 2);
+        *e = (*e)
+            .wrapping_add(temp)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(Self::f1(*b, c, d))
+            .wrapping_add(T_0_15);
+        *b = (*b).rotate_right(2);
     }
 
     fn block(h: &mut [u32; 5], block: &[u32]) {
@@ -433,7 +434,13 @@ impl ShaSource<u32> for ShaContext {
                 left = len;
             }
 
-            Self::mem_cpy(&mut self.w, data_in, left, len_w);
+            let mut data_in_len = left;
+
+            if data_in.len() < left {
+                data_in_len = data_in.len();
+            }
+
+            Self::mem_cpy(&mut self.w[(len_w & 15)..], &data_in[..data_in_len]);
 
             len_w = (len_w + left) & 63;
             len -= left;
@@ -453,7 +460,7 @@ impl ShaSource<u32> for ShaContext {
         }
 
         if len > 0 {
-            Self::mem_cpy(&mut self.w, data_in, len, 0);
+            Self::mem_cpy(&mut self.w, &data_in[..len]);
         }
     }
 }
@@ -462,7 +469,9 @@ impl ShaContext {
     fn to_byte_slice(&self) -> [u8; 20] {
         // Use flatten once it stabilizes
         let mut hash_out: [u8; 20] = [0; 20];
-        self.h.iter().zip((0..5).into_iter())
+        self.h
+            .iter()
+            .zip((0..5).into_iter())
             .for_each(|(constant, k_index)| {
                 hash_out[0 + (k_index * 4)] = constant.shr(24) as u8;
                 hash_out[1 + (k_index * 4)] = constant.shr(16) as u8;
@@ -471,6 +480,13 @@ impl ShaContext {
             });
 
         hash_out
+    }
+
+    fn hex_hash(byte_hash: &[u8]) -> String {
+        byte_hash
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect::<String>()
     }
 
     fn set_w(i: usize, val: u32, array: &mut [u32]) {
@@ -568,6 +584,14 @@ impl ShaContext {
     }
 }
 
+impl ShaContext {
+    pub fn digest(data: &[u8]) -> String {
+        let mut ctx = Self::init();
+        ctx.update(data, data.len() * 4);
+        Self::hex_hash(ctx.finalize().as_ref())
+    }
+}
+
 impl Sha1 for ShaContext {
     fn init() -> Self {
         let mut ctx = Self {
@@ -604,10 +628,10 @@ impl Sha1 for ShaContext {
 
 #[cfg(test)]
 mod test {
-    use std::cmp::max;
     use crate::{rotate_left, rotate_right, MemoryCopy, Sha1, ShaContext};
-    use std::fmt::Binary;
-    use std::ops::{Shl, Shr};
+    use core::cmp::max;
+    use core::fmt::Binary;
+    use core::ops::{Shl, Shr};
 
     #[test]
     fn fips180_rotate_right_and_left_are_consistent_with_core_rotate_methods() {
@@ -658,16 +682,29 @@ mod test {
 
     #[test]
     fn test_commonly_known_sha1_phrases() {
-        const PHRASE: &str = "The quick brown fox jumps over the lazy dog";
-        let mut ctx = ShaContext::init();
-        ctx.update(PHRASE.as_bytes(), PHRASE.len());
-        let hash = ctx.finalize();
-        let hash_hex_str = hash
-            .iter()
-            .map(|b| format!("{:02x}", b))
-            .collect::<String>();
+        let quick_fox: &str = "The quick brown fox jumps over the lazy dog";
+        let digest_result = ShaContext::digest(quick_fox.as_ref());
 
-        assert_eq!(hash_hex_str, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
+        assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
+
+        let cavs_message: &str = "7c9c67323a1df1adbfe5ceb415eaef0155ece2820f4d50c1ec22cba4928ac656c83fe585db6a78ce40bc42757aba7e5a3f582428d6ca68d0c3978336a6efb729613e8d9979016204bfd921322fdd5222183554447de5e6e9bbe6edf76d7b71e18dc2e8d6dc89b7398364f652fafc734329aafa3dcd45d4f31e388e4fafd7fc6495f37ca5cbab7f54d586463da4bfeaa3bae09f7b8e9239d832b4f0a733aa609cc1f8d4";
+        let digest_result = ShaContext::digest(cavs_message.as_ref());
+        assert_eq!(digest_result, "d8fd6a91ef3b6ced05b98358a99107c1fac8c807");
+    }
+
+    #[test]
+    fn copy_a_u8_vector_into_a_u8_vector() {
+        let src: [u8; 5] = [1, 2, 3, 4, 5];
+        let mut dest: [u8; 5] = [0; 5];
+
+        ShaContext::mem_cpy(&mut dest[3..], &src[..2]);
+        assert_eq!(dest, [0, 0, 0, 1, 2]);
+
+        ShaContext::mem_cpy(&mut dest[0..], &src[3..]);
+        assert_eq!(dest, [4, 5, 0, 1, 2]);
+
+        ShaContext::mem_cpy(&mut dest[1..], &src[1..4]);
+        assert_eq!(dest, [4, 2, 3, 4, 2]);
     }
 
     #[test]
@@ -678,8 +715,6 @@ mod test {
         ShaContext::mem_cpy(
             &mut dest[0..],
             &char_vec.into_iter().collect::<String>().as_bytes()[..5],
-            5,
-            0,
         );
 
         assert_eq!(
@@ -687,8 +722,21 @@ mod test {
             [1684234849, 101, 0, 0, 0],
             "Asserts characters bytes were correctly copied into u32 integers"
         );
+    }
 
-        println!();
+    #[test]
+    fn copy_a_u32_vector_into_a_u32_vector() {
+        let src: [u32; 5] = [1, 2, 3, 4, 5];
+        let mut dest: [u32; 5] = [0; 5];
+
+        ShaContext::mem_cpy(&mut dest[3..], &src[..2]);
+        assert_eq!(dest, [0, 0, 0, 1, 2]);
+
+        ShaContext::mem_cpy(&mut dest[0..], &src[3..]);
+        assert_eq!(dest, [4, 5, 0, 1, 2]);
+
+        ShaContext::mem_cpy(&mut dest[1..], &src[1..4]);
+        assert_eq!(dest, [4, 2, 3, 4, 2]);
     }
 
     #[test]
@@ -706,20 +754,33 @@ mod test {
         assert_eq!(unsigned_integer << 0, unsigned_integer.shl(0));
 
         let max_u32_unsigned_integer: u32 = u32::MAX;
-        assert_eq!(max_u32_unsigned_integer.shr(8), 16_777_215u32, "Assert equality for u24::MAX");
-        assert_eq!(max_u32_unsigned_integer.shr(16), 65_535u32, "Assert equality for u16::MAX");
-        assert_eq!(max_u32_unsigned_integer.shr(24), 255_u32, "Assert equality for u8::MAX");
+        assert_eq!(
+            max_u32_unsigned_integer.shr(8),
+            16_777_215u32,
+            "Assert equality for u24::MAX"
+        );
+        assert_eq!(
+            max_u32_unsigned_integer.shr(16),
+            65_535u32,
+            "Assert equality for u16::MAX"
+        );
+        assert_eq!(
+            max_u32_unsigned_integer.shr(24),
+            255_u32,
+            "Assert equality for u8::MAX"
+        );
 
         // Assert cast has logic for pointing the least significant bits, by the amount of the new
-        // type size. It seems to make use of Copy, because it looses original information in case a cast
-        // backwards to original size is immediately made
-        assert_eq!(max_u32_unsigned_integer as u8, (max_u32_unsigned_integer.shl(24) as u32).shr(24) as u8);
+        // type size. It seems to make use of Copy, because it looses original information in case a
+        // cast backwards to original size is immediately made
+        assert_eq!(
+            max_u32_unsigned_integer as u8,
+            (max_u32_unsigned_integer.shl(24) as u32).shr(24) as u8
+        );
         assert_eq!(max_u32_unsigned_integer as u8, u8::MAX);
         assert_eq!(max_u32_unsigned_integer.shr(0), u32::MAX);
         assert_eq!((max_u32_unsigned_integer as u8) as u32, u8::MAX as u32);
     }
-
-
 
     fn binary_representation(x: impl Copy + Binary) -> Vec<String> {
         format!("{:b}", x)
