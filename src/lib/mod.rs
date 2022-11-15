@@ -3,6 +3,12 @@ extern crate core;
 use core::ops::{BitOr, Shl, Shr};
 use std::ops::{Deref, Range};
 
+const SHA_1H0: u32 = 0x67452301;
+const SHA_1H1: u32 = 0xefcdab89;
+const SHA_1H2: u32 = 0x98badcfe;
+const SHA_1H3: u32 = 0x10325476;
+const SHA_1H4: u32 = 0xc3d2e1f0;
+
 const T_0_15: u32 = 0x5a827999;
 const T_16_19: u32 = T_0_15;
 const T_20_39: u32 = 0x6ed9eba1;
@@ -118,7 +124,7 @@ impl ShaSource<u8> for ShaContext {
         *e = (*e)
             .wrapping_add(temp)
             .wrapping_add(a.rotate_left(5))
-            .wrapping_add(Self::f1(*b, c, d))
+            .wrapping_add(Self::ch(*b, c, d))
             .wrapping_add(T_0_15);
         *b = (*b).rotate_right(2);
     }
@@ -288,7 +294,7 @@ impl ShaSource<u32> for ShaContext {
         *e = (*e)
             .wrapping_add(temp)
             .wrapping_add(a.rotate_left(5))
-            .wrapping_add(Self::f1(*b, c, d))
+            .wrapping_add(Self::ch(*b, c, d))
             .wrapping_add(T_0_15);
         *b = (*b).rotate_right(2);
     }
@@ -478,20 +484,16 @@ impl ShaContext {
         (x ^ y ^ z ^ t).rotate_left(1)
     }
 
-    fn f1(b: u32, c: u32, d: u32) -> u32 {
-        ((c ^ d) & b) ^ d
+    fn ch(x: u32, y: u32, z: u32) -> u32 {
+        (x & y) ^ (!x ^ z)
     }
 
-    fn f2(b: u32, c: u32, d: u32) -> u32 {
-        b ^ c ^ d
+    fn parity(x: u32, y: u32, z: u32) -> u32 {
+        x ^ y ^ z
     }
 
-    fn f3(b: u32, c: u32, d: u32) -> u32 {
-        (b & c) + (d & (b ^ c))
-    }
-
-    fn f4(b: u32, c: u32, d: u32) -> u32 {
-        Self::f2(b, c, d)
+    fn maj(x: u32, y: u32, z: u32) -> u32 {
+        (x & y) ^ (x & z) ^ (y & z)
     }
 
     fn round(
@@ -510,19 +512,20 @@ impl ShaContext {
         *e = (*e)
             .wrapping_add(temp)
             .wrapping_add(a.rotate_left(5))
-            .wrapping_add(f_n.wrapping_add(constant));
+            .wrapping_add(f_n)
+            .wrapping_add(constant);
         *b = (*b).rotate_right(2);
     }
 
     fn t_16_19(t: u8, shamble_arr: &mut [u32], a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
-        Self::round(t, shamble_arr, Self::f1(*b, c, d), T_16_19, a, b, c, d, e)
+        Self::round(t, shamble_arr, Self::ch(*b, c, d), T_16_19, a, b, c, d, e)
     }
 
     fn t_20_39(t: u8, shamble_arr: &mut [u32], a: u32, mut b: u32, c: u32, d: u32, mut e: u32) {
         Self::round(
             t,
             shamble_arr,
-            Self::f2(b, c, d),
+            Self::parity(b, c, d),
             T_20_39,
             a,
             &mut b,
@@ -536,7 +539,7 @@ impl ShaContext {
         Self::round(
             t,
             shamble_arr,
-            Self::f3(b, c, d),
+            Self::maj(b, c, d),
             T_40_59,
             a,
             &mut b,
@@ -550,7 +553,7 @@ impl ShaContext {
         Self::round(
             t,
             shamble_arr,
-            Self::f4(b, c, d),
+            Self::parity(b, c, d),
             T_60_79,
             a,
             &mut b,
@@ -572,19 +575,12 @@ impl ShaContext {
 
 impl Sha1 for ShaContext {
     fn init() -> Self {
-        let mut ctx = Self {
-            size: 0,
-            h: [0; 5],
+        Self {
+            size: usize::MIN,
+            /* Initialize H with the magic constants provided in FIPS180 */
+            h: [SHA_1H0, SHA_1H1, SHA_1H2, SHA_1H3, SHA_1H4],
             w: [0; 16],
-        };
-        /* Initialize H with the magic constants (see FIPS180 for constants) */
-        ctx.h[0] = 0x67452301;
-        ctx.h[1] = 0xefcdab89;
-        ctx.h[2] = 0x98badcfe;
-        ctx.h[3] = 0x10325476;
-        ctx.h[4] = 0xc3d2e1f0;
-
-        return ctx;
+        }
     }
 
     fn update(&mut self, data_in: &[u8], len: usize) {
@@ -609,7 +605,7 @@ impl Sha1 for ShaContext {
 
 #[cfg(test)]
 mod test {
-    use crate::{MemoryCopy, Sha1, ShaContext, ShiftSideways};
+    use crate::{MemoryCopy, Sha1, ShaContext};
     use core::cmp::max;
     use core::fmt::Binary;
     use core::ops::{Shl, Shr};
@@ -665,6 +661,7 @@ mod test {
     #[test]
     fn test_commonly_known_sha1_phrases() {
         let quick_fox: &str = "The quick brown fox jumps over the lazy dog";
+
         let digest_result = ShaContext::digest(quick_fox.as_ref());
 
         assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
@@ -764,16 +761,33 @@ mod test {
         assert_eq!((max_u32_unsigned_integer as u8) as u32, u8::MAX as u32);
     }
 
-    fn rotate<R: ShiftSideways>(x: R, l: R, r: R) -> R {
+    #[test]
+    fn associative_wrapping_add_property(){
+        let u8_max = u8::MAX;
+        let half_u8_max = u8::MAX / 2;
+
+        assert_eq!(half_u8_max.wrapping_add(u8_max), half_u8_max - 1);
+        assert_eq!(u8_max.wrapping_add(half_u8_max), half_u8_max - 1);
+
+        assert_eq!(u8_max.wrapping_add(u8_max).wrapping_add(half_u8_max), half_u8_max - 2);
+        assert_eq!(u8_max.wrapping_add(half_u8_max.wrapping_add(u8_max)), half_u8_max - 2);
+        assert_eq!(u8_max.wrapping_add(half_u8_max).wrapping_add(u8_max), half_u8_max - 2);
+        assert_eq!(u8_max.wrapping_add(u8_max.wrapping_add(half_u8_max)), half_u8_max - 2);
+    }
+
+    fn rotate<R>(x: R, l: R, r: R) -> R
+    where
+        R: Shl<Output = R> + Shr<Output = R> + BitOr<Output = R> + Copy + Sized,
+    {
         (x << l) | (x >> r)
     }
 
     fn rotate_left(x: u32, n: u32) -> u32 {
-        rotate(x, n, 32 - n)
+        rotate(x, n, u32::BITS - n)
     }
 
     fn rotate_right(x: u32, n: u32) -> u32 {
-        rotate(x, 32 - n, n)
+        rotate(x, u32::BITS - n, n)
     }
 
     fn binary_representation(x: impl Copy + Binary) -> Vec<String> {
@@ -784,11 +798,4 @@ mod test {
             .map(|u4_bin_str| u4_bin_str.iter().collect())
             .collect::<Vec<String>>()
     }
-
-    trait ShiftSideways:
-        Shl<Output = Self> + Shr<Output = Self> + BitOr<Output = Self> + Copy + Sized
-    {
-    }
-
-    impl ShiftSideways for u32 {}
 }
