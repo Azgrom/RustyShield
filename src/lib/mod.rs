@@ -23,6 +23,26 @@ fn swab32(val: &u32) -> u32 {
         | ((*val & 0x000000ff) << 24)
 }
 
+// TODO: Later bench if inlining improves performance
+fn byte_to_u32(src: &[u8]) -> u32 {
+    src[0] as u32
+}
+
+// TODO: Later bench if inlining improves performance
+fn two_bytes_to_u32(src: &[u8]) -> u32 {
+    byte_to_u32(src) | ((src[1] as u32) << 8)
+}
+
+// TODO: Later bench if inlining improves performance
+fn three_bytes_to_u32(src: &[u8]) -> u32 {
+    two_bytes_to_u32(src) | ((src[2] as u32) << 16)
+}
+
+// TODO: Later bench if inlining improves performance
+fn four_bytes_to_u32(src: &[u8]) -> u32 {
+    three_bytes_to_u32(src) | ((src[3] as u32) << 24)
+}
+
 pub trait Sha1 {
     fn init() -> Self;
     fn update(&mut self, data_in: &[u8], len: usize);
@@ -67,16 +87,11 @@ impl MemoryCopy<u32, u8> for ShaContext {
         let u32_src = src
             .chunks(4)
             .map(|c| match c.len() {
-                4 => {
-                    (c[0] as u32)
-                        | ((c[1] as u32) << 8)
-                        | ((c[2] as u32) << 16)
-                        | ((c[3] as u32) << 24)
-                }
-                3 => (c[0] as u32) | ((c[1] as u32) << 8) | ((c[2] as u32) << 16),
-                2 => (c[0] as u32) | ((c[1] as u32) << 8),
-                1 => c[0] as u32,
-                _ => panic!(""),
+                4 => four_bytes_to_u32(c),
+                3 => three_bytes_to_u32(c),
+                2 => two_bytes_to_u32(c),
+                1 => byte_to_u32(c),
+                _ => panic!("Chunks are modulo 4"),
             })
             .collect::<Vec<u32>>();
 
@@ -92,20 +107,16 @@ impl MemoryCopy<u32, u32> for ShaContext {
 
 impl ShaSource<u8> for ShaContext {
     fn src(vec: &[u8], i: usize) -> u32 {
-        // TODO: See if there should have validation here
         let stepped_size = (i * 4) & (vec.len() - 1);
+        let offset = vec.len() - stepped_size;
+        let vec_slice = &vec[stepped_size..];
 
-        let a = |v: &[u8]| -> u32 { (v[stepped_size] as u32).shl(24) };
-        let b = |v: &[u8]| -> u32 { (v[stepped_size + 1] as u32).shl(16) };
-        let c = |v: &[u8]| -> u32 { (v[stepped_size + 2] as u32).shl(8) };
-        let d = |v: &[u8]| -> u32 { v[stepped_size + 3] as u32 };
-
-        match vec.len() - stepped_size {
-            n if n > 3 => a(vec) | b(vec) | c(vec) | d(vec),
-            3 => a(vec) | b(vec) | c(vec),
-            2 => a(vec) | b(vec),
-            1 => a(vec),
-            _ => 0,
+        match offset {
+            n if n > 3 => four_bytes_to_u32(vec_slice),
+            3 => three_bytes_to_u32(vec_slice),
+            2 => two_bytes_to_u32(vec_slice),
+            1 => byte_to_u32(vec_slice),
+            _ => panic!("This cannot possibly happen"),
         }
     }
 
@@ -507,6 +518,7 @@ impl ShaContext {
         d: u32,
         e: &mut u32,
     ) {
+        let T = a.rotate_left(5).wrapping_add(f_n).wrapping_add(*e).wrapping_add(constant) +
         let temp = Self::mix(t as usize, block);
         Self::set_w(t as usize, temp, block);
         *e = (*e)
