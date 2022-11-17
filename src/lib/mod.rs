@@ -638,6 +638,74 @@ mod test {
     }
 
     #[test]
+    fn compare_fips180_hex_character_big_endianness() {
+        let big_endian_zero = 0x0u8.to_be();
+        let four_bit_str_be_zero = "0000";
+
+        let big_endian_one = 0x1u8.to_be();
+        let four_bit_str_be_one = "0001";
+
+        let big_endian_two = 0x2u8.to_be();
+        let four_bit_str_be_two = "0010";
+
+        let big_endian_three = 0x3u8.to_be();
+        let four_bit_str_be_three = "0011";
+
+        let big_endian_four = 0x4u8.to_be();
+        let four_bit_str_be_four = "0100";
+
+        let big_endian_five = 0x5u8.to_be();
+        let four_bit_str_be_five = "0101";
+
+        let big_endian_six = 0x6u8.to_be();
+        let four_bit_str_be_six = "0110";
+
+        let big_endian_seven = 0x7u8.to_be();
+        let four_bit_str_be_seven = "0111";
+
+        let big_endian_eight = 0x8u8.to_be();
+        let four_bit_str_be_eight = "1000";
+
+        let big_endian_nine = 0x9u8.to_be();
+        let four_bit_str_be_nine = "1001";
+
+        let big_endian_a = 0xau8.to_be();
+        let four_bit_str_be_a = "1010";
+
+        let big_endian_b = 0xbu8.to_be();
+        let four_bit_str_be_b = "1011";
+
+        let big_endian_c = 0xcu8.to_be();
+        let four_bit_str_be_c = "1100";
+
+        let big_endian_d = 0xdu8.to_be();
+        let four_bit_str_be_d = "1101";
+
+        let big_endian_e = 0xeu8.to_be();
+        let four_bit_str_be_e = "1110";
+
+        let big_endian_f = 0xfu8.to_be();
+        let four_bit_str_be_f = "1111";
+
+        assert_eq!(format!("{:04b}", big_endian_zero), *four_bit_str_be_zero);
+        assert_eq!(format!("{:04b}", big_endian_one), *four_bit_str_be_one);
+        assert_eq!(format!("{:04b}", big_endian_two), *four_bit_str_be_two);
+        assert_eq!(format!("{:04b}", big_endian_three), *four_bit_str_be_three);
+        assert_eq!(format!("{:04b}", big_endian_four), *four_bit_str_be_four);
+        assert_eq!(format!("{:04b}", big_endian_five), *four_bit_str_be_five);
+        assert_eq!(format!("{:04b}", big_endian_two), *four_bit_str_be_two);
+        assert_eq!(format!("{:04b}", big_endian_seven), *four_bit_str_be_seven);
+        assert_eq!(format!("{:04b}", big_endian_eight), *four_bit_str_be_eight);
+        assert_eq!(format!("{:04b}", big_endian_nine), *four_bit_str_be_nine);
+        assert_eq!(format!("{:04b}", big_endian_a), *four_bit_str_be_a);
+        assert_eq!(format!("{:04b}", big_endian_b), *four_bit_str_be_b);
+        assert_eq!(format!("{:04b}", big_endian_c), *four_bit_str_be_c);
+        assert_eq!(format!("{:04b}", big_endian_d), *four_bit_str_be_d);
+        assert_eq!(format!("{:04b}", big_endian_e), *four_bit_str_be_e);
+        assert_eq!(format!("{:04b}", big_endian_f), *four_bit_str_be_f);
+    }
+
+    #[test]
     fn first_w_bit_word_in_fips180_documentation_conversion_test() {
         let w32_hex_str: u32 = 0xa103fe23;
         let four_w32_bit_str = [
