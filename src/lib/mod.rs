@@ -720,12 +720,12 @@ mod test {
         let w32_ones_count = w32_hex_str.count_ones();
         let w32_zeros_count = w32_hex_str.count_zeros();
         let w32_bits_count = w32_ones_count + w32_zeros_count;
-        let w32_binary_representation = binary_representation(w32_hex_str);
+        let w32_binary_representation = binary_representation(&w32_hex_str.to_be_bytes());
 
         let w64_ones_count = w64_hex_str.count_ones();
         let w64_zeros_count = w64_hex_str.count_zeros();
         let w64_bits_count = w64_ones_count + w64_zeros_count;
-        let w64_binary_representation = binary_representation(w64_hex_str);
+        let w64_binary_representation = binary_representation(&w64_hex_str.to_be_bytes());
 
         assert_eq!(w32_ones_count, 15);
         assert_eq!(w32_zeros_count, 17);
@@ -870,12 +870,14 @@ mod test {
         rotate(x, u32::BITS - n, n)
     }
 
-    fn binary_representation(x: impl Copy + Binary) -> Vec<String> {
-        format!("{:b}", x)
-            .chars()
-            .collect::<Vec<char>>()
-            .chunks(4)
-            .map(|u4_bin_str| u4_bin_str.iter().collect())
-            .collect::<Vec<String>>()
+    fn binary_representation(x: &[u8]) -> Vec<String> {
+        let mut result = Vec::with_capacity(x.len() * 2);
+        x.iter().for_each(|b| {
+            let byte_bits = format!("{:08b}", *b);
+            result.push(byte_bits[..4].to_string());
+            result.push(byte_bits[4..].to_string());
+        });
+
+        result
     }
 }
