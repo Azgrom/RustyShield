@@ -1,6 +1,6 @@
 extern crate core;
 
-use core::ops::{BitOr, RangeFrom, RangeTo, Shl, Shr};
+use core::{mem::size_of, ops::{BitOr, RangeFrom, RangeTo, Shl, Shr}};
 
 const SHA_1H0: u32 = 0x67452301;
 const SHA_1H1: u32 = 0xefcdab89;
@@ -15,15 +15,15 @@ const T_40_59: u32 = 0x8f1bbcdc;
 const T_60_79: u32 = 0xca62c1d6;
 const U8_TO_U32: [u8; 4] = [0, 8, 16, 24];
 
-struct ExtensionMethods;
+struct ExtMethods;
 
-trait SixteenModulusIndex<T> {
+trait EncapsulateExtensions<T> {
     fn modulus_16_element(index: T) -> usize;
     fn range_from(index: T) -> RangeFrom<usize>;
     fn range_to(index: T) -> RangeTo<usize>;
 }
 
-impl SixteenModulusIndex<u8> for ExtensionMethods {
+impl EncapsulateExtensions<u8> for ExtMethods {
     fn modulus_16_element(index: u8) -> usize {
         (index as usize) & 15
     }
@@ -37,7 +37,7 @@ impl SixteenModulusIndex<u8> for ExtensionMethods {
     }
 }
 
-impl SixteenModulusIndex<u64> for ExtensionMethods {
+impl EncapsulateExtensions<u64> for ExtMethods {
     fn modulus_16_element(index: u64) -> usize {
         (index as usize) & 15
     }
@@ -51,7 +51,7 @@ impl SixteenModulusIndex<u64> for ExtensionMethods {
     }
 }
 
-impl SixteenModulusIndex<usize> for ExtensionMethods {
+impl EncapsulateExtensions<usize> for ExtMethods {
     fn modulus_16_element(index: usize) -> usize {
         index & 15
     }
@@ -63,33 +63,6 @@ impl SixteenModulusIndex<usize> for ExtensionMethods {
     fn range_to(index: usize) -> RangeTo<usize> {
         ..index
     }
-}
-
-fn swab32(val: &u32) -> u32 {
-    ((*val & 0xff000000) >> 24)
-        | ((*val & 0x00ff0000) >> 8)
-        | ((*val & 0x0000ff00) << 8)
-        | ((*val & 0x000000ff) << 24)
-}
-
-// TODO: Later bench if inlining improves performance
-fn be_byte_to_u32(src: &[u8]) -> u32 {
-    src[0] as u32
-}
-
-// TODO: Later bench if inlining improves performance
-fn two_be_bytes_to_u32(src: &[u8]) -> u32 {
-    (be_byte_to_u32(src) << 8) | (src[1] as u32)
-}
-
-// TODO: Later bench if inlining improves performance
-fn three_be_bytes_to_u32(src: &[u8]) -> u32 {
-    (two_be_bytes_to_u32(src) << 8) | (src[2] as u32)
-}
-
-// TODO: Later bench if inlining improves performance
-fn four_be_bytes_to_u32(src: &[u8]) -> u32 {
-    (three_be_bytes_to_u32(src) << 8) | (src[3] as u32)
 }
 
 pub trait Sha1 {
@@ -135,15 +108,16 @@ impl MemoryCopy<u32, u8> for Sha1Context {
         let u32_src = src
             .chunks(4)
             .map(|c| match c.len() {
-                4 => four_be_bytes_to_u32(c),
-                3 => three_be_bytes_to_u32(c),
-                2 => two_be_bytes_to_u32(c),
-                1 => be_byte_to_u32(c),
+                4 => u32::from_be_bytes(c.try_into().unwrap()),
+                3 => u32::from_be_bytes([&[0], c].concat().try_into().unwrap()),
+                2 => u32::from_be_bytes([&[0, 0], c].concat().try_into().unwrap()),
+                1 => u32::from_be_bytes([&[0, 0, 0, ], c].concat().try_into().unwrap()),
                 _ => panic!("Chunks are modulo 4"),
             })
             .collect::<Vec<u32>>();
 
-        dest[..u32_src.len()].clone_from_slice(&u32_src);
+        let to = ExtMethods::range_to(u32_src.len());
+        dest[to].clone_from_slice(&u32_src);
     }
 }
 
@@ -160,10 +134,13 @@ impl ShaSource<u8> for Sha1Context {
         let vec_slice = &vec[stepped_size..];
 
         match offset {
-            n if n > 3 => four_be_bytes_to_u32(vec_slice),
-            3 => three_be_bytes_to_u32(vec_slice),
-            2 => two_be_bytes_to_u32(vec_slice),
-            1 => be_byte_to_u32(vec_slice),
+            n if n > 3 => {
+                let (u8_bytes, _) = vec_slice.split_at(size_of::<u32>());
+                u32::from_be_bytes(u8_bytes.try_into().unwrap())
+            },
+            3 => u32::from_be_bytes([&[0], vec_slice].concat().try_into().unwrap()),
+            2 => u32::from_be_bytes([&[0, 0], vec_slice].concat().try_into().unwrap()),
+            1 => u32::from_be_bytes([&[0, 0, 0, ], vec_slice].concat().try_into().unwrap()),
             _ => panic!("This cannot possibly happen"),
         }
     }
@@ -452,17 +429,17 @@ impl Sha1Context {
     }
 
     fn set_w(i: u8, val: u32, array: &mut [u32]) {
-        array[ExtensionMethods::modulus_16_element(i)] = val;
+        array[ExtMethods::modulus_16_element(i)] = val;
     }
 
-    fn mix(i: usize, array: &[u32]) -> u32 {
-        let x_i = ExtensionMethods::modulus_16_element(i + 13);
+    fn mix(i: u8, array: &[u32]) -> u32 {
+        let x_i = ExtMethods::modulus_16_element(i + 13);
         let x = array[x_i];
-        let y_i = ExtensionMethods::modulus_16_element(i + 8);
+        let y_i = ExtMethods::modulus_16_element(i + 8);
         let y = array[y_i];
-        let z_i = ExtensionMethods::modulus_16_element(i + 2);
+        let z_i = ExtMethods::modulus_16_element(i + 2);
         let z = array[z_i];
-        let t_i = ExtensionMethods::modulus_16_element(i);
+        let t_i = ExtMethods::modulus_16_element(i);
         let t = array[t_i];
 
         (x ^ y ^ z ^ t).rotate_left(1)
@@ -482,9 +459,16 @@ impl Sha1Context {
 
     fn block_32_bit_word(&mut self) {}
 
+    fn form_d_words_from_data_stream(&mut self, data_stream: &[u8], len_w: &mut u64, left: u64) {
+        let dest_from = ExtMethods::range_from(ExtMethods::modulus_16_element(*len_w));
+        Self::mem_cpy(&mut self.w[dest_from], data_stream);
+
+        *len_w = (*len_w + left) & 63;
+    }
+
     fn t_16_19(t: u8, shamble_arr: &mut [u32], a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
         let f_n = Self::ch(*b, c, d);
-        let temp = Self::mix(t as usize, shamble_arr);
+        let temp = Self::mix(t, shamble_arr);
         Self::set_w(t, temp, shamble_arr);
         *e = (*e)
             .wrapping_add(temp)
@@ -496,7 +480,7 @@ impl Sha1Context {
 
     fn t_20_39(t: u8, shamble_arr: &mut [u32], a: u32, mut b: u32, c: u32, d: u32, mut e: u32) {
         let f_n = Self::parity(b, c, d);
-        let temp = Self::mix(t as usize, shamble_arr);
+        let temp = Self::mix(t, shamble_arr);
         Self::set_w(t, temp, shamble_arr);
         e = (e)
             .wrapping_add(temp)
@@ -508,7 +492,7 @@ impl Sha1Context {
 
     fn t_40_59(t: u8, shamble_arr: &mut [u32], a: u32, mut b: u32, c: u32, d: u32, mut e: u32) {
         let f_n = Self::maj(b, c, d);
-        let temp = Self::mix(t as usize, shamble_arr);
+        let temp = Self::mix(t, shamble_arr);
         Self::set_w(t, temp, shamble_arr);
         e = (e)
             .wrapping_add(temp)
@@ -520,7 +504,7 @@ impl Sha1Context {
 
     fn t_60_79(t: u8, shamble_arr: &mut [u32], a: u32, mut b: u32, c: u32, d: u32, mut e: u32) {
         let f_n = Self::parity(b, c, d);
-        let temp = Self::mix(t as usize, shamble_arr);
+        let temp = Self::mix(t, shamble_arr);
         Self::set_w(t, temp, shamble_arr);
         e = (e)
             .wrapping_add(temp)
@@ -528,13 +512,6 @@ impl Sha1Context {
             .wrapping_add(f_n)
             .wrapping_add(T_60_79);
         b = (b).rotate_right(2);
-    }
-
-    fn form_d_words_from_data_stream(&mut self, data_stream: &[u8], len_w: &mut u64, left: u64) {
-        let dest_from = ExtensionMethods::range_from(ExtensionMethods::modulus_16_element(*len_w));
-        Self::mem_cpy(&mut self.w[dest_from], data_stream);
-
-        *len_w = (*len_w + left) & 63;
     }
 }
 
@@ -591,7 +568,7 @@ impl Sha1 for Sha1Context {
             if len > data_in.len() as u64 {
                 len = data_in.len() as u64
             }
-            let to = ExtensionMethods::range_to(len);
+            let to = ExtMethods::range_to(len);
             Self::mem_cpy(&mut self.w, &data_in[to]);
         }
     }
@@ -612,7 +589,7 @@ impl Sha1 for Sha1Context {
 #[cfg(test)]
 mod test {
     use crate::{
-        be_byte_to_u32, four_be_bytes_to_u32, three_be_bytes_to_u32, two_be_bytes_to_u32, MemoryCopy, Sha1,
+        MemoryCopy, Sha1,
         Sha1Context,
     };
     use core::cmp::max;
@@ -966,5 +943,25 @@ mod test {
         });
 
         result
+    }
+
+    // TODO: Later bench if inlining improves performance
+    fn be_byte_to_u32(src: &[u8]) -> u32 {
+        src[0] as u32
+    }
+
+    // TODO: Later bench if inlining improves performance
+    fn two_be_bytes_to_u32(src: &[u8]) -> u32 {
+        (be_byte_to_u32(src) << 8) | (src[1] as u32)
+    }
+
+    // TODO: Later bench if inlining improves performance
+    fn three_be_bytes_to_u32(src: &[u8]) -> u32 {
+        (two_be_bytes_to_u32(src) << 8) | (src[2] as u32)
+    }
+
+    // TODO: Later bench if inlining improves performance
+    fn four_be_bytes_to_u32(src: &[u8]) -> u32 {
+        (three_be_bytes_to_u32(src) << 8) | (src[3] as u32)
     }
 }
