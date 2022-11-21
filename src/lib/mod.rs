@@ -1,7 +1,6 @@
 extern crate core;
 
-use core::ops::{BitOr, Shl, Shr};
-use std::ops::{Deref, Range};
+use core::ops::{BitOr, RangeFrom, RangeTo, Shl, Shr};
 
 const SHA_1H0: u32 = 0x67452301;
 const SHA_1H1: u32 = 0xefcdab89;
@@ -16,6 +15,56 @@ const T_40_59: u32 = 0x8f1bbcdc;
 const T_60_79: u32 = 0xca62c1d6;
 const U8_TO_U32: [u8; 4] = [0, 8, 16, 24];
 
+struct ExtensionMethods;
+
+trait SixteenModulusIndex<T> {
+    fn modulus_16_element(index: T) -> usize;
+    fn range_from(index: T) -> RangeFrom<usize>;
+    fn range_to(index: T) -> RangeTo<usize>;
+}
+
+impl SixteenModulusIndex<u8> for ExtensionMethods {
+    fn modulus_16_element(index: u8) -> usize {
+        (index as usize) & 15
+    }
+
+    fn range_from(index: u8) -> RangeFrom<usize> {
+        (index as usize)..
+    }
+
+    fn range_to(index: u8) -> RangeTo<usize> {
+        ..(index as usize)
+    }
+}
+
+impl SixteenModulusIndex<u64> for ExtensionMethods {
+    fn modulus_16_element(index: u64) -> usize {
+        (index as usize) & 15
+    }
+
+    fn range_from(index: u64) -> RangeFrom<usize> {
+        (index as usize)..
+    }
+
+    fn range_to(index: u64) -> RangeTo<usize> {
+        ..(index as usize)
+    }
+}
+
+impl SixteenModulusIndex<usize> for ExtensionMethods {
+    fn modulus_16_element(index: usize) -> usize {
+        index & 15
+    }
+
+    fn range_from(index: usize) -> RangeFrom<usize> {
+        index..
+    }
+
+    fn range_to(index: usize) -> RangeTo<usize> {
+        ..index
+    }
+}
+
 fn swab32(val: &u32) -> u32 {
     ((*val & 0xff000000) >> 24)
         | ((*val & 0x00ff0000) >> 8)
@@ -24,28 +73,28 @@ fn swab32(val: &u32) -> u32 {
 }
 
 // TODO: Later bench if inlining improves performance
-fn byte_to_u32(src: &[u8]) -> u32 {
+fn be_byte_to_u32(src: &[u8]) -> u32 {
     src[0] as u32
 }
 
 // TODO: Later bench if inlining improves performance
-fn two_bytes_to_u32(src: &[u8]) -> u32 {
-    byte_to_u32(src) | ((src[1] as u32) << 8)
+fn two_be_bytes_to_u32(src: &[u8]) -> u32 {
+    (be_byte_to_u32(src) << 8) | (src[1] as u32)
 }
 
 // TODO: Later bench if inlining improves performance
-fn three_bytes_to_u32(src: &[u8]) -> u32 {
-    two_bytes_to_u32(src) | ((src[2] as u32) << 16)
+fn three_be_bytes_to_u32(src: &[u8]) -> u32 {
+    (two_be_bytes_to_u32(src) << 8) | (src[2] as u32)
 }
 
 // TODO: Later bench if inlining improves performance
-fn four_bytes_to_u32(src: &[u8]) -> u32 {
-    three_bytes_to_u32(src) | ((src[3] as u32) << 24)
+fn four_be_bytes_to_u32(src: &[u8]) -> u32 {
+    (three_be_bytes_to_u32(src) << 8) | (src[3] as u32)
 }
 
 pub trait Sha1 {
     fn init() -> Self;
-    fn update(&mut self, data_in: &[u8], len: usize);
+    fn update(&mut self, data_in: &[u8], len: u64);
     fn finalize(&mut self) -> [u8; 20];
 }
 
@@ -67,30 +116,29 @@ trait ShaSource<T> {
         array: &mut [u32],
     );
     fn block(h: &mut [u32; 5], block: &[T]);
-    fn process(&mut self, data_in: &[T], len: usize);
 }
 
-pub struct ShaContext {
-    size: usize,
+pub struct Sha1Context {
+    size: u64,
     h: [u32; 5],
     w: [u32; 16],
 }
 
-impl MemoryCopy<u8, u8> for ShaContext {
+impl MemoryCopy<u8, u8> for Sha1Context {
     fn mem_cpy(dest: &mut [u8], src: &[u8]) {
         dest[..src.len()].clone_from_slice(&src)
     }
 }
 
-impl MemoryCopy<u32, u8> for ShaContext {
+impl MemoryCopy<u32, u8> for Sha1Context {
     fn mem_cpy(dest: &mut [u32], src: &[u8]) {
         let u32_src = src
             .chunks(4)
             .map(|c| match c.len() {
-                4 => four_bytes_to_u32(c),
-                3 => three_bytes_to_u32(c),
-                2 => two_bytes_to_u32(c),
-                1 => byte_to_u32(c),
+                4 => four_be_bytes_to_u32(c),
+                3 => three_be_bytes_to_u32(c),
+                2 => two_be_bytes_to_u32(c),
+                1 => be_byte_to_u32(c),
                 _ => panic!("Chunks are modulo 4"),
             })
             .collect::<Vec<u32>>();
@@ -99,23 +147,23 @@ impl MemoryCopy<u32, u8> for ShaContext {
     }
 }
 
-impl MemoryCopy<u32, u32> for ShaContext {
+impl MemoryCopy<u32, u32> for Sha1Context {
     fn mem_cpy(dest: &mut [u32], src: &[u32]) {
         dest[..src.len()].clone_from_slice(&src)
     }
 }
 
-impl ShaSource<u8> for ShaContext {
+impl ShaSource<u8> for Sha1Context {
     fn src(vec: &[u8], i: usize) -> u32 {
         let stepped_size = (i * 4) & (vec.len() - 1);
         let offset = vec.len() - stepped_size;
         let vec_slice = &vec[stepped_size..];
 
         match offset {
-            n if n > 3 => four_bytes_to_u32(vec_slice),
-            3 => three_bytes_to_u32(vec_slice),
-            2 => two_bytes_to_u32(vec_slice),
-            1 => byte_to_u32(vec_slice),
+            n if n > 3 => four_be_bytes_to_u32(vec_slice),
+            3 => three_be_bytes_to_u32(vec_slice),
+            2 => two_be_bytes_to_u32(vec_slice),
+            1 => be_byte_to_u32(vec_slice),
             _ => panic!("This cannot possibly happen"),
         }
     }
@@ -131,7 +179,7 @@ impl ShaSource<u8> for ShaContext {
         array: &mut [u32],
     ) {
         let temp = Self::src(block, t as usize);
-        Self::set_w(t as usize, temp, array);
+        Self::set_w(t, temp, array);
         *e = (*e)
             .wrapping_add(temp)
             .wrapping_add(a.rotate_left(5))
@@ -245,47 +293,9 @@ impl ShaSource<u8> for ShaContext {
         h[3] = h[3].wrapping_add(d);
         h[4] = h[4].wrapping_add(e);
     }
-
-    fn process(&mut self, mut data_in: &[u8], mut len: usize) {
-        let mut len_w = self.size & 63;
-
-        self.size += len;
-
-        if len_w > 0 {
-            let mut left = 64 - len_w;
-            if len < left {
-                left = len;
-            }
-
-            Self::mem_cpy(&mut self.w[(len_w & 15)..], &data_in[..left]);
-
-            len_w = (len_w + left) & 63;
-            len -= left;
-            data_in = &data_in[(left & 7)..];
-
-            if len_w > 0 {
-                return;
-            }
-
-            Self::block(&mut self.h, &mut self.w);
-        }
-
-        while len >= 64 {
-            Self::block(&mut self.h, data_in);
-            data_in = &data_in[(64 & data_in.len() - 1)..];
-            len -= 64;
-        }
-
-        if len > 0 {
-            if len > data_in.len() {
-                len = data_in.len()
-            }
-            Self::mem_cpy(&mut self.w, &data_in[..len]);
-        }
-    }
 }
 
-impl ShaSource<u32> for ShaContext {
+impl ShaSource<u32> for Sha1Context {
     fn src(vec: &[u32], i: usize) -> u32 {
         vec[i].to_be()
     }
@@ -301,7 +311,7 @@ impl ShaSource<u32> for ShaContext {
         array: &mut [u32],
     ) {
         let temp = Self::src(block, t as usize);
-        Self::set_w(t as usize, temp, array);
+        Self::set_w(t, temp, array);
         *e = (*e)
             .wrapping_add(temp)
             .wrapping_add(a.rotate_left(5))
@@ -415,50 +425,9 @@ impl ShaSource<u32> for ShaContext {
         h[3] = h[3].wrapping_add(d);
         h[4] = h[4].wrapping_add(e);
     }
-
-    fn process(&mut self, mut data_in: &[u32], mut len: usize) {
-        let mut len_w = self.size & 63;
-
-        self.size += len;
-
-        if len_w > 0 {
-            let mut left = 64 - len_w;
-            if len < left {
-                left = len;
-            }
-
-            let mut data_in_len = left;
-
-            if data_in.len() < left {
-                data_in_len = data_in.len();
-            }
-
-            Self::mem_cpy(&mut self.w[(len_w & 15)..], &data_in[..data_in_len]);
-
-            len_w = (len_w + left) & 63;
-            len -= left;
-            data_in = &data_in[(left & 7)..];
-
-            if len_w > 0 {
-                return;
-            }
-
-            Self::block(&mut self.h, &mut self.w);
-        }
-
-        while len >= 64 {
-            Self::block(&mut self.h, data_in);
-            data_in = &data_in[64..];
-            len -= 64;
-        }
-
-        if len > 0 {
-            Self::mem_cpy(&mut self.w, &data_in[..len]);
-        }
-    }
 }
 
-impl ShaContext {
+impl Sha1Context {
     fn to_byte_slice(&self) -> [u8; 20] {
         // Use flatten once it stabilizes
         let mut hash_out: [u8; 20] = [0; 20];
@@ -482,15 +451,19 @@ impl ShaContext {
             .collect::<String>()
     }
 
-    fn set_w(i: usize, val: u32, array: &mut [u32]) {
-        array[i & 15] = val;
+    fn set_w(i: u8, val: u32, array: &mut [u32]) {
+        array[ExtensionMethods::modulus_16_element(i)] = val;
     }
 
     fn mix(i: usize, array: &[u32]) -> u32 {
-        let x = array[(i + 13) & 15];
-        let y = array[(i + 8) & 15];
-        let z = array[(i + 2) & 15];
-        let t = array[i & 15];
+        let x_i = ExtensionMethods::modulus_16_element(i + 13);
+        let x = array[x_i];
+        let y_i = ExtensionMethods::modulus_16_element(i + 8);
+        let y = array[y_i];
+        let z_i = ExtensionMethods::modulus_16_element(i + 2);
+        let z = array[z_i];
+        let t_i = ExtensionMethods::modulus_16_element(i);
+        let t = array[t_i];
 
         (x ^ y ^ z ^ t).rotate_left(1)
     }
@@ -507,109 +480,130 @@ impl ShaContext {
         (x & y) ^ (x & z) ^ (y & z)
     }
 
-    fn round(
-        t: u8,
-        block: &mut [u32],
-        f_n: u32,
-        constant: u32,
-        a: u32,
-        b: &mut u32,
-        c: u32,
-        d: u32,
-        e: &mut u32,
-    ) {
-        let T = a.rotate_left(5).wrapping_add(f_n).wrapping_add(*e).wrapping_add(constant) +
-        let temp = Self::mix(t as usize, block);
-        Self::set_w(t as usize, temp, block);
+    fn block_32_bit_word(&mut self) {}
+
+    fn t_16_19(t: u8, shamble_arr: &mut [u32], a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
+        let f_n = Self::ch(*b, c, d);
+        let temp = Self::mix(t as usize, shamble_arr);
+        Self::set_w(t, temp, shamble_arr);
         *e = (*e)
             .wrapping_add(temp)
             .wrapping_add(a.rotate_left(5))
             .wrapping_add(f_n)
-            .wrapping_add(constant);
+            .wrapping_add(T_16_19);
         *b = (*b).rotate_right(2);
     }
 
-    fn t_16_19(t: u8, shamble_arr: &mut [u32], a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
-        Self::round(t, shamble_arr, Self::ch(*b, c, d), T_16_19, a, b, c, d, e)
-    }
-
     fn t_20_39(t: u8, shamble_arr: &mut [u32], a: u32, mut b: u32, c: u32, d: u32, mut e: u32) {
-        Self::round(
-            t,
-            shamble_arr,
-            Self::parity(b, c, d),
-            T_20_39,
-            a,
-            &mut b,
-            c,
-            d,
-            &mut e,
-        )
+        let f_n = Self::parity(b, c, d);
+        let temp = Self::mix(t as usize, shamble_arr);
+        Self::set_w(t, temp, shamble_arr);
+        e = (e)
+            .wrapping_add(temp)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(f_n)
+            .wrapping_add(T_20_39);
+        b = (b).rotate_right(2);
     }
 
     fn t_40_59(t: u8, shamble_arr: &mut [u32], a: u32, mut b: u32, c: u32, d: u32, mut e: u32) {
-        Self::round(
-            t,
-            shamble_arr,
-            Self::maj(b, c, d),
-            T_40_59,
-            a,
-            &mut b,
-            c,
-            d,
-            &mut e,
-        )
+        let f_n = Self::maj(b, c, d);
+        let temp = Self::mix(t as usize, shamble_arr);
+        Self::set_w(t, temp, shamble_arr);
+        e = (e)
+            .wrapping_add(temp)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(f_n)
+            .wrapping_add(T_40_59);
+        b = (b).rotate_right(2);
     }
 
     fn t_60_79(t: u8, shamble_arr: &mut [u32], a: u32, mut b: u32, c: u32, d: u32, mut e: u32) {
-        Self::round(
-            t,
-            shamble_arr,
-            Self::parity(b, c, d),
-            T_60_79,
-            a,
-            &mut b,
-            c,
-            d,
-            &mut e,
-        )
+        let f_n = Self::parity(b, c, d);
+        let temp = Self::mix(t as usize, shamble_arr);
+        Self::set_w(t, temp, shamble_arr);
+        e = (e)
+            .wrapping_add(temp)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(f_n)
+            .wrapping_add(T_60_79);
+        b = (b).rotate_right(2);
+    }
+
+    fn form_d_words_from_data_stream(&mut self, data_stream: &[u8], len_w: &mut u64, left: u64) {
+        let dest_from = ExtensionMethods::range_from(ExtensionMethods::modulus_16_element(*len_w));
+        Self::mem_cpy(&mut self.w[dest_from], data_stream);
+
+        *len_w = (*len_w + left) & 63;
     }
 }
 
-impl ShaContext {
+impl Sha1Context {
     pub fn digest(data: &[u8]) -> String {
         let mut ctx = Self::init();
-        ctx.update(data, data.len() * 4);
+        ctx.update(data, (data.len() * 4) as u64);
 
         Self::hex_hash(ctx.finalize().as_ref())
     }
 }
 
-impl Sha1 for ShaContext {
+impl Sha1 for Sha1Context {
     fn init() -> Self {
         Self {
-            size: usize::MIN,
+            size: u64::MIN,
             /* Initialize H with the magic constants provided in FIPS180 */
             h: [SHA_1H0, SHA_1H1, SHA_1H2, SHA_1H3, SHA_1H4],
             w: [0; 16],
         }
     }
 
-    fn update(&mut self, data_in: &[u8], len: usize) {
-        self.process(data_in, len)
+    fn update(&mut self, mut data_in: &[u8], mut len: u64) {
+        let mut len_w = self.size & 63;
+
+        self.size += len;
+
+        if len_w != 0 {
+            let mut left = 64 - len_w;
+            if len < left {
+                left = len;
+            }
+
+            let (data_stream_chunk, rest) = data_in.split_at(left as usize);
+            self.form_d_words_from_data_stream(data_stream_chunk, &mut len_w, left);
+
+            len -= left;
+            data_in = rest;
+
+            if len_w != 0 {
+                return;
+            }
+
+            Self::block(&mut self.h, &mut self.w);
+        }
+
+        while len >= 64 {
+            Self::block(&mut self.h, data_in);
+            data_in = &data_in[(64 & data_in.len() - 1)..];
+            len -= 64;
+        }
+
+        if len != 0 {
+            if len > data_in.len() as u64 {
+                len = data_in.len() as u64
+            }
+            let to = ExtensionMethods::range_to(len);
+            Self::mem_cpy(&mut self.w, &data_in[to]);
+        }
     }
 
     fn finalize(&mut self) -> [u8; 20] {
         let mut pad: [u8; 64] = [0; 64];
-        let mut pad_len: [u32; 2] = [0; 2];
+        let mut pad_len = self.size.to_be_bytes();
         pad[0] = 0x80;
 
-        pad_len[0] = swab32(&(self.size as u32).shr(29));
-        pad_len[1] = swab32(&(self.size as u32).shl(3));
-
         let i = self.size & 63;
-        self.process(&pad, 1 + (63 & (55 - i)));
-        self.process(&pad_len, 8);
+        self.update(&pad, 1 + (63 & (55 - i)));
+        self.update(&pad_len, 8);
 
         self.to_byte_slice()
     }
@@ -617,7 +611,10 @@ impl Sha1 for ShaContext {
 
 #[cfg(test)]
 mod test {
-    use crate::{MemoryCopy, Sha1, ShaContext};
+    use crate::{
+        be_byte_to_u32, four_be_bytes_to_u32, three_be_bytes_to_u32, two_be_bytes_to_u32, MemoryCopy, Sha1,
+        Sha1Context,
+    };
     use core::cmp::max;
     use core::fmt::Binary;
     use core::ops::{Shl, Shr};
@@ -739,15 +736,93 @@ mod test {
     }
 
     #[test]
+    fn convert_big_endian_bytes_to_u32() {
+        const FIRST_U8: u8 = 0x12;
+        const SECOND_U8: u8 = 0x58;
+        const THIRD_U8: u8 = 0xfd;
+        const FOURTH_U8: u8 = 0xd7;
+
+        let one_byte_stream_vec: &[u8] = &[FIRST_U8];
+        let two_byte_stream_vec: &[u8] = &[FIRST_U8, SECOND_U8];
+        let three_byte_stream_vec: &[u8] = &[FIRST_U8, SECOND_U8, THIRD_U8];
+        let complete_u32_vec: &[u8] = &[FIRST_U8, SECOND_U8, THIRD_U8, FOURTH_U8];
+
+        let manually_computed_single_u8_to_u32 = be_byte_to_u32(one_byte_stream_vec);
+        let manually_computed_single_u8_to_u32_hex_str =
+            format!("{:x}", manually_computed_single_u8_to_u32);
+
+        let manually_computed_two_u8_to_u32 = two_be_bytes_to_u32(two_byte_stream_vec);
+        let manually_computed_two_u8_to_u32_hex_str =
+            format!("{:x}", manually_computed_two_u8_to_u32);
+
+        let manually_computed_three_u8_to_u32 = three_be_bytes_to_u32(three_byte_stream_vec);
+        let manually_computed_three_u8_to_u32_hex_str =
+            format!("{:x}", manually_computed_three_u8_to_u32);
+
+        let manually_computed_complete_u32 = four_be_bytes_to_u32(complete_u32_vec);
+        let manually_computed_complete_u32_hex_str = format!("{:x}", manually_computed_complete_u32);
+
+        let zeroes_bytes: &[u8] = &[0; 3];
+        let size_of_u32 = core::mem::size_of::<u32>();
+        let one_byte_u32_binding = [zeroes_bytes, one_byte_stream_vec].concat();
+        let two_byte_u32_binding = [&zeroes_bytes[..=1], two_byte_stream_vec].concat();
+        let three_byte_u32_binding = [&zeroes_bytes[..1], three_byte_stream_vec].concat();
+
+        let std_computed_single_u8_to_u32 =
+            u32::from_be_bytes(one_byte_u32_binding.try_into().unwrap());
+        let std_computed_single_u8_to_u32_hex_str = format!("{:x}", std_computed_single_u8_to_u32);
+        let std_computed_two_u8_to_u32 =
+            u32::from_be_bytes(two_byte_u32_binding.try_into().unwrap());
+        let std_computed_two_u8_to_u32_hex_str = format!("{:x}", std_computed_two_u8_to_u32);
+        let std_computed_three_u8_to_u32 =
+            u32::from_be_bytes(three_byte_u32_binding.try_into().unwrap());
+        let std_computed_three_u8_to_u32_hex_str = format!("{:x}", std_computed_three_u8_to_u32);
+        let std_computed_complete_u8_pack_to_u32 =
+            u32::from_be_bytes(complete_u32_vec.try_into().unwrap());
+        let std_computed_complete_u8_to_u32_hex_str =
+            format!("{:x}", std_computed_complete_u8_pack_to_u32);
+
+        assert_eq!(
+            std_computed_single_u8_to_u32,
+            manually_computed_single_u8_to_u32
+        );
+        assert_eq!(
+            std_computed_single_u8_to_u32_hex_str,
+            manually_computed_single_u8_to_u32_hex_str
+        );
+        assert_eq!(std_computed_two_u8_to_u32, manually_computed_two_u8_to_u32);
+        assert_eq!(
+            std_computed_two_u8_to_u32_hex_str,
+            manually_computed_two_u8_to_u32_hex_str
+        );
+        assert_eq!(
+            std_computed_three_u8_to_u32,
+            manually_computed_three_u8_to_u32
+        );
+        assert_eq!(
+            std_computed_three_u8_to_u32_hex_str,
+            manually_computed_three_u8_to_u32_hex_str
+        );
+        assert_eq!(
+            std_computed_complete_u8_pack_to_u32,
+            manually_computed_complete_u32
+        );
+        assert_eq!(
+            std_computed_complete_u8_to_u32_hex_str,
+            manually_computed_complete_u32_hex_str
+        );
+    }
+
+    #[test]
     fn test_commonly_known_sha1_phrases() {
         let quick_fox: &str = "The quick brown fox jumps over the lazy dog";
 
-        let digest_result = ShaContext::digest(quick_fox.as_ref());
+        let digest_result = Sha1Context::digest(quick_fox.as_ref());
 
         assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
 
         let cavs_message: &str = "7c9c67323a1df1adbfe5ceb415eaef0155ece2820f4d50c1ec22cba4928ac656c83fe585db6a78ce40bc42757aba7e5a3f582428d6ca68d0c3978336a6efb729613e8d9979016204bfd921322fdd5222183554447de5e6e9bbe6edf76d7b71e18dc2e8d6dc89b7398364f652fafc734329aafa3dcd45d4f31e388e4fafd7fc6495f37ca5cbab7f54d586463da4bfeaa3bae09f7b8e9239d832b4f0a733aa609cc1f8d4";
-        let digest_result = ShaContext::digest(cavs_message.as_ref());
+        let digest_result = Sha1Context::digest(cavs_message.as_ref());
         assert_eq!(digest_result, "d8fd6a91ef3b6ced05b98358a99107c1fac8c807");
     }
 
@@ -756,13 +831,13 @@ mod test {
         let src: [u8; 5] = [1, 2, 3, 4, 5];
         let mut dest: [u8; 5] = [0; 5];
 
-        ShaContext::mem_cpy(&mut dest[3..], &src[..2]);
+        Sha1Context::mem_cpy(&mut dest[3..], &src[..2]);
         assert_eq!(dest, [0, 0, 0, 1, 2]);
 
-        ShaContext::mem_cpy(&mut dest[0..], &src[3..]);
+        Sha1Context::mem_cpy(&mut dest[0..], &src[3..]);
         assert_eq!(dest, [4, 5, 0, 1, 2]);
 
-        ShaContext::mem_cpy(&mut dest[1..], &src[1..4]);
+        Sha1Context::mem_cpy(&mut dest[1..], &src[1..4]);
         assert_eq!(dest, [4, 2, 3, 4, 2]);
     }
 
@@ -771,7 +846,7 @@ mod test {
         let char_vec = ['a', 'b', 'c', 'd', 'e'];
         let mut dest: [u32; 5] = [0; 5];
 
-        ShaContext::mem_cpy(
+        Sha1Context::mem_cpy(
             &mut dest[0..],
             &char_vec.into_iter().collect::<String>().as_bytes()[..5],
         );
@@ -788,13 +863,13 @@ mod test {
         let src: [u32; 5] = [1, 2, 3, 4, 5];
         let mut dest: [u32; 5] = [0; 5];
 
-        ShaContext::mem_cpy(&mut dest[3..], &src[..2]);
+        Sha1Context::mem_cpy(&mut dest[3..], &src[..2]);
         assert_eq!(dest, [0, 0, 0, 1, 2]);
 
-        ShaContext::mem_cpy(&mut dest[0..], &src[3..]);
+        Sha1Context::mem_cpy(&mut dest[0..], &src[3..]);
         assert_eq!(dest, [4, 5, 0, 1, 2]);
 
-        ShaContext::mem_cpy(&mut dest[1..], &src[1..4]);
+        Sha1Context::mem_cpy(&mut dest[1..], &src[1..4]);
         assert_eq!(dest, [4, 2, 3, 4, 2]);
     }
 
@@ -842,17 +917,29 @@ mod test {
     }
 
     #[test]
-    fn associative_wrapping_add_property(){
+    fn associative_wrapping_add_property() {
         let u8_max = u8::MAX;
         let half_u8_max = u8::MAX / 2;
 
         assert_eq!(half_u8_max.wrapping_add(u8_max), half_u8_max - 1);
         assert_eq!(u8_max.wrapping_add(half_u8_max), half_u8_max - 1);
 
-        assert_eq!(u8_max.wrapping_add(u8_max).wrapping_add(half_u8_max), half_u8_max - 2);
-        assert_eq!(u8_max.wrapping_add(half_u8_max.wrapping_add(u8_max)), half_u8_max - 2);
-        assert_eq!(u8_max.wrapping_add(half_u8_max).wrapping_add(u8_max), half_u8_max - 2);
-        assert_eq!(u8_max.wrapping_add(u8_max.wrapping_add(half_u8_max)), half_u8_max - 2);
+        assert_eq!(
+            u8_max.wrapping_add(u8_max).wrapping_add(half_u8_max),
+            half_u8_max - 2
+        );
+        assert_eq!(
+            u8_max.wrapping_add(half_u8_max.wrapping_add(u8_max)),
+            half_u8_max - 2
+        );
+        assert_eq!(
+            u8_max.wrapping_add(half_u8_max).wrapping_add(u8_max),
+            half_u8_max - 2
+        );
+        assert_eq!(
+            u8_max.wrapping_add(u8_max.wrapping_add(half_u8_max)),
+            half_u8_max - 2
+        );
     }
 
     fn rotate<R>(x: R, l: R, r: R) -> R
