@@ -1,5 +1,6 @@
-extern crate core;
+mod extension_methods;
 
+use crate::extension_methods::{ExtMethods};
 use core::{
     mem::size_of,
     ops::{BitOr, RangeFrom, RangeTo, Shl, Shr},
@@ -18,55 +19,9 @@ const T_40_59: u32 = 0x8f1bbcdc;
 const T_60_79: u32 = 0xca62c1d6;
 const U8_TO_U32: [u8; 4] = [0, 8, 16, 24];
 
-struct ExtMethods;
-
-trait EncapsulateExtensions<T> {
-    fn modulus_16_element(index: T) -> usize;
-    fn range_from(index: T) -> RangeFrom<usize>;
-    fn range_to(index: T) -> RangeTo<usize>;
-}
-
-impl EncapsulateExtensions<u8> for ExtMethods {
-    fn modulus_16_element(index: u8) -> usize {
-        (index as usize) & 15
-    }
-
-    fn range_from(index: u8) -> RangeFrom<usize> {
-        (index as usize)..
-    }
-
-    fn range_to(index: u8) -> RangeTo<usize> {
-        ..(index as usize)
-    }
-}
-
-impl EncapsulateExtensions<u64> for ExtMethods {
-    fn modulus_16_element(index: u64) -> usize {
-        (index as usize) & 15
-    }
-
-    fn range_from(index: u64) -> RangeFrom<usize> {
-        (index as usize)..
-    }
-
-    fn range_to(index: u64) -> RangeTo<usize> {
-        ..(index as usize)
-    }
-}
-
-impl EncapsulateExtensions<usize> for ExtMethods {
-    fn modulus_16_element(index: usize) -> usize {
-        index & 15
-    }
-
-    fn range_from(index: usize) -> RangeFrom<usize> {
-        index..
-    }
-
-    fn range_to(index: usize) -> RangeTo<usize> {
-        ..index
-    }
-}
+impl_ext_method!(u8);
+impl_ext_method!(u64);
+impl_ext_method!(usize);
 
 pub trait Sha1 {
     fn init() -> Self;
@@ -104,7 +59,7 @@ impl MemoryCopy<u32, u8> for Sha1Context {
             })
             .collect::<Vec<u32>>();
 
-        let to = ExtMethods::range_to(u32_src.len());
+        let to = (u32_src.len()).range_to();
         dest[to].clone_from_slice(&u32_src);
     }
 }
@@ -117,14 +72,14 @@ impl MemoryCopy<u32, u32> for Sha1Context {
 
 impl Sha1Context {
     fn form_d_words_from_data_stream(&mut self, data_stream: &[u8], len_w: &mut u64, left: u64) {
-        let dest_from = ExtMethods::range_from(ExtMethods::modulus_16_element(*len_w));
+        let dest_from = (*len_w).modulus_16_element().range_from();
         Self::mem_cpy(&mut self.w[dest_from], data_stream);
 
         *len_w = (*len_w + left) & 63;
     }
 
     fn set_w(i: u8, val: u32, array: &mut [u32]) {
-        array[ExtMethods::modulus_16_element(i)] = val;
+        array[i.modulus_16_element()] = val;
     }
 
     fn src(vec: &[u8], i: usize) -> u32 {
@@ -145,10 +100,10 @@ impl Sha1Context {
     }
 
     fn mix(i: u8, array: &[u32]) -> u32 {
-        let x_i = ExtMethods::modulus_16_element(i + 13);
-        let y_i = ExtMethods::modulus_16_element(i + 8);
-        let z_i = ExtMethods::modulus_16_element(i + 2);
-        let t_i = ExtMethods::modulus_16_element(i);
+        let x_i = (i + 13).modulus_16_element();
+        let y_i = (i + 8).modulus_16_element();
+        let z_i = (i + 2).modulus_16_element();
+        let t_i = (i).modulus_16_element();
 
         let x = array[x_i];
         let y = array[y_i];
@@ -470,7 +425,7 @@ impl Sha1 for Sha1Context {
 
         while len >= 64 {
             Self::block(&mut self.h, data_in);
-            let from = ExtMethods::range_from(64 & data_in.len() - 1);
+            let from = (64 & data_in.len() - 1).range_from();
             data_in = &data_in[from];
             len -= 64;
         }
@@ -479,7 +434,7 @@ impl Sha1 for Sha1Context {
             if len > data_in.len() as u64 {
                 len = data_in.len() as u64
             }
-            let to = ExtMethods::range_to(len);
+            let to = (len).range_to();
             Self::mem_cpy(&mut self.w, &data_in[to]);
         }
     }
