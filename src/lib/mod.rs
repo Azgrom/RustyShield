@@ -1,16 +1,14 @@
 use core::{
     mem::size_of,
-    ops::{BitOr, Index, IndexMut, RangeFrom, RangeTo, Shl, Shr},
+    ops::{Index, IndexMut},
 };
 
-const U16_BYTES: usize = size_of::<u16>();
 const U32_BYTES: usize = size_of::<u32>();
 
 const ZEROS: [u8; 3] = [0; 3];
 const SHA_LBLOCK: u32 = 16;
 const SHA_CBLOCK: u32 = SHA_LBLOCK * U32_BYTES as u32;
 const SHA_CBLOCK_LAST_INDEX: u32 = SHA_CBLOCK - 1;
-const SHA_LAST_BLOCK: u32 = SHA_CBLOCK - 8;
 
 const SHA_1H0: u32 = 0x67452301;
 const SHA_1H1: u32 = 0xefcdab89;
@@ -564,24 +562,24 @@ impl Sha1Context {
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
-        let mut lenW: u8 = (self.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
+        let mut len_w: u8 = (self.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
         let mut bytes_len = bytes.len();
 
         self.size += bytes_len as u64;
 
-        if lenW != 0 {
-            let mut left = (SHA_CBLOCK - lenW as u32) as u8;
+        if len_w != 0 {
+            let mut left = (SHA_CBLOCK - len_w as u32) as u8;
             if bytes_len < left as usize {
                 left = bytes_len as u8;
             }
 
-            self.w.from_skippable_offset(&bytes[..(left as usize)], lenW);
+            self.w.from_skippable_offset(&bytes[..(left as usize)], len_w);
 
-            lenW = (lenW + left) & SHA_CBLOCK_LAST_INDEX as u8;
+            len_w = (len_w + left) & SHA_CBLOCK_LAST_INDEX as u8;
             bytes_len -= left as usize;
             bytes = &bytes[(left as usize)..];
 
-            if lenW != 0 {
+            if len_w != 0 {
                 return;
             }
 
@@ -605,9 +603,6 @@ impl Sha1Context {
 mod test {
     use crate::{DWords, Sha1Context};
     use core::{
-        cmp::max,
-        fmt::Binary,
-        mem::size_of,
         ops::{BitOr, Shl, Shr},
     };
 
@@ -681,7 +676,7 @@ mod test {
         assert_eq!(format!("{:04b}", big_endian_three), *four_bit_str_be_three);
         assert_eq!(format!("{:04b}", big_endian_four), *four_bit_str_be_four);
         assert_eq!(format!("{:04b}", big_endian_five), *four_bit_str_be_five);
-        assert_eq!(format!("{:04b}", big_endian_two), *four_bit_str_be_two);
+        assert_eq!(format!("{:04b}", big_endian_six), *four_bit_str_be_six);
         assert_eq!(format!("{:04b}", big_endian_seven), *four_bit_str_be_seven);
         assert_eq!(format!("{:04b}", big_endian_eight), *four_bit_str_be_eight);
         assert_eq!(format!("{:04b}", big_endian_nine), *four_bit_str_be_nine);
@@ -766,9 +761,8 @@ mod test {
             format!("{:x}", manually_computed_complete_u32);
 
         let zeroes_bytes: &[u8] = &[0; 3];
-        let size_of_u32 = size_of::<u32>();
         let one_byte_u32_binding = [zeroes_bytes, one_byte_stream_vec].concat();
-        let two_byte_u32_binding = [&zeroes_bytes[..=1], two_byte_stream_vec].concat();
+        let two_byte_u32_binding = [&zeroes_bytes[..2], two_byte_stream_vec].concat();
         let three_byte_u32_binding = [&zeroes_bytes[..1], three_byte_stream_vec].concat();
 
         let std_computed_single_u8_to_u32 =
@@ -822,7 +816,7 @@ mod test {
 
         let quick_fox_bytes: &[u8] = quick_fox.as_ref();
         let mut quick_fox_sha1_ctx = Sha1Context::default();
-        quick_fox_sha1_ctx.write(quick_fox.as_ref());
+        quick_fox_sha1_ctx.write(quick_fox_bytes);
         let digest_result = Sha1Context::hex_hash(&quick_fox_sha1_ctx.finish());
 
         assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
