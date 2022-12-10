@@ -1,10 +1,16 @@
-mod extension_methods;
-
-use crate::extension_methods::{ExtMethods};
 use core::{
     mem::size_of,
-    ops::{BitOr, RangeFrom, RangeTo, Shl, Shr},
+    ops::{BitOr, Index, IndexMut, RangeFrom, RangeTo, Shl, Shr},
 };
+
+const U16_BYTES: usize = size_of::<u16>();
+const U32_BYTES: usize = size_of::<u32>();
+
+const ZEROS: [u8; 3] = [0; 3];
+const SHA_LBLOCK: u32 = 16;
+const SHA_CBLOCK: u32 = SHA_LBLOCK * U32_BYTES as u32;
+const SHA_CBLOCK_LAST_INDEX: u32 = SHA_CBLOCK - 1;
+const SHA_LAST_BLOCK: u32 = SHA_CBLOCK - 8;
 
 const SHA_1H0: u32 = 0x67452301;
 const SHA_1H1: u32 = 0xefcdab89;
@@ -17,129 +23,325 @@ const T_16_19: u32 = T_0_15;
 const T_20_39: u32 = 0x6ed9eba1;
 const T_40_59: u32 = 0x8f1bbcdc;
 const T_60_79: u32 = 0xca62c1d6;
-const U8_TO_U32: [u8; 4] = [0, 8, 16, 24];
 
-impl_ext_method!(u8);
-impl_ext_method!(u64);
-impl_ext_method!(usize);
+#[derive(Clone)]
+struct HashValue(u32, u32, u32, u32, u32);
 
-pub trait Sha1 {
-    fn init() -> Self;
-    fn update(&mut self, data_in: &[u8], len: u64);
-    fn finalize(&mut self) -> [u8; 20];
-}
-
-trait MemoryCopy<D, S> {
-    /// Copies n bytes from src to memory dest, using a reference receiving point in dest
-    fn mem_cpy(dest: &mut [D], src: &[S]);
-}
-
-pub struct Sha1Context {
-    size: u64,
-    h: [u32; 5],
-    w: [u32; 16],
-}
-
-impl MemoryCopy<u8, u8> for Sha1Context {
-    fn mem_cpy(dest: &mut [u8], src: &[u8]) {
-        dest[..src.len()].clone_from_slice(&src)
+impl Default for HashValue {
+    fn default() -> Self {
+        Self(SHA_1H0, SHA_1H1, SHA_1H2, SHA_1H3, SHA_1H4)
     }
 }
 
-impl MemoryCopy<u32, u8> for Sha1Context {
-    fn mem_cpy(dest: &mut [u32], src: &[u8]) {
-        let u32_src = src
-            .chunks(4)
-            .map(|c| match c.len() {
-                4 => u32::from_be_bytes(c.try_into().unwrap()),
-                3 => u32::from_be_bytes([&[0], c].concat().try_into().unwrap()),
-                2 => u32::from_be_bytes([&[0, 0], c].concat().try_into().unwrap()),
-                1 => u32::from_be_bytes([&[0, 0, 0], c].concat().try_into().unwrap()),
-                _ => panic!("Chunks are modulo 4"),
-            })
-            .collect::<Vec<u32>>();
+impl Index<usize> for HashValue {
+    type Output = u32;
 
-        let to = (u32_src.len()).range_to();
-        dest[to].clone_from_slice(&u32_src);
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.0,
+            1 => &self.1,
+            2 => &self.2,
+            3 => &self.3,
+            4 => &self.4,
+            _ => panic!("Index out of bounds"),
+        }
     }
 }
 
-impl MemoryCopy<u32, u32> for Sha1Context {
-    fn mem_cpy(dest: &mut [u32], src: &[u32]) {
-        dest[..src.len()].clone_from_slice(&src)
+#[derive(Debug, Clone)]
+struct DWords(
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+    u32,
+);
+
+impl Default for DWords {
+    fn default() -> Self {
+        Self(
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+            u32::MIN,
+        )
     }
 }
 
-impl Sha1Context {
-    fn form_d_words_from_data_stream(&mut self, data_stream: &[u8], len_w: &mut u64, left: u64) {
-        let dest_from = (*len_w).modulus_16_element().range_from();
-        Self::mem_cpy(&mut self.w[dest_from], data_stream);
+impl Index<usize> for DWords {
+    type Output = u32;
 
-        *len_w = (*len_w + left) & 63;
+    fn index(&self, index: usize) -> &Self::Output {
+        match index & 15 {
+            0 => &self.0,
+            1 => &self.1,
+            2 => &self.2,
+            3 => &self.3,
+            4 => &self.4,
+            5 => &self.5,
+            6 => &self.6,
+            7 => &self.7,
+            8 => &self.8,
+            9 => &self.9,
+            10 => &self.10,
+            11 => &self.11,
+            12 => &self.12,
+            13 => &self.13,
+            14 => &self.14,
+            15 => &self.15,
+            _ => panic!("This cannot possibly happen"),
+        }
+    }
+}
+
+impl IndexMut<usize> for DWords {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index & 15 {
+            0 => &mut self.0,
+            1 => &mut self.1,
+            2 => &mut self.2,
+            3 => &mut self.3,
+            4 => &mut self.4,
+            5 => &mut self.5,
+            6 => &mut self.6,
+            7 => &mut self.7,
+            8 => &mut self.8,
+            9 => &mut self.9,
+            10 => &mut self.10,
+            11 => &mut self.11,
+            12 => &mut self.12,
+            13 => &mut self.13,
+            14 => &mut self.14,
+            15 => &mut self.15,
+            _ => panic!("This cannot possibly happen"),
+        }
+    }
+}
+
+impl PartialEq<DWords> for DWords {
+    fn eq(&self, other: &DWords) -> bool {
+        self.0 == other.0
+            && self.1 == other.1
+            && self.2 == other.2
+            && self.3 == other.3
+            && self.4 == other.4
+            && self.5 == other.5
+            && self.6 == other.6
+            && self.7 == other.7
+            && self.8 == other.8
+            && self.9 == other.9
+            && self.10 == other.10
+            && self.11 == other.11
+            && self.12 == other.12
+            && self.13 == other.13
+            && self.14 == other.14
+            && self.15 == other.15
+    }
+}
+
+impl DWords {
+    fn from_be_bytes(to: u8, chunk: &[u8]) -> u32 {
+        u32::from_be_bytes(
+            [chunk, &ZEROS[..to as usize]]
+                .concat()
+                .try_into()
+                .unwrap(),
+        )
     }
 
-    fn set_w(i: u8, val: u32, array: &mut [u32]) {
-        array[i.modulus_16_element()] = val;
+    fn to_u32_be(chunk: &[u8]) -> u32 {
+        match chunk.len() {
+            4 => Self::from_be_bytes(0, chunk),
+            3 => Self::from_be_bytes(1, chunk),
+            2 => Self::from_be_bytes(2, chunk),
+            1 => Self::from_be_bytes(3, chunk),
+            _ => panic!("this can't possibly happen"),
+        }
     }
 
-    fn src(vec: &[u8], i: usize) -> u32 {
-        let stepped_size = (i * 4) & (vec.len() - 1);
-        let offset = vec.len() - stepped_size;
-        let vec_slice = &vec[stepped_size..];
-
-        match offset {
-            n if n > 3 => {
-                let (u8_bytes, _) = vec_slice.split_at(size_of::<u32>());
-                u32::from_be_bytes(u8_bytes.try_into().unwrap())
+    fn include_bytes_on_incomplete_word(&mut self, completed_words: usize, skipped_bytes: &[u8]) {
+        match skipped_bytes.len() {
+            3 => {
+                self[completed_words] = self[completed_words]
+                    | ((skipped_bytes[0] as u32) << 16)
+                    | ((skipped_bytes[1] as u32) << 8)
+                    | skipped_bytes[2] as u32
             }
-            3 => u32::from_be_bytes([&[0], vec_slice].concat().try_into().unwrap()),
-            2 => u32::from_be_bytes([&[0, 0], vec_slice].concat().try_into().unwrap()),
-            1 => u32::from_be_bytes([&[0, 0, 0], vec_slice].concat().try_into().unwrap()),
+            2 => {
+                self[completed_words] = self[completed_words]
+                    | ((skipped_bytes[0] as u32) << 8)
+                    | skipped_bytes[1] as u32
+            }
+            1 => self[completed_words] = self[completed_words] | skipped_bytes[0] as u32,
             _ => panic!("This cannot possibly happen"),
         }
     }
 
-    fn mix(i: u8, array: &[u32]) -> u32 {
-        let x_i = (i + 13).modulus_16_element();
-        let y_i = (i + 8).modulus_16_element();
-        let z_i = (i + 2).modulus_16_element();
-        let t_i = (i).modulus_16_element();
-
-        let x = array[x_i];
-        let y = array[y_i];
-        let z = array[z_i];
-        let t = array[t_i];
-
-        (x ^ y ^ z ^ t).rotate_left(1)
+    fn from(&mut self, be_bytes: &[u8]) {
+        be_bytes
+            .chunks(U32_BYTES)
+            .map(Self::to_u32_be)
+            .enumerate()
+            .for_each(|(i, word)| self[i] = word);
     }
 
-    fn ch(x: u32, y: u32, z: u32) -> u32 {
-        (x & y) ^ (!x ^ z)
+    fn from_skippable_offset(&mut self, mut be_bytes: &[u8], skip: u8) {
+        let remaining = skip % U32_BYTES as u8;
+        let completed_words = ((skip / U32_BYTES as u8) & 15) as usize;
+
+        if remaining == 0 {
+            be_bytes
+                .chunks(U32_BYTES)
+                .map(Self::to_u32_be)
+                .enumerate()
+                .for_each(|(i, word)| self[i + completed_words] = word);
+        } else {
+            let bytes_to_skip = U32_BYTES - remaining as usize;
+            let skipped_bytes = &be_bytes[..bytes_to_skip];
+
+            self.include_bytes_on_incomplete_word(completed_words, skipped_bytes);
+
+            be_bytes = &be_bytes[bytes_to_skip..];
+
+            be_bytes
+                .chunks(U32_BYTES)
+                .map(Self::to_u32_be)
+                .enumerate()
+                .for_each(|(i, word)| self[i + completed_words + 1] = word);
+        }
+    }
+}
+
+pub struct Sha1Context {
+    size: u64,
+    h: HashValue,
+    w: DWords,
+}
+
+impl Default for Sha1Context {
+    fn default() -> Self {
+        Self {
+            size: u64::MIN,
+            h: HashValue::default(),
+            w: DWords::default(),
+        }
+    }
+}
+
+impl Sha1Context {
+    /// Represents `F_00_19` SHA steps
+    ///
+    /// # Arguments
+    ///
+    /// * `x`: u32
+    /// * `y`: u32
+    /// * `z`: u32
+    ///
+    /// returns: u32
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib::ch;
+    ///
+    /// let ch1 = ch(1, 2, 3);
+    /// assert_eq!(ch1, 2);
+    ///
+    /// let ch2 = ch(1000, 2001, 3002);
+    /// assert_eq!(ch2, 3026);
+    /// ```
+    #[inline]
+    pub fn ch(x: u32, y: u32, z: u32) -> u32 {
+        ((y ^ z) & x) ^ z
     }
 
-    fn parity(x: u32, y: u32, z: u32) -> u32 {
+    /// Represents `F_20_39` and `F_60_79` SHA steps
+    ///
+    /// # Arguments
+    ///
+    /// * `x`: u32
+    /// * `y`: u32
+    /// * `z`: u32
+    ///
+    /// returns: u32
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib::parity;
+    ///
+    /// let parity1 = parity(1, 2, 3);
+    /// assert_eq!(parity1, 0);
+    ///
+    /// let parity2 = parity(1000, 2001, 3002);
+    /// assert_eq!(parity2, 3971);
+    /// ```
+    pub fn parity(x: u32, y: u32, z: u32) -> u32 {
         x ^ y ^ z
     }
 
-    fn maj(x: u32, y: u32, z: u32) -> u32 {
-        (x & y) ^ (x & z) ^ (y & z)
+    /// Represents `F_40_59` SHA steps
+    ///
+    /// # Arguments
+    ///
+    /// * `x`: u32
+    /// * `y`: u32
+    /// * `z`: u32
+    ///
+    /// returns: u32
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib::maj;
+    ///
+    /// let maj1 = maj(1, 2, 3);
+    /// assert_eq!(maj1, 3);
+    ///
+    /// let maj2 = maj(1000, 2001, 3002);
+    /// assert_eq!(maj2, 1016);
+    /// ```
+    pub fn maj(x: u32, y: u32, z: u32) -> u32 {
+        (x & y) | ((x | y) & z)
     }
 
-    fn to_byte_slice(&self) -> [u8; 20] {
-        // Use flatten once it stabilizes
-        let mut hash_out: [u8; 20] = [0; 20];
-        self.h
-            .iter()
-            .zip((0..5).into_iter())
-            .for_each(|(constant, k_index)| {
-                let temp_mini_hash: [u8; 4] = constant.to_be_bytes();
-                hash_out[0 + (k_index * 4)] = temp_mini_hash[0];
-                hash_out[1 + (k_index * 4)] = temp_mini_hash[1];
-                hash_out[2 + (k_index * 4)] = temp_mini_hash[2];
-                hash_out[3 + (k_index * 4)] = temp_mini_hash[3];
-            });
+    fn mix(i: usize, a: &mut u32, array: &mut DWords) -> u32 {
+        let x = array[i];
+        let y = array[i];
+        let z = array[i];
+        let t = array[i];
 
-        hash_out
+        *a = (x ^ y ^ z ^ t).rotate_left(1);
+        array[i] = *a;
+        array[i]
+    }
+
+    fn zero_padding_length(&self) -> usize {
+        1 + (SHA_CBLOCK_LAST_INDEX as u64 & (55 - (self.size & SHA_CBLOCK_LAST_INDEX as u64)))
+            as usize
     }
 
     fn hex_hash(byte_hash: &[u8]) -> String {
@@ -149,315 +351,263 @@ impl Sha1Context {
             .collect::<String>()
     }
 
-    fn t_0_15(
-        t: u8,
-        block: &[u8],
+    fn block_00_15(a: u32, b: &mut u32, c: u32, d: u32, e: u32, f: &mut u32, xi: u32) {
+        *f = xi
+            .wrapping_add(e)
+            .wrapping_add(T_0_15)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(Self::ch(*b, c, d));
+
+        *b = b.rotate_right(2);
+    }
+
+    fn block_16_19(
+        i: u8,
         a: u32,
         b: &mut u32,
         c: u32,
         d: u32,
-        e: &mut u32,
-        array: &mut [u32],
+        e: u32,
+        f: &mut u32,
+        array: &mut DWords,
     ) {
-        let temp = Self::src(block, t as usize);
-        Self::set_w(t, temp, array);
-        *e = (*e)
-            .wrapping_add(temp)
+        Self::mix(i as usize, f, array);
+        *f = (*f)
+            .wrapping_add(e)
+            .wrapping_add(T_16_19)
             .wrapping_add(a.rotate_left(5))
-            .wrapping_add(Self::ch(*b, c, d))
-            .wrapping_add(T_0_15);
-        *b = (*b).rotate_right(2);
+            .wrapping_add(Self::ch(*b, c, d));
+
+        *b = b.rotate_right(2);
     }
 
-    fn t_0_15_u32(&self, temp: u32, a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
-        *e = (*e)
-            .wrapping_add(temp)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(Self::ch(*b, c, d))
-            .wrapping_add(T_0_15);
-        *b = (*b).rotate_right(2);
-    }
-
-    fn t_16_19(t: u8, shamble_arr: &mut [u32], a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
-        let f_16_19 = Self::ch(*b, c, d);
-        let temp = Self::mix(t, shamble_arr);
-        Self::set_w(t, temp, shamble_arr);
-        *e = (*e)
-            .wrapping_add(temp)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(f_16_19)
-            .wrapping_add(T_16_19);
-        *b = (*b).rotate_right(2);
-    }
-
-    fn t_20_39(t: u8, shamble_arr: &mut [u32], a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
-        let f_20_39 = Self::parity(*b, c, d);
-        let temp = Self::mix(t, shamble_arr);
-        Self::set_w(t, temp, shamble_arr);
-        *e = (*e)
-            .wrapping_add(temp)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(f_20_39)
-            .wrapping_add(T_20_39);
-        *b = (*b).rotate_right(2);
-    }
-
-    fn t_40_59(t: u8, shamble_arr: &mut [u32], a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
-        let f_40_59 = Self::maj(*b, c, d);
-        let temp = Self::mix(t, shamble_arr);
-        Self::set_w(t, temp, shamble_arr);
-        *e = (*e)
-            .wrapping_add(temp)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(f_40_59)
-            .wrapping_add(T_40_59);
-        *b = (*b).rotate_right(2);
-    }
-
-    fn t_60_79(t: u8, shamble_arr: &mut [u32], a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32) {
-        let f_60_79 = Self::parity(*b, c, d);
-        let temp = Self::mix(t, shamble_arr);
-        Self::set_w(t, temp, shamble_arr);
-        *e = (*e)
-            .wrapping_add(temp)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(f_60_79)
-            .wrapping_add(T_60_79);
-        *b = (*b).rotate_right(2);
-    }
-
-    fn iterations_from_mixing_array(
-        a: &mut u32,
+    fn block_20_39(
+        i: u8,
+        a: u32,
         b: &mut u32,
-        c: &mut u32,
-        d: &mut u32,
-        e: &mut u32,
-        array: &mut [u32; 16],
+        c: u32,
+        d: u32,
+        e: u32,
+        f: &mut u32,
+        array: &mut DWords,
     ) {
-        /* Round 1 - tail. Input from 512-bit mixing array */
-        Self::t_16_19(16, array, *e, a, *b, *c, d);
-        Self::t_16_19(17, array, *d, e, *a, *b, c);
-        Self::t_16_19(18, array, *c, d, *e, *a, b);
-        Self::t_16_19(19, array, *b, c, *d, *e, a);
+        Self::mix(i as usize, f, array);
+        *f = (*f)
+            .wrapping_add(e)
+            .wrapping_add(T_20_39)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(Self::parity(*b, c, d));
 
-        /* Round 2 */
-        Self::t_20_39(20, array, *a, b, *c, *d, e);
-        Self::t_20_39(21, array, *e, a, *b, *c, d);
-        Self::t_20_39(22, array, *d, e, *a, *b, c);
-        Self::t_20_39(23, array, *c, d, *e, *a, b);
-        Self::t_20_39(24, array, *b, c, *d, *e, a);
-        Self::t_20_39(25, array, *a, b, *c, *d, e);
-        Self::t_20_39(26, array, *e, a, *b, *c, d);
-        Self::t_20_39(27, array, *d, e, *a, *b, c);
-        Self::t_20_39(28, array, *c, d, *e, *a, b);
-        Self::t_20_39(29, array, *b, c, *d, *e, a);
-        Self::t_20_39(30, array, *a, b, *c, *d, e);
-        Self::t_20_39(31, array, *e, a, *b, *c, d);
-        Self::t_20_39(32, array, *d, e, *a, *b, c);
-        Self::t_20_39(33, array, *c, d, *e, *a, b);
-        Self::t_20_39(34, array, *b, c, *d, *e, a);
-        Self::t_20_39(35, array, *a, b, *c, *d, e);
-        Self::t_20_39(36, array, *e, a, *b, *c, d);
-        Self::t_20_39(37, array, *d, e, *a, *b, c);
-        Self::t_20_39(38, array, *c, d, *e, *a, b);
-        Self::t_20_39(39, array, *b, c, *d, *e, a);
-
-        /* Round 3 */
-        Self::t_40_59(40, array, *a, b, *c, *d, e);
-        Self::t_40_59(41, array, *e, a, *b, *c, d);
-        Self::t_40_59(42, array, *d, e, *a, *b, c);
-        Self::t_40_59(43, array, *c, d, *e, *a, b);
-        Self::t_40_59(44, array, *b, c, *d, *e, a);
-        Self::t_40_59(45, array, *a, b, *c, *d, e);
-        Self::t_40_59(46, array, *e, a, *b, *c, d);
-        Self::t_40_59(47, array, *d, e, *a, *b, c);
-        Self::t_40_59(48, array, *c, d, *e, *a, b);
-        Self::t_40_59(49, array, *b, c, *d, *e, a);
-        Self::t_40_59(50, array, *a, b, *c, *d, e);
-        Self::t_40_59(51, array, *e, a, *b, *c, d);
-        Self::t_40_59(52, array, *d, e, *a, *b, c);
-        Self::t_40_59(53, array, *c, d, *e, *a, b);
-        Self::t_40_59(54, array, *b, c, *d, *e, a);
-        Self::t_40_59(55, array, *a, b, *c, *d, e);
-        Self::t_40_59(56, array, *e, a, *b, *c, d);
-        Self::t_40_59(57, array, *d, e, *a, *b, c);
-        Self::t_40_59(58, array, *c, d, *e, *a, b);
-        Self::t_40_59(59, array, *b, c, *d, *e, a);
-
-        /* Round 4 */
-        Self::t_60_79(60, array, *a, b, *c, *d, e);
-        Self::t_60_79(61, array, *e, a, *b, *c, d);
-        Self::t_60_79(62, array, *d, e, *a, *b, c);
-        Self::t_60_79(63, array, *c, d, *e, *a, b);
-        Self::t_60_79(64, array, *b, c, *d, *e, a);
-        Self::t_60_79(65, array, *a, b, *c, *d, e);
-        Self::t_60_79(66, array, *e, a, *b, *c, d);
-        Self::t_60_79(67, array, *d, e, *a, *b, c);
-        Self::t_60_79(68, array, *c, d, *e, *a, b);
-        Self::t_60_79(69, array, *b, c, *d, *e, a);
-        Self::t_60_79(70, array, *a, b, *c, *d, e);
-        Self::t_60_79(71, array, *e, a, *b, *c, d);
-        Self::t_60_79(72, array, *d, e, *a, *b, c);
-        Self::t_60_79(73, array, *c, d, *e, *a, b);
-        Self::t_60_79(74, array, *b, c, *d, *e, a);
-        Self::t_60_79(75, array, *a, b, *c, *d, e);
-        Self::t_60_79(76, array, *e, a, *b, *c, d);
-        Self::t_60_79(77, array, *d, e, *a, *b, c);
-        Self::t_60_79(78, array, *c, d, *e, *a, b);
-        Self::t_60_79(79, array, *b, c, *d, *e, a);
+        *b = b.rotate_right(2);
     }
 
-    fn block(h: &mut [u32; 5], block: &[u8]) {
-        let mut a = h[0];
-        let mut b = h[1];
-        let mut c = h[2];
-        let mut d = h[3];
-        let mut e = h[4];
+    fn block_40_59(
+        i: u8,
+        a: u32,
+        b: &mut u32,
+        c: u32,
+        d: u32,
+        e: u32,
+        f: &mut u32,
+        array: &mut DWords,
+    ) {
+        Self::mix(i as usize, f, array);
+        *f = (*f)
+            .wrapping_add(e)
+            .wrapping_add(T_40_59)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(Self::maj(*b, c, d));
 
-        let mut array: [u32; 16] = [0; 16];
-
-        /* Round 1 - iterations 0-16 take their input from 'block' */
-        Self::t_0_15(0, block, a, &mut b, c, d, &mut e, &mut array);
-        Self::t_0_15(1, block, e, &mut a, b, c, &mut d, &mut array);
-        Self::t_0_15(2, block, d, &mut e, a, b, &mut c, &mut array);
-        Self::t_0_15(3, block, c, &mut d, e, a, &mut b, &mut array);
-        Self::t_0_15(4, block, b, &mut c, d, e, &mut a, &mut array);
-        Self::t_0_15(5, block, a, &mut b, c, d, &mut e, &mut array);
-        Self::t_0_15(6, block, e, &mut a, b, c, &mut d, &mut array);
-        Self::t_0_15(7, block, d, &mut e, a, b, &mut c, &mut array);
-        Self::t_0_15(8, block, c, &mut d, e, a, &mut b, &mut array);
-        Self::t_0_15(9, block, b, &mut c, d, e, &mut a, &mut array);
-        Self::t_0_15(10, block, a, &mut b, c, d, &mut e, &mut array);
-        Self::t_0_15(11, block, e, &mut a, b, c, &mut d, &mut array);
-        Self::t_0_15(12, block, d, &mut e, a, b, &mut c, &mut array);
-        Self::t_0_15(13, block, c, &mut d, e, a, &mut b, &mut array);
-        Self::t_0_15(14, block, b, &mut c, d, e, &mut a, &mut array);
-        Self::t_0_15(15, block, a, &mut b, c, d, &mut e, &mut array);
-
-        Self::iterations_from_mixing_array(&mut a, &mut b, &mut c, &mut d, &mut e, &mut array);
-
-        h[0] = h[0].wrapping_add(a);
-        h[1] = h[1].wrapping_add(b);
-        h[2] = h[2].wrapping_add(c);
-        h[3] = h[3].wrapping_add(d);
-        h[4] = h[4].wrapping_add(e);
+        *b = b.rotate_right(2);
     }
 
-    fn block_32_bit_word(&mut self) {
-        let mut a = self.h[0];
-        let mut b = self.h[1];
-        let mut c = self.h[2];
-        let mut d = self.h[3];
-        let mut e = self.h[4];
+    fn block_60_79(
+        i: u8,
+        a: u32,
+        b: &mut u32,
+        c: u32,
+        d: u32,
+        e: u32,
+        f: &mut u32,
+        array: &mut DWords,
+    ) {
+        *f = array[i as usize]
+            .wrapping_add(e)
+            .wrapping_add(T_60_79)
+            .wrapping_add(a.rotate_left(5))
+            .wrapping_add(Self::parity(*b, c, d));
 
-        let mut array: [u32; 16] = self.w;
+        *b = b.rotate_right(2);
+    }
 
-        /* Round 1 - iterations 0-16 take their input from 'block' */
-        self.t_0_15_u32(array[0], a, &mut b, c, d, &mut e);
-        self.t_0_15_u32(array[1], e, &mut a, b, c, &mut d);
-        self.t_0_15_u32(array[2], d, &mut e, a, b, &mut c);
-        self.t_0_15_u32(array[3], c, &mut d, e, a, &mut b);
-        self.t_0_15_u32(array[4], b, &mut c, d, e, &mut a);
-        self.t_0_15_u32(array[5], a, &mut b, c, d, &mut e);
-        self.t_0_15_u32(array[6], e, &mut a, b, c, &mut d);
-        self.t_0_15_u32(array[7], d, &mut e, a, b, &mut c);
-        self.t_0_15_u32(array[8], c, &mut d, e, a, &mut b);
-        self.t_0_15_u32(array[9], b, &mut c, d, e, &mut a);
-        self.t_0_15_u32(array[10], a, &mut b, c, d, &mut e);
-        self.t_0_15_u32(array[11], e, &mut a, b, c, &mut d);
-        self.t_0_15_u32(array[12], d, &mut e, a, b, &mut c);
-        self.t_0_15_u32(array[13], c, &mut d, e, a, &mut b);
-        self.t_0_15_u32(array[14], b, &mut c, d, e, &mut a);
-        self.t_0_15_u32(array[15], a, &mut b, c, d, &mut e);
+    fn hash_block(&mut self) {
+        let HashValue(mut a, mut b, mut c, mut d, mut e) = self.h.clone();
 
-        Self::iterations_from_mixing_array(&mut a, &mut b, &mut c, &mut d, &mut e, &mut array);
+        let mut aux: u32 = 0;
 
-        self.h[0] = self.h[0].wrapping_add(a);
-        self.h[1] = self.h[1].wrapping_add(b);
-        self.h[2] = self.h[2].wrapping_add(c);
-        self.h[3] = self.h[3].wrapping_add(d);
-        self.h[4] = self.h[4].wrapping_add(e);
+        let mut d_words = self.w.clone();
+
+        Self::block_00_15(a, &mut b, c, d, e, &mut aux, d_words[0]);
+        Self::block_00_15(aux, &mut a, b, c, d, &mut e, d_words[1]);
+        Self::block_00_15(e, &mut aux, a, b, c, &mut d, d_words[2]);
+        Self::block_00_15(d, &mut e, aux, a, b, &mut c, d_words[3]);
+        Self::block_00_15(c, &mut d, e, aux, a, &mut b, d_words[4]);
+        Self::block_00_15(b, &mut c, d, e, aux, &mut a, d_words[5]);
+        Self::block_00_15(a, &mut b, c, d, e, &mut aux, d_words[6]);
+        Self::block_00_15(aux, &mut a, b, c, d, &mut e, d_words[7]);
+        Self::block_00_15(e, &mut aux, a, b, c, &mut d, d_words[8]);
+        Self::block_00_15(d, &mut e, aux, a, b, &mut c, d_words[9]);
+        Self::block_00_15(c, &mut d, e, aux, a, &mut b, d_words[10]);
+        Self::block_00_15(b, &mut c, d, e, aux, &mut a, d_words[11]);
+        Self::block_00_15(a, &mut b, c, d, e, &mut aux, d_words[12]);
+        Self::block_00_15(aux, &mut a, b, c, d, &mut e, d_words[13]);
+        Self::block_00_15(e, &mut aux, a, b, c, &mut d, d_words[14]);
+        Self::block_00_15(d, &mut e, aux, a, b, &mut c, d_words[15]);
+
+        Self::block_16_19(16, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_16_19(17, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_16_19(18, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_16_19(19, aux, &mut a, b, c, d, &mut e, &mut d_words);
+
+        Self::block_20_39(20, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_20_39(21, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_20_39(22, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_20_39(23, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_20_39(24, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_20_39(25, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_20_39(26, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_20_39(27, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_20_39(28, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_20_39(29, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_20_39(30, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_20_39(31, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_20_39(32, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_20_39(33, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_20_39(34, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_20_39(35, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_20_39(36, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_20_39(37, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_20_39(38, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_20_39(39, d, &mut e, aux, a, b, &mut c, &mut d_words);
+
+        Self::block_40_59(40, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_40_59(41, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_40_59(42, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_40_59(43, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_40_59(44, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_40_59(45, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_40_59(46, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_40_59(47, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_40_59(48, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_40_59(49, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_40_59(50, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_40_59(51, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_40_59(52, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_40_59(53, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_40_59(54, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_40_59(55, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_40_59(56, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_40_59(57, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_40_59(58, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_40_59(59, b, &mut c, d, e, aux, &mut a, &mut d_words);
+
+        Self::block_60_79(60, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_60_79(61, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_60_79(62, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_60_79(63, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_60_79(64, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_60_79(65, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_60_79(66, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_60_79(67, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_60_79(68, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_60_79(69, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_60_79(70, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_60_79(71, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_60_79(72, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_60_79(73, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_60_79(74, e, &mut aux, a, b, c, &mut d, &mut d_words);
+        Self::block_60_79(75, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_60_79(76, c, &mut d, e, aux, a, &mut b, &mut d_words);
+        Self::block_60_79(77, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_60_79(78, a, &mut b, c, d, e, &mut aux, &mut d_words);
+        Self::block_60_79(79, aux, &mut a, b, c, d, &mut e, &mut d_words);
+
+        self.h.0 = (self.h.0.wrapping_add(e)) & 0xffffffffu32;
+        self.h.1 = (self.h.1.wrapping_add(aux)) & 0xffffffffu32;
+        self.h.2 = (self.h.2.wrapping_add(a)) & 0xffffffffu32;
+        self.h.3 = (self.h.3.wrapping_add(b)) & 0xffffffffu32;
+        self.h.4 = (self.h.4.wrapping_add(c)) & 0xffffffffu32;
     }
 }
 
 impl Sha1Context {
-    pub fn digest(data: &[u8]) -> String {
-        let mut ctx = Self::init();
-        ctx.update(data, (data.len() * 4) as u64);
+    fn finish(&mut self) -> [u8; 20] {
+        let zero_padding_length = self.zero_padding_length();
+        let mut offset_pad: [u8; SHA_CBLOCK as usize] = [0u8; SHA_CBLOCK as usize];
+        let pad_len: [u8; 8] = self.size.to_be_bytes();
+        offset_pad[0] = 0x80;
 
-        Self::hex_hash(ctx.finalize().as_ref())
+        self.write(&offset_pad[..zero_padding_length]);
+        self.write(&pad_len);
+
+        let mut hash: [u8; 20] = [0; 20];
+        (0..5).for_each(|i| {
+            [
+                hash[i * 4],
+                hash[(i * 4) + 1],
+                hash[(i * 4) + 2],
+                hash[(i * 4) + 3],
+            ] = self.h[i].to_be_bytes()
+        });
+
+        hash
     }
-}
 
-impl Sha1 for Sha1Context {
-    fn init() -> Self {
-        Self {
-            size: u64::MIN,
-            /* Initialize H with the magic constants provided in FIPS180 */
-            h: [SHA_1H0, SHA_1H1, SHA_1H2, SHA_1H3, SHA_1H4],
-            w: [0; 16],
-        }
-    }
+    fn write(&mut self, mut bytes: &[u8]) {
+        let mut lenW: u8 = (self.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
+        let mut bytes_len = bytes.len();
 
-    fn update(&mut self, mut data_in: &[u8], mut len: u64) {
-        let mut len_w = self.size & 63;
+        self.size += bytes_len as u64;
 
-        self.size += len;
-
-        if len_w != 0 {
-            let mut left = 64 - len_w;
-            if len < left {
-                left = len;
+        if lenW != 0 {
+            let mut left = (SHA_CBLOCK - lenW as u32) as u8;
+            if bytes_len < left as usize {
+                left = bytes_len as u8;
             }
 
-            let (data_stream_chunk, rest) = data_in.split_at(left as usize);
-            self.form_d_words_from_data_stream(data_stream_chunk, &mut len_w, left);
+            self.w.from_skippable_offset(&bytes[..(left as usize)], lenW);
 
-            len -= left;
-            data_in = rest;
+            lenW = (lenW + left) & SHA_CBLOCK_LAST_INDEX as u8;
+            bytes_len -= left as usize;
+            bytes = &bytes[(left as usize)..];
 
-            if len_w != 0 {
+            if lenW != 0 {
                 return;
             }
 
-            self.block_32_bit_word();
+            self.hash_block();
         }
 
-        while len >= 64 {
-            Self::block(&mut self.h, data_in);
-            let from = (64 & data_in.len() - 1).range_from();
-            data_in = &data_in[from];
-            len -= 64;
+        while bytes_len >= SHA_CBLOCK as usize {
+            self.w.from(&bytes[..(SHA_CBLOCK as usize)]);
+            self.hash_block();
+            bytes = &bytes[(SHA_CBLOCK as usize)..];
+            bytes_len -= 64;
         }
 
-        if len != 0 {
-            if len > data_in.len() as u64 {
-                len = data_in.len() as u64
-            }
-            let to = (len).range_to();
-            Self::mem_cpy(&mut self.w, &data_in[to]);
+        if bytes_len != 0 {
+            self.w.from(bytes)
         }
-    }
-
-    fn finalize(&mut self) -> [u8; 20] {
-        let mut pad: [u8; 64] = [0; 64];
-        let mut pad_len: [u8; 8] = self.size.to_be_bytes();
-        pad[0] = 0x80;
-
-        let i = self.size & 63;
-        self.update(&pad, 1 + (63 & (55 - i)));
-        self.update(&pad_len, pad_len.len() as u64);
-
-        self.to_byte_slice()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{MemoryCopy, Sha1, Sha1Context};
+    use crate::{DWords, Sha1Context};
     use core::{
         cmp::max,
         fmt::Binary,
+        mem::size_of,
         ops::{BitOr, Shl, Shr},
     };
 
@@ -616,7 +766,7 @@ mod test {
             format!("{:x}", manually_computed_complete_u32);
 
         let zeroes_bytes: &[u8] = &[0; 3];
-        let size_of_u32 = core::mem::size_of::<u32>();
+        let size_of_u32 = size_of::<u32>();
         let one_byte_u32_binding = [zeroes_bytes, one_byte_stream_vec].concat();
         let two_byte_u32_binding = [&zeroes_bytes[..=1], two_byte_stream_vec].concat();
         let three_byte_u32_binding = [&zeroes_bytes[..1], three_byte_stream_vec].concat();
@@ -670,60 +820,20 @@ mod test {
     fn test_commonly_known_sha1_phrases() {
         let quick_fox: &str = "The quick brown fox jumps over the lazy dog";
 
-        let digest_result = Sha1Context::digest(quick_fox.as_ref());
+        let quick_fox_bytes: &[u8] = quick_fox.as_ref();
+        let mut quick_fox_sha1_ctx = Sha1Context::default();
+        quick_fox_sha1_ctx.write(quick_fox.as_ref());
+        let digest_result = Sha1Context::hex_hash(&quick_fox_sha1_ctx.finish());
 
         assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
 
         let cavs_message: &str = "7c9c67323a1df1adbfe5ceb415eaef0155ece2820f4d50c1ec22cba4928ac656c83fe585db6a78ce40bc42757aba7e5a3f582428d6ca68d0c3978336a6efb729613e8d9979016204bfd921322fdd5222183554447de5e6e9bbe6edf76d7b71e18dc2e8d6dc89b7398364f652fafc734329aafa3dcd45d4f31e388e4fafd7fc6495f37ca5cbab7f54d586463da4bfeaa3bae09f7b8e9239d832b4f0a733aa609cc1f8d4";
-        let digest_result = Sha1Context::digest(cavs_message.as_ref());
+
+        let mut cavs_message_sha1_ctx = Sha1Context::default();
+        cavs_message_sha1_ctx.write(cavs_message.as_ref());
+        let digest_result = Sha1Context::hex_hash(&cavs_message_sha1_ctx.finish());
+
         assert_eq!(digest_result, "d8fd6a91ef3b6ced05b98358a99107c1fac8c807");
-    }
-
-    #[test]
-    fn copy_a_u8_vector_into_a_u8_vector() {
-        let src: [u8; 5] = [1, 2, 3, 4, 5];
-        let mut dest: [u8; 5] = [0; 5];
-
-        Sha1Context::mem_cpy(&mut dest[3..], &src[..2]);
-        assert_eq!(dest, [0, 0, 0, 1, 2]);
-
-        Sha1Context::mem_cpy(&mut dest[0..], &src[3..]);
-        assert_eq!(dest, [4, 5, 0, 1, 2]);
-
-        Sha1Context::mem_cpy(&mut dest[1..], &src[1..4]);
-        assert_eq!(dest, [4, 2, 3, 4, 2]);
-    }
-
-    #[test]
-    fn copy_a_u8_vector_into_a_u32_vector() {
-        let char_vec = ['a', 'b', 'c', 'd', 'e'];
-        let mut dest: [u32; 5] = [0; 5];
-
-        Sha1Context::mem_cpy(
-            &mut dest[0..],
-            &char_vec.into_iter().collect::<String>().as_bytes()[..5],
-        );
-
-        assert_eq!(
-            dest,
-            [0x61626364, 0x65, 0, 0, 0],
-            "Asserts characters bytes were correctly copied into u32 integers"
-        );
-    }
-
-    #[test]
-    fn copy_a_u32_vector_into_a_u32_vector() {
-        let src: [u32; 5] = [1, 2, 3, 4, 5];
-        let mut dest: [u32; 5] = [0; 5];
-
-        Sha1Context::mem_cpy(&mut dest[3..], &src[..2]);
-        assert_eq!(dest, [0, 0, 0, 1, 2]);
-
-        Sha1Context::mem_cpy(&mut dest[0..], &src[3..]);
-        assert_eq!(dest, [4, 5, 0, 1, 2]);
-
-        Sha1Context::mem_cpy(&mut dest[1..], &src[1..4]);
-        assert_eq!(dest, [4, 2, 3, 4, 2]);
     }
 
     #[test]
@@ -792,6 +902,29 @@ mod test {
         assert_eq!(
             u8_max.wrapping_add(u8_max.wrapping_add(half_u8_max)),
             half_u8_max - 2
+        );
+    }
+
+    #[test]
+    fn bytes_padding_into_32bit_words() {
+        let first_alphabet_letters: [char; 4] = ['a', 'b', 'c', 'd']; // [0x61, 0x62, 0x63, 0x64]
+        let bytes_64_chunk: [u8; 64] = [
+            first_alphabet_letters
+                .iter()
+                .map(|&c| c as u8)
+                .collect::<Vec<u8>>(),
+            [0; 60].to_vec(),
+        ]
+        .concat()
+        .try_into()
+        .unwrap();
+
+        let mut d_words = DWords::default();
+        d_words.from(&bytes_64_chunk);
+
+        assert_eq!(
+            d_words,
+            DWords(0x61626364, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         );
     }
 

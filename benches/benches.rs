@@ -1,21 +1,19 @@
-use criterion::{black_box, Criterion, criterion_group, criterion_main};
+use core::ops::{BitOr, Shl, Shr};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use lib::{Sha1Context};
 
 const HASH_SIZE: u32 = 20;
 const ROTATION: u32 = 2;
 
-trait ShiftSideways: core::ops::Shl<Output = Self> + core::ops::Shr<Output = Self> + Copy + Sized {}
-
-impl ShiftSideways for u32 {
-
-}
-
 #[inline]
 fn rotate<R>(x: R, l: R, r: R) -> R
-    where R: ShiftSideways + core::ops::BitOr<Output = R>
+where
+    R: BitOr<Output = R> + Shl<Output = R> + Shr<Output = R> + Copy + Sized,
 {
     (x << l) | (x >> r)
 }
 
+#[inline]
 fn rotate_left(x: u32, n: u32) -> u32 {
     rotate(x, n, 32 - n)
 }
@@ -24,33 +22,41 @@ fn rotate_right(x: u32, n: u32) -> u32 {
     rotate(x, 32 - n, n)
 }
 
-fn get_be(value: u32) -> u32 {
-    let b = value / 256;
-    let c = b / 256;
-    let d = c / 256;
-    (value << 24) | (b << 16) | (c << 8) | d
+// #[inline]
+pub fn ch(x: u32, y: u32, z: u32) -> u32 {
+    (x & y) | (!x & z)
 }
 
 pub fn bit_rotation(c: &mut Criterion) {
     let mut group = c.benchmark_group("Rotation study");
 
-    group.bench_function("std rotate left", |b| b.iter(|| HASH_SIZE.rotate_left(ROTATION)));
-    group.bench_function("custom rotate left", |b| b.iter(|| rotate_left(HASH_SIZE, ROTATION)));
+    group.bench_function("std rotate left", |b| {
+        b.iter(|| HASH_SIZE.rotate_left(ROTATION))
+    });
+    group.bench_function("custom rotate left", |b| {
+        b.iter(|| rotate_left(HASH_SIZE, ROTATION))
+    });
 
-    group.bench_function("std rotate right", |b| b.iter(|| HASH_SIZE.rotate_right(ROTATION)));
-    group.bench_function("custom rotate right", |b| b.iter(|| rotate_right(HASH_SIZE, ROTATION)));
+    group.bench_function("std rotate right", |b| {
+        b.iter(|| HASH_SIZE.rotate_right(ROTATION))
+    });
+    group.bench_function("custom rotate right", |b| {
+        b.iter(|| rotate_right(HASH_SIZE, ROTATION))
+    });
 
     group.finish();
 }
 
-pub fn convert_to_big_endian(c: &mut Criterion) {
-    let mut group = c.benchmark_group("u32 conversion to Big Endian");
+pub fn f_0_19(c: &mut Criterion) {
+    let mut benchmark_group = c.benchmark_group("Bench F_0_19 implementations");
 
-    group.bench_function("std to big endian", |b| b.iter(|| HASH_SIZE.to_be()));
-    group.bench_function("cus to big endian", |b| b.iter(|| get_be(HASH_SIZE)));
-
-    group.finish();
+    benchmark_group.bench_function("Implemented ch -> F_0_19", |b| {
+        b.iter(|| Sha1Context::ch(black_box(1000), black_box(2001), black_box(3002)))
+    });
+    benchmark_group.bench_function("Original ch -> F_0_19", |b| {
+        b.iter(|| ch(black_box(1000), black_box(2001), black_box(3002)))
+    });
 }
 
-criterion_group!(benches, bit_rotation, convert_to_big_endian);
+criterion_group!(benches, bit_rotation, f_0_19);
 criterion_main!(benches);
