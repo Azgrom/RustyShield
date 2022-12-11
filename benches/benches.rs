@@ -1,5 +1,5 @@
 use core::ops::{BitOr, Shl, Shr};
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, Criterion, Bencher};
 use lib::{Sha1Context};
 
 const HASH_SIZE: u32 = 20;
@@ -58,5 +58,30 @@ pub fn f_0_19(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, bit_rotation, f_0_19);
+fn single_byte_message_bench(bencher: &mut Bencher){
+    bencher.iter(|| {
+        let mut sha1_context = Sha1Context::default();
+        sha1_context.write(&[0x80]);
+        sha1_context.finish();
+        sha1_context.hex_hash();
+    })
+}
+
+fn double_byte_message_bench(bencher: &mut Bencher){
+    bencher.iter(|| {
+        let mut sha1_context = Sha1Context::default();
+        sha1_context.write(&[0x80; 2]);
+        sha1_context.finish();
+        sha1_context.hex_hash();
+    })
+}
+
+fn different_message_lengths_comparison(c: &mut Criterion) {
+    let mut benchmark_different_messages_impact = c.benchmark_group("Bench messages from single byte to 64 bytes");
+
+    benchmark_different_messages_impact.bench_function("Single Byte Message", single_byte_message_bench);
+    benchmark_different_messages_impact.bench_function("Double Byte Message", double_byte_message_bench);
+}
+
+criterion_group!(benches, bit_rotation, f_0_19, different_message_lengths_comparison);
 criterion_main!(benches);

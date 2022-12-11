@@ -162,12 +162,7 @@ impl PartialEq<DWords> for DWords {
 
 impl DWords {
     fn from_be_bytes(to: u8, chunk: &[u8]) -> u32 {
-        u32::from_be_bytes(
-            [chunk, &ZEROS[..to as usize]]
-                .concat()
-                .try_into()
-                .unwrap(),
-        )
+        u32::from_be_bytes([chunk, &ZEROS[..to as usize]].concat().try_into().unwrap())
     }
 
     fn to_u32_be(chunk: &[u8]) -> u32 {
@@ -326,15 +321,9 @@ impl Sha1Context {
         (x & y) | ((x | y) & z)
     }
 
-    fn mix(i: usize, a: &mut u32, array: &mut DWords) -> u32 {
-        let x = array[i];
-        let y = array[i];
-        let z = array[i];
-        let t = array[i];
-
-        *a = (x ^ y ^ z ^ t).rotate_left(1);
-        array[i] = *a;
-        array[i]
+    fn mix(i: usize, a: &mut u32, d_words: &mut DWords) {
+        *a = (d_words[i + 13] ^ d_words[i + 8] ^ d_words[i + 2] ^ d_words[i]).rotate_left(1);
+        d_words[i] = *a;
     }
 
     fn zero_padding_length(&self) -> usize {
@@ -342,15 +331,8 @@ impl Sha1Context {
             as usize
     }
 
-    fn hex_hash(byte_hash: &[u8]) -> String {
-        byte_hash
-            .iter()
-            .map(|b| format!("{:02x}", b))
-            .collect::<String>()
-    }
-
-    fn block_00_15(a: u32, b: &mut u32, c: u32, d: u32, e: u32, f: &mut u32, xi: u32) {
-        *f = xi
+    fn block_00_15(a: u32, b: &mut u32, c: u32, d: u32, e: u32, aux: &mut u32, word: u32) {
+        *aux = word
             .wrapping_add(e)
             .wrapping_add(T_0_15)
             .wrapping_add(a.rotate_left(5))
@@ -366,11 +348,11 @@ impl Sha1Context {
         c: u32,
         d: u32,
         e: u32,
-        f: &mut u32,
-        array: &mut DWords,
+        aux: &mut u32,
+        d_words: &mut DWords,
     ) {
-        Self::mix(i as usize, f, array);
-        *f = (*f)
+        Self::mix(i as usize, aux, d_words);
+        *aux = (*aux)
             .wrapping_add(e)
             .wrapping_add(T_16_19)
             .wrapping_add(a.rotate_left(5))
@@ -386,11 +368,11 @@ impl Sha1Context {
         c: u32,
         d: u32,
         e: u32,
-        f: &mut u32,
-        array: &mut DWords,
+        aux: &mut u32,
+        d_words: &mut DWords,
     ) {
-        Self::mix(i as usize, f, array);
-        *f = (*f)
+        Self::mix(i as usize, aux, d_words);
+        *aux = (*aux)
             .wrapping_add(e)
             .wrapping_add(T_20_39)
             .wrapping_add(a.rotate_left(5))
@@ -406,11 +388,11 @@ impl Sha1Context {
         c: u32,
         d: u32,
         e: u32,
-        f: &mut u32,
-        array: &mut DWords,
+        aux: &mut u32,
+        d_words: &mut DWords,
     ) {
-        Self::mix(i as usize, f, array);
-        *f = (*f)
+        Self::mix(i as usize, aux, d_words);
+        *aux = (*aux)
             .wrapping_add(e)
             .wrapping_add(T_40_59)
             .wrapping_add(a.rotate_left(5))
@@ -426,10 +408,11 @@ impl Sha1Context {
         c: u32,
         d: u32,
         e: u32,
-        f: &mut u32,
-        array: &mut DWords,
+        aux: &mut u32,
+        d_words: &mut DWords,
     ) {
-        *f = array[i as usize]
+        Self::mix(i as usize, aux, d_words);
+        *aux = d_words[i as usize]
             .wrapping_add(e)
             .wrapping_add(T_60_79)
             .wrapping_add(a.rotate_left(5))
@@ -530,24 +513,16 @@ impl Sha1Context {
         Self::block_60_79(78, a, &mut b, c, d, e, &mut aux, &mut d_words);
         Self::block_60_79(79, aux, &mut a, b, c, d, &mut e, &mut d_words);
 
-        self.h.0 = (self.h.0.wrapping_add(e)) & 0xffffffffu32;
-        self.h.1 = (self.h.1.wrapping_add(aux)) & 0xffffffffu32;
-        self.h.2 = (self.h.2.wrapping_add(a)) & 0xffffffffu32;
-        self.h.3 = (self.h.3.wrapping_add(b)) & 0xffffffffu32;
-        self.h.4 = (self.h.4.wrapping_add(c)) & 0xffffffffu32;
+        self.h.0 = self.h.0.wrapping_add(e);
+        self.h.1 = self.h.1.wrapping_add(aux);
+        self.h.2 = self.h.2.wrapping_add(a);
+        self.h.3 = self.h.3.wrapping_add(b);
+        self.h.4 = self.h.4.wrapping_add(c);
     }
 }
 
 impl Sha1Context {
-    fn finish(&mut self) -> [u8; 20] {
-        let zero_padding_length = self.zero_padding_length();
-        let mut offset_pad: [u8; SHA_CBLOCK as usize] = [0u8; SHA_CBLOCK as usize];
-        let pad_len: [u8; 8] = self.size.to_be_bytes();
-        offset_pad[0] = 0x80;
-
-        self.write(&offset_pad[..zero_padding_length]);
-        self.write(&pad_len);
-
+    pub fn bytes_hash(&self) -> [u8; 20] {
         let mut hash: [u8; 20] = [0; 20];
         (0..5).for_each(|i| {
             [
@@ -561,7 +536,24 @@ impl Sha1Context {
         hash
     }
 
-    fn write(&mut self, mut bytes: &[u8]) {
+    pub fn hex_hash(&self) -> String {
+        self.bytes_hash()
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect::<String>()
+    }
+
+    pub fn finish(&mut self) {
+        let zero_padding_length = self.zero_padding_length();
+        let mut offset_pad: [u8; SHA_CBLOCK as usize] = [0u8; SHA_CBLOCK as usize];
+        let pad_len: [u8; 8] = self.size.to_be_bytes();
+        offset_pad[0] = 0x80;
+
+        self.write(&offset_pad[..zero_padding_length]);
+        self.write(&pad_len);
+    }
+
+    pub fn write(&mut self, mut bytes: &[u8]) {
         let mut len_w: u8 = (self.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
         let mut bytes_len = bytes.len();
 
@@ -573,7 +565,8 @@ impl Sha1Context {
                 left = bytes_len as u8;
             }
 
-            self.w.from_skippable_offset(&bytes[..(left as usize)], len_w);
+            self.w
+                .from_skippable_offset(&bytes[..(left as usize)], len_w);
 
             len_w = (len_w + left) & SHA_CBLOCK_LAST_INDEX as u8;
             bytes_len -= left as usize;
@@ -602,9 +595,7 @@ impl Sha1Context {
 #[cfg(test)]
 mod test {
     use crate::{DWords, Sha1Context};
-    use core::{
-        ops::{BitOr, Shl, Shr},
-    };
+    use core::ops::{BitOr, Shl, Shr};
 
     #[test]
     fn fips180_rotate_right_and_left_are_consistent_with_core_rotate_methods() {
@@ -817,7 +808,8 @@ mod test {
         let quick_fox_bytes: &[u8] = quick_fox.as_ref();
         let mut quick_fox_sha1_ctx = Sha1Context::default();
         quick_fox_sha1_ctx.write(quick_fox_bytes);
-        let digest_result = Sha1Context::hex_hash(&quick_fox_sha1_ctx.finish());
+        quick_fox_sha1_ctx.finish();
+        let digest_result = quick_fox_sha1_ctx.hex_hash();
 
         assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
 
@@ -825,7 +817,8 @@ mod test {
 
         let mut cavs_message_sha1_ctx = Sha1Context::default();
         cavs_message_sha1_ctx.write(cavs_message.as_ref());
-        let digest_result = Sha1Context::hex_hash(&cavs_message_sha1_ctx.finish());
+        cavs_message_sha1_ctx.finish();
+        let digest_result = cavs_message_sha1_ctx.hex_hash();
 
         assert_eq!(digest_result, "d8fd6a91ef3b6ced05b98358a99107c1fac8c807");
     }
