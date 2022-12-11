@@ -321,9 +321,8 @@ impl Sha1Context {
         (x & y) | ((x | y) & z)
     }
 
-    fn mix(i: usize, a: &mut u32, d_words: &mut DWords) {
-        *a = (d_words[i + 13] ^ d_words[i + 8] ^ d_words[i + 2] ^ d_words[i]).rotate_left(1);
-        d_words[i] = *a;
+    fn mix(i: usize, d_words: &DWords) -> u32 {
+        (d_words[i + 13] ^ d_words[i + 8] ^ d_words[i + 2] ^ d_words[i]).rotate_left(1)
     }
 
     fn zero_padding_length(&self) -> usize {
@@ -331,9 +330,9 @@ impl Sha1Context {
             as usize
     }
 
-    fn block_00_15(a: u32, b: &mut u32, c: u32, d: u32, e: u32, aux: &mut u32, word: u32) {
-        *aux = word
-            .wrapping_add(e)
+    fn block_00_15(a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, word: u32) {
+        *e = e
+            .wrapping_add(word)
             .wrapping_add(T_0_15)
             .wrapping_add(a.rotate_left(5))
             .wrapping_add(Self::ch(*b, c, d));
@@ -341,19 +340,10 @@ impl Sha1Context {
         *b = b.rotate_right(2);
     }
 
-    fn block_16_19(
-        i: u8,
-        a: u32,
-        b: &mut u32,
-        c: u32,
-        d: u32,
-        e: u32,
-        aux: &mut u32,
-        d_words: &mut DWords,
-    ) {
-        Self::mix(i as usize, aux, d_words);
-        *aux = (*aux)
-            .wrapping_add(e)
+    fn block_16_19(i: u8, a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, d_words: &mut DWords) {
+        d_words[i.into()] = Self::mix(i as usize, d_words);
+        *e = e
+            .wrapping_add(d_words[i.into()])
             .wrapping_add(T_16_19)
             .wrapping_add(a.rotate_left(5))
             .wrapping_add(Self::ch(*b, c, d));
@@ -361,19 +351,10 @@ impl Sha1Context {
         *b = b.rotate_right(2);
     }
 
-    fn block_20_39(
-        i: u8,
-        a: u32,
-        b: &mut u32,
-        c: u32,
-        d: u32,
-        e: u32,
-        aux: &mut u32,
-        d_words: &mut DWords,
-    ) {
-        Self::mix(i as usize, aux, d_words);
-        *aux = (*aux)
-            .wrapping_add(e)
+    fn block_20_39(i: u8, a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, d_words: &mut DWords) {
+        d_words[i.into()] = Self::mix(i as usize, d_words);
+        *e = e
+            .wrapping_add(d_words[i.into()])
             .wrapping_add(T_20_39)
             .wrapping_add(a.rotate_left(5))
             .wrapping_add(Self::parity(*b, c, d));
@@ -381,19 +362,10 @@ impl Sha1Context {
         *b = b.rotate_right(2);
     }
 
-    fn block_40_59(
-        i: u8,
-        a: u32,
-        b: &mut u32,
-        c: u32,
-        d: u32,
-        e: u32,
-        aux: &mut u32,
-        d_words: &mut DWords,
-    ) {
-        Self::mix(i as usize, aux, d_words);
-        *aux = (*aux)
-            .wrapping_add(e)
+    fn block_40_59(i: u8, a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, d_words: &mut DWords) {
+        d_words[i.into()] = Self::mix(i as usize, d_words);
+        *e = e
+            .wrapping_add(d_words[i.into()])
             .wrapping_add(T_40_59)
             .wrapping_add(a.rotate_left(5))
             .wrapping_add(Self::maj(*b, c, d));
@@ -401,19 +373,10 @@ impl Sha1Context {
         *b = b.rotate_right(2);
     }
 
-    fn block_60_79(
-        i: u8,
-        a: u32,
-        b: &mut u32,
-        c: u32,
-        d: u32,
-        e: u32,
-        aux: &mut u32,
-        d_words: &mut DWords,
-    ) {
-        Self::mix(i as usize, aux, d_words);
-        *aux = d_words[i as usize]
-            .wrapping_add(e)
+    fn block_60_79(i: u8, a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, d_words: &mut DWords) {
+        d_words[i.into()] = Self::mix(i as usize, d_words);
+        *e = e
+            .wrapping_add(d_words[i.into()])
             .wrapping_add(T_60_79)
             .wrapping_add(a.rotate_left(5))
             .wrapping_add(Self::parity(*b, c, d));
@@ -424,100 +387,98 @@ impl Sha1Context {
     fn hash_block(&mut self) {
         let HashValue(mut a, mut b, mut c, mut d, mut e) = self.h.clone();
 
-        let mut aux: u32 = 0;
-
         let mut d_words = self.w.clone();
 
-        Self::block_00_15(a, &mut b, c, d, e, &mut aux, d_words[0]);
-        Self::block_00_15(aux, &mut a, b, c, d, &mut e, d_words[1]);
-        Self::block_00_15(e, &mut aux, a, b, c, &mut d, d_words[2]);
-        Self::block_00_15(d, &mut e, aux, a, b, &mut c, d_words[3]);
-        Self::block_00_15(c, &mut d, e, aux, a, &mut b, d_words[4]);
-        Self::block_00_15(b, &mut c, d, e, aux, &mut a, d_words[5]);
-        Self::block_00_15(a, &mut b, c, d, e, &mut aux, d_words[6]);
-        Self::block_00_15(aux, &mut a, b, c, d, &mut e, d_words[7]);
-        Self::block_00_15(e, &mut aux, a, b, c, &mut d, d_words[8]);
-        Self::block_00_15(d, &mut e, aux, a, b, &mut c, d_words[9]);
-        Self::block_00_15(c, &mut d, e, aux, a, &mut b, d_words[10]);
-        Self::block_00_15(b, &mut c, d, e, aux, &mut a, d_words[11]);
-        Self::block_00_15(a, &mut b, c, d, e, &mut aux, d_words[12]);
-        Self::block_00_15(aux, &mut a, b, c, d, &mut e, d_words[13]);
-        Self::block_00_15(e, &mut aux, a, b, c, &mut d, d_words[14]);
-        Self::block_00_15(d, &mut e, aux, a, b, &mut c, d_words[15]);
+        Self::block_00_15(a, &mut b, c, d, &mut e, d_words[0]);
+        Self::block_00_15(e, &mut a, b, c, &mut d, d_words[1]);
+        Self::block_00_15(d, &mut e, a, b, &mut c, d_words[2]);
+        Self::block_00_15(c, &mut d, e, a, &mut b, d_words[3]);
+        Self::block_00_15(b, &mut c, d, e, &mut a, d_words[4]);
+        Self::block_00_15(a, &mut b, c, d, &mut e, d_words[5]);
+        Self::block_00_15(e, &mut a, b, c, &mut d, d_words[6]);
+        Self::block_00_15(d, &mut e, a, b, &mut c, d_words[7]);
+        Self::block_00_15(c, &mut d, e, a, &mut b, d_words[8]);
+        Self::block_00_15(b, &mut c, d, e, &mut a, d_words[9]);
+        Self::block_00_15(a, &mut b, c, d, &mut e, d_words[10]);
+        Self::block_00_15(e, &mut a, b, c, &mut d, d_words[11]);
+        Self::block_00_15(d, &mut e, a, b, &mut c, d_words[12]);
+        Self::block_00_15(c, &mut d, e, a, &mut b, d_words[13]);
+        Self::block_00_15(b, &mut c, d, e, &mut a, d_words[14]);
+        Self::block_00_15(a, &mut b, c, d, &mut e, d_words[15]);
 
-        Self::block_16_19(16, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_16_19(17, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_16_19(18, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_16_19(19, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_16_19(16, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_16_19(17, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_16_19(18, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_16_19(19, b, &mut c, d, e, &mut a, &mut d_words);
 
-        Self::block_20_39(20, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_20_39(21, d, &mut e, aux, a, b, &mut c, &mut d_words);
-        Self::block_20_39(22, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_20_39(23, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_20_39(24, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_20_39(25, aux, &mut a, b, c, d, &mut e, &mut d_words);
-        Self::block_20_39(26, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_20_39(27, d, &mut e, aux, a, b, &mut c, &mut d_words);
-        Self::block_20_39(28, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_20_39(29, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_20_39(30, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_20_39(31, aux, &mut a, b, c, d, &mut e, &mut d_words);
-        Self::block_20_39(32, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_20_39(33, d, &mut e, aux, a, b, &mut c, &mut d_words);
-        Self::block_20_39(34, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_20_39(35, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_20_39(36, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_20_39(37, aux, &mut a, b, c, d, &mut e, &mut d_words);
-        Self::block_20_39(38, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_20_39(39, d, &mut e, aux, a, b, &mut c, &mut d_words);
+        Self::block_20_39(20, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_20_39(21, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_20_39(22, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_20_39(23, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_20_39(24, b, &mut c, d, e, &mut a, &mut d_words);
+        Self::block_20_39(25, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_20_39(26, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_20_39(27, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_20_39(28, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_20_39(29, b, &mut c, d, e, &mut a, &mut d_words);
+        Self::block_20_39(30, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_20_39(31, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_20_39(32, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_20_39(33, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_20_39(34, b, &mut c, d, e, &mut a, &mut d_words);
+        Self::block_20_39(35, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_20_39(36, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_20_39(37, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_20_39(38, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_20_39(39, b, &mut c, d, e, &mut a, &mut d_words);
 
-        Self::block_40_59(40, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_40_59(41, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_40_59(42, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_40_59(43, aux, &mut a, b, c, d, &mut e, &mut d_words);
-        Self::block_40_59(44, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_40_59(45, d, &mut e, aux, a, b, &mut c, &mut d_words);
-        Self::block_40_59(46, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_40_59(47, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_40_59(48, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_40_59(49, aux, &mut a, b, c, d, &mut e, &mut d_words);
-        Self::block_40_59(50, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_40_59(51, d, &mut e, aux, a, b, &mut c, &mut d_words);
-        Self::block_40_59(52, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_40_59(53, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_40_59(54, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_40_59(55, aux, &mut a, b, c, d, &mut e, &mut d_words);
-        Self::block_40_59(56, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_40_59(57, d, &mut e, aux, a, b, &mut c, &mut d_words);
-        Self::block_40_59(58, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_40_59(59, b, &mut c, d, e, aux, &mut a, &mut d_words);
+        Self::block_40_59(40, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_40_59(41, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_40_59(42, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_40_59(43, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_40_59(44, b, &mut c, d, e, &mut a, &mut d_words);
+        Self::block_40_59(45, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_40_59(46, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_40_59(47, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_40_59(48, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_40_59(49, b, &mut c, d, e, &mut a, &mut d_words);
+        Self::block_40_59(50, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_40_59(51, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_40_59(52, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_40_59(53, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_40_59(54, b, &mut c, d, e, &mut a, &mut d_words);
+        Self::block_40_59(55, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_40_59(56, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_40_59(57, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_40_59(58, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_40_59(59, b, &mut c, d, e, &mut a, &mut d_words);
 
-        Self::block_60_79(60, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_60_79(61, aux, &mut a, b, c, d, &mut e, &mut d_words);
-        Self::block_60_79(62, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_60_79(63, d, &mut e, aux, a, b, &mut c, &mut d_words);
-        Self::block_60_79(64, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_60_79(65, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_60_79(66, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_60_79(67, aux, &mut a, b, c, d, &mut e, &mut d_words);
-        Self::block_60_79(68, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_60_79(69, d, &mut e, aux, a, b, &mut c, &mut d_words);
-        Self::block_60_79(70, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_60_79(71, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_60_79(72, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_60_79(73, aux, &mut a, b, c, d, &mut e, &mut d_words);
-        Self::block_60_79(74, e, &mut aux, a, b, c, &mut d, &mut d_words);
-        Self::block_60_79(75, d, &mut e, aux, a, b, &mut c, &mut d_words);
-        Self::block_60_79(76, c, &mut d, e, aux, a, &mut b, &mut d_words);
-        Self::block_60_79(77, b, &mut c, d, e, aux, &mut a, &mut d_words);
-        Self::block_60_79(78, a, &mut b, c, d, e, &mut aux, &mut d_words);
-        Self::block_60_79(79, aux, &mut a, b, c, d, &mut e, &mut d_words);
+        Self::block_60_79(60, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_60_79(61, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_60_79(62, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_60_79(63, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_60_79(64, b, &mut c, d, e, &mut a, &mut d_words);
+        Self::block_60_79(65, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_60_79(66, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_60_79(67, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_60_79(68, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_60_79(69, b, &mut c, d, e, &mut a, &mut d_words);
+        Self::block_60_79(70, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_60_79(71, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_60_79(72, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_60_79(73, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_60_79(74, b, &mut c, d, e, &mut a, &mut d_words);
+        Self::block_60_79(75, a, &mut b, c, d, &mut e, &mut d_words);
+        Self::block_60_79(76, e, &mut a, b, c, &mut d, &mut d_words);
+        Self::block_60_79(77, d, &mut e, a, b, &mut c, &mut d_words);
+        Self::block_60_79(78, c, &mut d, e, a, &mut b, &mut d_words);
+        Self::block_60_79(79, b, &mut c, d, e, &mut a, &mut d_words);
 
-        self.h.0 = self.h.0.wrapping_add(e);
-        self.h.1 = self.h.1.wrapping_add(aux);
-        self.h.2 = self.h.2.wrapping_add(a);
-        self.h.3 = self.h.3.wrapping_add(b);
-        self.h.4 = self.h.4.wrapping_add(c);
+        self.h.0 = self.h.0.wrapping_add(a);
+        self.h.1 = self.h.1.wrapping_add(b);
+        self.h.2 = self.h.2.wrapping_add(c);
+        self.h.3 = self.h.3.wrapping_add(d);
+        self.h.4 = self.h.4.wrapping_add(e);
     }
 }
 
