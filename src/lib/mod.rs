@@ -5,29 +5,116 @@ use core::{
 
 const U32_BYTES: usize = size_of::<u32>();
 
-const ZEROS: [u8; 3] = [0; 3];
 const SHA_LBLOCK: u32 = 16;
 const SHA_CBLOCK: u32 = SHA_LBLOCK * U32_BYTES as u32;
+const SHA_OFFSET_PAD: u32 = SHA_CBLOCK + 8;
 const SHA_CBLOCK_LAST_INDEX: u32 = SHA_CBLOCK - 1;
 
-const SHA_1H0: u32 = 0x67452301;
-const SHA_1H1: u32 = 0xefcdab89;
-const SHA_1H2: u32 = 0x98badcfe;
-const SHA_1H3: u32 = 0x10325476;
-const SHA_1H4: u32 = 0xc3d2e1f0;
+const H0: u32 = 0x67452301;
+const H1: u32 = 0xefcdab89;
+const H2: u32 = 0x98badcfe;
+const H3: u32 = 0x10325476;
+const H4: u32 = 0xc3d2e1f0;
 
-const T_0_15: u32 = 0x5a827999;
-const T_16_19: u32 = T_0_15;
+const T_0_19: u32 = 0x5a827999;
 const T_20_39: u32 = 0x6ed9eba1;
 const T_40_59: u32 = 0x8f1bbcdc;
 const T_60_79: u32 = 0xca62c1d6;
 
+/// Represents `F_00_19` SHA steps
+///
+/// # Arguments
+///
+/// * `x`: u32
+/// * `y`: u32
+/// * `z`: u32
+///
+/// returns: u32
+///
+/// # Examples
+///
+/// ```
+/// use lib::Sha1Context;
+///
+/// let ch1 = Sha1Context::ch(1, 2, 3);
+/// assert_eq!(ch1, 2);
+///
+/// let ch2 = Sha1Context::ch(1000, 2001, 3002);
+/// assert_eq!(ch2, 3026);
+/// ```
+#[inline]
+pub fn ch(x: u32, y: u32, z: u32) -> u32 {
+    ((y ^ z) & x) ^ z
+}
+
+/// Represents `F_20_39` and `F_60_79` SHA steps
+///
+/// # Arguments
+///
+/// * `x`: u32
+/// * `y`: u32
+/// * `z`: u32
+///
+/// returns: u32
+///
+/// # Examples
+///
+/// ```
+/// use lib::Sha1Context;
+///
+/// let parity1 = Sha1Context::parity(1, 2, 3);
+/// assert_eq!(parity1, 0);
+///
+/// let parity2 = Sha1Context::parity(1000, 2001, 3002);
+/// assert_eq!(parity2, 3971);
+/// ```
+#[inline]
+pub fn parity(x: u32, y: u32, z: u32) -> u32 {
+    x ^ y ^ z
+}
+
+/// Represents `F_40_59` SHA steps
+///
+/// # Arguments
+///
+/// * `x`: u32
+/// * `y`: u32
+/// * `z`: u32
+///
+/// returns: u32
+///
+/// # Examples
+///
+/// ```
+/// use lib::Sha1Context;
+///
+/// let maj1 = Sha1Context::maj(1, 2, 3);
+/// assert_eq!(maj1, 3);
+///
+/// let maj2 = Sha1Context::maj(1000, 2001, 3002);
+/// assert_eq!(maj2, 1016);
+/// ```
+#[inline]
+pub fn maj(x: u32, y: u32, z: u32) -> u32 {
+    (x & y) | ((x | y) & z)
+}
+
 #[derive(Clone)]
-struct HashValue(u32, u32, u32, u32, u32);
+struct HashValue {
+    data: [u32; 5],
+}
 
 impl Default for HashValue {
     fn default() -> Self {
-        Self(SHA_1H0, SHA_1H1, SHA_1H2, SHA_1H3, SHA_1H4)
+        Self {
+            data: [H0, H1, H2, H3, H4],
+        }
+    }
+}
+
+impl HashValue {
+    fn to_slice(&self) -> &[u32; 5] {
+        &self.data
     }
 }
 
@@ -35,57 +122,26 @@ impl Index<usize> for HashValue {
     type Output = u32;
 
     fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            3 => &self.3,
-            4 => &self.4,
-            _ => panic!("Index out of bounds"),
-        }
+        &self.data[index]
+    }
+}
+
+impl IndexMut<usize> for HashValue {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data[index]
     }
 }
 
 #[derive(Debug, Clone)]
-struct DWords(
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-    u32,
-);
+struct DWords {
+    data: [u32; SHA_LBLOCK as usize],
+}
 
 impl Default for DWords {
     fn default() -> Self {
-        Self(
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-            u32::MIN,
-        )
+        Self {
+            data: [u32::MIN; SHA_LBLOCK as usize],
+        }
     }
 }
 
@@ -93,102 +149,38 @@ impl Index<usize> for DWords {
     type Output = u32;
 
     fn index(&self, index: usize) -> &Self::Output {
-        match index & 15 {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            3 => &self.3,
-            4 => &self.4,
-            5 => &self.5,
-            6 => &self.6,
-            7 => &self.7,
-            8 => &self.8,
-            9 => &self.9,
-            10 => &self.10,
-            11 => &self.11,
-            12 => &self.12,
-            13 => &self.13,
-            14 => &self.14,
-            15 => &self.15,
-            _ => panic!("This cannot possibly happen"),
-        }
+        &self.data[index & 15]
     }
 }
 
 impl IndexMut<usize> for DWords {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index & 15 {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            2 => &mut self.2,
-            3 => &mut self.3,
-            4 => &mut self.4,
-            5 => &mut self.5,
-            6 => &mut self.6,
-            7 => &mut self.7,
-            8 => &mut self.8,
-            9 => &mut self.9,
-            10 => &mut self.10,
-            11 => &mut self.11,
-            12 => &mut self.12,
-            13 => &mut self.13,
-            14 => &mut self.14,
-            15 => &mut self.15,
-            _ => panic!("This cannot possibly happen"),
-        }
+        &mut self.data[index & 15]
     }
 }
 
-impl PartialEq<DWords> for DWords {
-    fn eq(&self, other: &DWords) -> bool {
-        self.0 == other.0
-            && self.1 == other.1
-            && self.2 == other.2
-            && self.3 == other.3
-            && self.4 == other.4
-            && self.5 == other.5
-            && self.6 == other.6
-            && self.7 == other.7
-            && self.8 == other.8
-            && self.9 == other.9
-            && self.10 == other.10
-            && self.11 == other.11
-            && self.12 == other.12
-            && self.13 == other.13
-            && self.14 == other.14
-            && self.15 == other.15
+impl PartialEq<[u32; 16]> for DWords {
+    fn eq(&self, other: &[u32; 16]) -> bool {
+        self.data == *other
     }
 }
 
 impl DWords {
-    fn from_be_bytes(to: u8, chunk: &[u8]) -> u32 {
-        u32::from_be_bytes([chunk, &ZEROS[..to as usize]].concat().try_into().unwrap())
-    }
-
-    fn to_u32_be(chunk: &[u8]) -> u32 {
-        match chunk.len() {
-            4 => Self::from_be_bytes(0, chunk),
-            3 => Self::from_be_bytes(1, chunk),
-            2 => Self::from_be_bytes(2, chunk),
-            1 => Self::from_be_bytes(3, chunk),
+    fn u32_be(c: &[u8]) -> u32 {
+        match c.len() {
+            4 => u32::from_be_bytes(c.try_into().unwrap()),
+            3 => u32::from_be_bytes([c[0], c[1], c[2], 0].try_into().unwrap()),
+            2 => ((c[0] as u32) << 24) | ((c[1] as u32) << 16),
+            1 => (c[0] as u32) << 24,
             _ => panic!("this can't possibly happen"),
         }
     }
 
-    fn include_bytes_on_incomplete_word(&mut self, completed_words: usize, skipped_bytes: &[u8]) {
-        match skipped_bytes.len() {
-            3 => {
-                self[completed_words] = self[completed_words]
-                    | ((skipped_bytes[0] as u32) << 16)
-                    | ((skipped_bytes[1] as u32) << 8)
-                    | skipped_bytes[2] as u32
-            }
-            2 => {
-                self[completed_words] = self[completed_words]
-                    | ((skipped_bytes[0] as u32) << 8)
-                    | skipped_bytes[1] as u32
-            }
-            1 => self[completed_words] = self[completed_words] | skipped_bytes[0] as u32,
+    fn include_bytes_on_incomplete_word(&mut self, word: usize, b: &[u8]) {
+        self[word] = match b.len() {
+            3 => self[word] | ((b[2] as u32) << 16) | ((b[1] as u32) << 8) | b[0] as u32,
+            2 => self[word] | ((b[1] as u32) << 8) | b[0] as u32,
+            1 => self[word] | (b[0] as u32),
             _ => panic!("This cannot possibly happen"),
         }
     }
@@ -196,198 +188,129 @@ impl DWords {
     fn from(&mut self, be_bytes: &[u8]) {
         be_bytes
             .chunks(U32_BYTES)
-            .map(Self::to_u32_be)
             .enumerate()
-            .for_each(|(i, word)| self[i] = word);
+            .for_each(|(i, word)| self[i] = Self::u32_be(word));
     }
 
-    fn from_skippable_offset(&mut self, mut be_bytes: &[u8], skip: u8) {
+    fn skippable_offset(&mut self, be_bytes: &[u8], skip: u8) {
         let remaining = skip % U32_BYTES as u8;
         let completed_words = ((skip / U32_BYTES as u8) & 15) as usize;
 
         if remaining == 0 {
             be_bytes
                 .chunks(U32_BYTES)
-                .map(Self::to_u32_be)
                 .enumerate()
-                .for_each(|(i, word)| self[i + completed_words] = word);
+                .for_each(|(i, word)| self[i + completed_words] = Self::u32_be(word));
         } else {
             let bytes_to_skip = U32_BYTES - remaining as usize;
             let skipped_bytes = &be_bytes[..bytes_to_skip];
 
             self.include_bytes_on_incomplete_word(completed_words, skipped_bytes);
 
-            be_bytes = &be_bytes[bytes_to_skip..];
-
-            be_bytes
+            be_bytes[bytes_to_skip..]
                 .chunks(U32_BYTES)
-                .map(Self::to_u32_be)
                 .enumerate()
-                .for_each(|(i, word)| self[i + completed_words + 1] = word);
+                .for_each(|(i, word)| self[i + completed_words + 1] = Self::u32_be(word));
         }
+    }
+
+    #[inline]
+    fn mix(&mut self, i: usize) {
+        self[i] = (self[i+13] ^ self[i + 8] ^ self[i + 2] ^ self[i]).rotate_left(1);
     }
 }
 
 pub struct Sha1Context {
     size: u64,
-    h: HashValue,
-    w: DWords,
+    hashes: HashValue,
+    words: DWords,
 }
 
 impl Default for Sha1Context {
     fn default() -> Self {
         Self {
             size: u64::MIN,
-            h: HashValue::default(),
-            w: DWords::default(),
+            hashes: HashValue::default(),
+            words: DWords::default(),
         }
     }
 }
 
 impl Sha1Context {
-    /// Represents `F_00_19` SHA steps
-    ///
-    /// # Arguments
-    ///
-    /// * `x`: u32
-    /// * `y`: u32
-    /// * `z`: u32
-    ///
-    /// returns: u32
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use lib::ch;
-    ///
-    /// let ch1 = ch(1, 2, 3);
-    /// assert_eq!(ch1, 2);
-    ///
-    /// let ch2 = ch(1000, 2001, 3002);
-    /// assert_eq!(ch2, 3026);
-    /// ```
-    #[inline]
-    pub fn ch(x: u32, y: u32, z: u32) -> u32 {
-        ((y ^ z) & x) ^ z
-    }
-
-    /// Represents `F_20_39` and `F_60_79` SHA steps
-    ///
-    /// # Arguments
-    ///
-    /// * `x`: u32
-    /// * `y`: u32
-    /// * `z`: u32
-    ///
-    /// returns: u32
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use lib::parity;
-    ///
-    /// let parity1 = parity(1, 2, 3);
-    /// assert_eq!(parity1, 0);
-    ///
-    /// let parity2 = parity(1000, 2001, 3002);
-    /// assert_eq!(parity2, 3971);
-    /// ```
-    pub fn parity(x: u32, y: u32, z: u32) -> u32 {
-        x ^ y ^ z
-    }
-
-    /// Represents `F_40_59` SHA steps
-    ///
-    /// # Arguments
-    ///
-    /// * `x`: u32
-    /// * `y`: u32
-    /// * `z`: u32
-    ///
-    /// returns: u32
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use lib::maj;
-    ///
-    /// let maj1 = maj(1, 2, 3);
-    /// assert_eq!(maj1, 3);
-    ///
-    /// let maj2 = maj(1000, 2001, 3002);
-    /// assert_eq!(maj2, 1016);
-    /// ```
-    pub fn maj(x: u32, y: u32, z: u32) -> u32 {
-        (x & y) | ((x | y) & z)
-    }
-
-    fn mix(i: usize, d_words: &DWords) -> u32 {
-        (d_words[i + 13] ^ d_words[i + 8] ^ d_words[i + 2] ^ d_words[i]).rotate_left(1)
-    }
 
     fn zero_padding_length(&self) -> usize {
-        1 + (SHA_CBLOCK_LAST_INDEX as u64 & (55 - (self.size & SHA_CBLOCK_LAST_INDEX as u64)))
-            as usize
+        1 + 8
+            + (SHA_CBLOCK_LAST_INDEX as u64 & (55 - (self.size & SHA_CBLOCK_LAST_INDEX as u64)))
+                as usize
     }
 
+    #[inline]
     fn block_00_15(a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, word: u32) {
         *e = e
             .wrapping_add(word)
-            .wrapping_add(T_0_15)
+            .wrapping_add(T_0_19)
             .wrapping_add(a.rotate_left(5))
-            .wrapping_add(Self::ch(*b, c, d));
+            .wrapping_add(ch(*b, c, d));
 
         *b = b.rotate_right(2);
     }
 
+    #[inline]
     fn block_16_19(i: u8, a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, d_words: &mut DWords) {
-        d_words[i.into()] = Self::mix(i as usize, d_words);
+        d_words.mix(i.into());
+
         *e = e
             .wrapping_add(d_words[i.into()])
-            .wrapping_add(T_16_19)
+            .wrapping_add(T_0_19)
             .wrapping_add(a.rotate_left(5))
-            .wrapping_add(Self::ch(*b, c, d));
+            .wrapping_add(ch(*b, c, d));
 
         *b = b.rotate_right(2);
     }
 
+    #[inline]
     fn block_20_39(i: u8, a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, d_words: &mut DWords) {
-        d_words[i.into()] = Self::mix(i as usize, d_words);
+        d_words.mix(i.into());
+
         *e = e
             .wrapping_add(d_words[i.into()])
             .wrapping_add(T_20_39)
             .wrapping_add(a.rotate_left(5))
-            .wrapping_add(Self::parity(*b, c, d));
+            .wrapping_add(parity(*b, c, d));
 
         *b = b.rotate_right(2);
     }
 
+    #[inline]
     fn block_40_59(i: u8, a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, d_words: &mut DWords) {
-        d_words[i.into()] = Self::mix(i as usize, d_words);
+        d_words.mix(i.into());
+
         *e = e
             .wrapping_add(d_words[i.into()])
             .wrapping_add(T_40_59)
             .wrapping_add(a.rotate_left(5))
-            .wrapping_add(Self::maj(*b, c, d));
+            .wrapping_add(maj(*b, c, d));
 
         *b = b.rotate_right(2);
     }
 
+    #[inline]
     fn block_60_79(i: u8, a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, d_words: &mut DWords) {
-        d_words[i.into()] = Self::mix(i as usize, d_words);
+        d_words.mix(i.into());
+
         *e = e
             .wrapping_add(d_words[i.into()])
             .wrapping_add(T_60_79)
             .wrapping_add(a.rotate_left(5))
-            .wrapping_add(Self::parity(*b, c, d));
+            .wrapping_add(parity(*b, c, d));
 
         *b = b.rotate_right(2);
     }
 
     fn hash_block(&mut self) {
-        let HashValue(mut a, mut b, mut c, mut d, mut e) = self.h.clone();
+        let [mut a, mut b, mut c, mut d, mut e] = self.hashes.clone().to_slice();
 
-        let mut d_words = self.w.clone();
+        let mut d_words = self.words.clone();
 
         Self::block_00_15(a, &mut b, c, d, &mut e, d_words[0]);
         Self::block_00_15(e, &mut a, b, c, &mut d, d_words[1]);
@@ -474,11 +397,11 @@ impl Sha1Context {
         Self::block_60_79(78, c, &mut d, e, a, &mut b, &mut d_words);
         Self::block_60_79(79, b, &mut c, d, e, &mut a, &mut d_words);
 
-        self.h.0 = self.h.0.wrapping_add(a);
-        self.h.1 = self.h.1.wrapping_add(b);
-        self.h.2 = self.h.2.wrapping_add(c);
-        self.h.3 = self.h.3.wrapping_add(d);
-        self.h.4 = self.h.4.wrapping_add(e);
+        self.hashes[0] = self.hashes[0].wrapping_add(a);
+        self.hashes[1] = self.hashes[1].wrapping_add(b);
+        self.hashes[2] = self.hashes[2].wrapping_add(c);
+        self.hashes[3] = self.hashes[3].wrapping_add(d);
+        self.hashes[4] = self.hashes[4].wrapping_add(e);
     }
 }
 
@@ -491,27 +414,29 @@ impl Sha1Context {
                 hash[(i * 4) + 1],
                 hash[(i * 4) + 2],
                 hash[(i * 4) + 3],
-            ] = self.h[i].to_be_bytes()
+            ] = self.hashes[i].to_be_bytes()
         });
 
         hash
     }
 
     pub fn hex_hash(&self) -> String {
-        self.bytes_hash()
-            .iter()
-            .map(|b| format!("{:02x}", b))
+        self.hashes
+            .to_slice()
+            .into_iter()
+            .map(|&b| format!("{:08x}", b))
             .collect::<String>()
     }
 
     pub fn finish(&mut self) {
         let zero_padding_length = self.zero_padding_length();
-        let mut offset_pad: [u8; SHA_CBLOCK as usize] = [0u8; SHA_CBLOCK as usize];
+        let mut offset_pad: [u8; SHA_OFFSET_PAD as usize] = [0u8; SHA_OFFSET_PAD as usize];
         let pad_len: [u8; 8] = self.size.to_be_bytes();
+
         offset_pad[0] = 0x80;
+        offset_pad[zero_padding_length - 8..zero_padding_length].clone_from_slice(&pad_len);
 
         self.write(&offset_pad[..zero_padding_length]);
-        self.write(&pad_len);
     }
 
     pub fn write(&mut self, mut bytes: &[u8]) {
@@ -526,8 +451,8 @@ impl Sha1Context {
                 left = bytes_len as u8;
             }
 
-            self.w
-                .from_skippable_offset(&bytes[..(left as usize)], len_w);
+            self.words
+                .skippable_offset(&bytes[..(left as usize)], len_w);
 
             len_w = (len_w + left) & SHA_CBLOCK_LAST_INDEX as u8;
             bytes_len -= left as usize;
@@ -541,22 +466,24 @@ impl Sha1Context {
         }
 
         while bytes_len >= SHA_CBLOCK as usize {
-            self.w.from(&bytes[..(SHA_CBLOCK as usize)]);
+            self.words.from(&bytes[..(SHA_CBLOCK as usize)]);
             self.hash_block();
             bytes = &bytes[(SHA_CBLOCK as usize)..];
             bytes_len -= 64;
         }
 
         if bytes_len != 0 {
-            self.w.from(bytes)
+            self.words.from(bytes)
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{DWords, Sha1Context};
     use core::ops::{BitOr, Shl, Shr};
+    use std::arch::x86_64::_mm_sha1msg1_epu32;
+
+    use crate::{DWords, Sha1Context};
 
     #[test]
     fn fips180_rotate_right_and_left_are_consistent_with_core_rotate_methods() {
@@ -574,52 +501,52 @@ mod test {
 
     #[test]
     fn compare_fips180_hex_character_big_endianness() {
-        let big_endian_zero = 0x0u8.to_be();
+        let big_endian_zero = 0x0u8;
         let four_bit_str_be_zero = "0000";
 
-        let big_endian_one = 0x1u8.to_be();
+        let big_endian_one = 0x1u8;
         let four_bit_str_be_one = "0001";
 
-        let big_endian_two = 0x2u8.to_be();
+        let big_endian_two = 0x2u8;
         let four_bit_str_be_two = "0010";
 
-        let big_endian_three = 0x3u8.to_be();
+        let big_endian_three = 0x3u8;
         let four_bit_str_be_three = "0011";
 
-        let big_endian_four = 0x4u8.to_be();
+        let big_endian_four = 0x4u8;
         let four_bit_str_be_four = "0100";
 
-        let big_endian_five = 0x5u8.to_be();
+        let big_endian_five = 0x5u8;
         let four_bit_str_be_five = "0101";
 
-        let big_endian_six = 0x6u8.to_be();
+        let big_endian_six = 0x6u8;
         let four_bit_str_be_six = "0110";
 
-        let big_endian_seven = 0x7u8.to_be();
+        let big_endian_seven = 0x7u8;
         let four_bit_str_be_seven = "0111";
 
-        let big_endian_eight = 0x8u8.to_be();
+        let big_endian_eight = 0x8u8;
         let four_bit_str_be_eight = "1000";
 
-        let big_endian_nine = 0x9u8.to_be();
+        let big_endian_nine = 0x9u8;
         let four_bit_str_be_nine = "1001";
 
-        let big_endian_a = 0xau8.to_be();
+        let big_endian_a = 0xau8;
         let four_bit_str_be_a = "1010";
 
-        let big_endian_b = 0xbu8.to_be();
+        let big_endian_b = 0xbu8;
         let four_bit_str_be_b = "1011";
 
-        let big_endian_c = 0xcu8.to_be();
+        let big_endian_c = 0xcu8;
         let four_bit_str_be_c = "1100";
 
-        let big_endian_d = 0xdu8.to_be();
+        let big_endian_d = 0xdu8;
         let four_bit_str_be_d = "1101";
 
-        let big_endian_e = 0xeu8.to_be();
+        let big_endian_e = 0xeu8;
         let four_bit_str_be_e = "1110";
 
-        let big_endian_f = 0xfu8.to_be();
+        let big_endian_f = 0xfu8;
         let four_bit_str_be_f = "1111";
 
         assert_eq!(format!("{:04b}", big_endian_zero), *four_bit_str_be_zero);
@@ -762,26 +689,46 @@ mod test {
         );
     }
 
+    // #[test]
+    // fn test(){
+    //     unsafe {
+    //         let i = _mm_sha1msg1_epu32();
+    //     }
+    // }
+
     #[test]
     fn test_commonly_known_sha1_phrases() {
-        let quick_fox: &str = "The quick brown fox jumps over the lazy dog";
+        let abcd = b"abcd";
+        let mut abcd_sha1_ctx = Sha1Context::default();
+        abcd_sha1_ctx.write(abcd);
+        abcd_sha1_ctx.finish();
+        let digest_result = abcd_sha1_ctx.hex_hash();
+        assert_eq!(digest_result, "81fe8bfe87576c3ecb22426f8e57847382917acf");
 
-        let quick_fox_bytes: &[u8] = quick_fox.as_ref();
+        let abc = b"abc";
+        let mut abc_sha1_ctx = Sha1Context::default();
+        abc_sha1_ctx.write(abc);
+        abc_sha1_ctx.finish();
+        let digest_result = abc_sha1_ctx.hex_hash();
+        assert_eq!(digest_result, "a9993e364706816aba3e25717850c26c9cd0d89d");
+
+        let quick_fox = b"The quick brown fox jumps over the lazy dog";
+
         let mut quick_fox_sha1_ctx = Sha1Context::default();
-        quick_fox_sha1_ctx.write(quick_fox_bytes);
+        quick_fox_sha1_ctx.write(quick_fox);
         quick_fox_sha1_ctx.finish();
         let digest_result = quick_fox_sha1_ctx.hex_hash();
 
         assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
 
-        let cavs_message: &str = "7c9c67323a1df1adbfe5ceb415eaef0155ece2820f4d50c1ec22cba4928ac656c83fe585db6a78ce40bc42757aba7e5a3f582428d6ca68d0c3978336a6efb729613e8d9979016204bfd921322fdd5222183554447de5e6e9bbe6edf76d7b71e18dc2e8d6dc89b7398364f652fafc734329aafa3dcd45d4f31e388e4fafd7fc6495f37ca5cbab7f54d586463da4bfeaa3bae09f7b8e9239d832b4f0a733aa609cc1f8d4";
+        // let cavs_message: &str = "7c9c67323a1df1adbfe5ceb415eaef0155ece2820f4d50c1ec22cba4928ac656c83fe585db6a78ce40bc42757aba7e5a3f582428d6ca68d0c3978336a6efb729613e8d9979016204bfd921322fdd5222183554447de5e6e9bbe6edf76d7b71e18dc2e8d6dc89b7398364f652fafc734329aafa3dcd45d4f31e388e4fafd7fc6495f37ca5cbab7f54d586463da4bfeaa3bae09f7b8e9239d832b4f0a733aa609cc1f8d4";
 
-        let mut cavs_message_sha1_ctx = Sha1Context::default();
-        cavs_message_sha1_ctx.write(cavs_message.as_ref());
-        cavs_message_sha1_ctx.finish();
-        let digest_result = cavs_message_sha1_ctx.hex_hash();
-
-        assert_eq!(digest_result, "d8fd6a91ef3b6ced05b98358a99107c1fac8c807");
+        // let mut cavs_message_sha1_ctx = Sha1Context::default();
+        // cavs_message_sha1_ctx.write(cavs_message.as_ref());
+        // cavs_message_sha1_ctx.finish();
+        // let digest_result = cavs_message_sha1_ctx.hex_hash();
+        //
+        // assert_eq!(digest_result, "d8fd6a91ef3b6ced05b98358a99107c1fac8c807");
     }
 
     #[test]
@@ -872,7 +819,7 @@ mod test {
 
         assert_eq!(
             d_words,
-            DWords(0x61626364, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            [0x61626364, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         );
     }
 
@@ -920,5 +867,23 @@ mod test {
     // TODO: Later bench if inlining improves performance
     fn four_be_bytes_to_u32(src: &[u8]) -> u32 {
         (three_be_bytes_to_u32(src) << 8) | (src[3] as u32)
+    }
+}
+
+#[cfg(test)]
+mod competitors_tests {
+    use sha1::{Digest, Sha1};
+
+    #[test]
+    fn test() {
+        let mut sha1 = Sha1::new();
+        let abc = b"abc";
+        sha1.update(abc);
+
+        let digest_result = &sha1.finalize()[..]
+            .iter()
+            .map(|&b| format!("{:02x}", b))
+            .collect::<String>();
+        assert_eq!(digest_result, "a9993e364706816aba3e25717850c26c9cd0d89d");
     }
 }

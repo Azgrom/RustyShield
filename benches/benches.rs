@@ -1,6 +1,8 @@
 use core::ops::{BitOr, Shl, Shr};
-use criterion::{black_box, criterion_group, criterion_main, Criterion, Bencher};
-use lib::{Sha1Context};
+use criterion::{black_box, criterion_group, criterion_main, Bencher, Criterion};
+use openssl::sha::{Sha1, sha1};
+use lib::Sha1Context;
+use sha1::{Digest, Sha1 as rust_crypto_Sha1};
 
 const HASH_SIZE: u32 = 20;
 const ROTATION: u32 = 2;
@@ -13,7 +15,6 @@ where
     (x << l) | (x >> r)
 }
 
-#[inline]
 fn rotate_left(x: u32, n: u32) -> u32 {
     rotate(x, n, 32 - n)
 }
@@ -58,7 +59,8 @@ pub fn f_0_19(c: &mut Criterion) {
     });
 }
 
-fn single_byte_message_bench(bencher: &mut Bencher){
+#[inline]
+fn single_byte_message_bench(bencher: &mut Bencher) {
     bencher.iter(|| {
         let mut sha1_context = Sha1Context::default();
         sha1_context.write(&[0x80]);
@@ -67,7 +69,8 @@ fn single_byte_message_bench(bencher: &mut Bencher){
     })
 }
 
-fn double_byte_message_bench(bencher: &mut Bencher){
+#[inline]
+fn double_byte_message_bench(bencher: &mut Bencher) {
     bencher.iter(|| {
         let mut sha1_context = Sha1Context::default();
         sha1_context.write(&[0x80; 2]);
@@ -77,11 +80,47 @@ fn double_byte_message_bench(bencher: &mut Bencher){
 }
 
 fn different_message_lengths_comparison(c: &mut Criterion) {
-    let mut benchmark_different_messages_impact = c.benchmark_group("Bench messages from single byte to 64 bytes");
+    let mut benchmark_different_messages_impact =
+        c.benchmark_group("Bench messages from single byte to 64 bytes");
 
-    benchmark_different_messages_impact.bench_function("Single Byte Message", single_byte_message_bench);
-    benchmark_different_messages_impact.bench_function("Double Byte Message", double_byte_message_bench);
+    benchmark_different_messages_impact
+        .bench_function("Single Byte Message", single_byte_message_bench);
+    benchmark_different_messages_impact
+        .bench_function("Double Byte Message", double_byte_message_bench);
 }
 
-criterion_group!(benches, bit_rotation, f_0_19, different_message_lengths_comparison);
+fn rust_crypto_sha1_bench(bencher: &mut Bencher) {
+    bencher.iter(|| {
+        let mut sha1 = rust_crypto_Sha1::new();
+        sha1.update(&[0x80]);
+        sha1.finalize()[..]
+            .iter()
+            .map(|&b| format!("{:02x}", b))
+            .collect::<String>();
+    });
+}
+
+fn openssl_binded_sha1_bench(bencher: &mut Bencher) {
+    bencher.iter(|| {
+        hex::encode(sha1(&[0x80]))
+    })
+}
+
+fn different_sha1_implementations(c: &mut Criterion) {
+    let mut group = c.benchmark_group(
+        "Bench time necessary to digest the same message between different implementations",
+    );
+
+    group.bench_function("This crate very implementation", single_byte_message_bench);
+    group.bench_function("Rust Crypto Sha1 implementation", rust_crypto_sha1_bench);
+    group.bench_function("OpenSSL Rust binded Sha1 implementation", openssl_binded_sha1_bench);
+}
+
+criterion_group!(
+    benches,
+    bit_rotation,
+    f_0_19,
+    different_message_lengths_comparison,
+    different_sha1_implementations
+);
 criterion_main!(benches);
