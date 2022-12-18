@@ -237,6 +237,16 @@ impl Default for Sha1Context {
 }
 
 impl Sha1Context {
+    fn finish_arbitrary_length(&mut self, len: usize) {
+        let zero_padding_length = self.zero_padding_length();
+        let mut offset_pad: [u8; SHA_OFFSET_PAD as usize] = [0u8; SHA_OFFSET_PAD as usize];
+        let pad_len: [u8; 8] = (len * 3).to_be_bytes();
+
+        offset_pad[0] = 0x80;
+        offset_pad[zero_padding_length - 8..zero_padding_length].clone_from_slice(&pad_len);
+
+        self.write(&offset_pad[..zero_padding_length]);
+    }
 
     fn zero_padding_length(&self) -> usize {
         1 + 8
@@ -431,7 +441,7 @@ impl Sha1Context {
     pub fn finish(&mut self) {
         let zero_padding_length = self.zero_padding_length();
         let mut offset_pad: [u8; SHA_OFFSET_PAD as usize] = [0u8; SHA_OFFSET_PAD as usize];
-        let pad_len: [u8; 8] = self.size.to_be_bytes();
+        let pad_len: [u8; 8] = (self.size * 8).to_be_bytes();
 
         offset_pad[0] = 0x80;
         offset_pad[zero_padding_length - 8..zero_padding_length].clone_from_slice(&pad_len);
@@ -479,7 +489,51 @@ impl Sha1Context {
 }
 
 #[cfg(test)]
-mod test {
+mod use_cases {
+    use crate::Sha1Context;
+
+    #[test]
+    fn test_commonly_known_sha1_phrases() {
+        let empty_str = "";
+        let mut empty_str_sha1_ctx = Sha1Context::default();
+        empty_str_sha1_ctx.write(empty_str.as_ref());
+        empty_str_sha1_ctx.finish();
+        let digest_result = empty_str_sha1_ctx.hex_hash();
+        assert_eq!(digest_result, "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+
+        let abc = "abc";
+        let mut abc_sha1_ctx = Sha1Context::default();
+        abc_sha1_ctx.write(abc.as_ref());
+        abc_sha1_ctx.finish();
+        let digest_result = abc_sha1_ctx.hex_hash();
+        assert_eq!(digest_result, "a9993e364706816aba3e25717850c26c9cd0d89d");
+
+        let abcd = "abcd";
+        let mut abcd_sha1_ctx = Sha1Context::default();
+        abcd_sha1_ctx.write(abcd.as_ref());
+        abcd_sha1_ctx.finish();
+        let digest_result = abcd_sha1_ctx.hex_hash();
+        assert_eq!(digest_result, "81fe8bfe87576c3ecb22426f8e57847382917acf");
+
+        let quick_fox = "The quick brown fox jumps over the lazy dog";
+
+        let mut quick_fox_sha1_ctx = Sha1Context::default();
+        quick_fox_sha1_ctx.write(quick_fox.as_ref());
+        quick_fox_sha1_ctx.finish();
+        let digest_result = quick_fox_sha1_ctx.hex_hash();
+        assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
+
+        let lazy_cog = "The quick brown fox jumps over the lazy cog";
+        let mut lazy_cog_sha1_ctx = Sha1Context::default();
+        lazy_cog_sha1_ctx.write(lazy_cog.as_ref());
+        lazy_cog_sha1_ctx.finish();
+        let digest_result = lazy_cog_sha1_ctx.hex_hash();
+        assert_eq!(digest_result, "de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3");
+    }
+}
+
+#[cfg(test)]
+mod hypothesis_and_coverage_assurance {
     use core::ops::{BitOr, Shl, Shr};
     use std::arch::x86_64::_mm_sha1msg1_epu32;
 
@@ -689,48 +743,6 @@ mod test {
         );
     }
 
-    // #[test]
-    // fn test(){
-    //     unsafe {
-    //         let i = _mm_sha1msg1_epu32();
-    //     }
-    // }
-
-    #[test]
-    fn test_commonly_known_sha1_phrases() {
-        let abcd = b"abcd";
-        let mut abcd_sha1_ctx = Sha1Context::default();
-        abcd_sha1_ctx.write(abcd);
-        abcd_sha1_ctx.finish();
-        let digest_result = abcd_sha1_ctx.hex_hash();
-        assert_eq!(digest_result, "81fe8bfe87576c3ecb22426f8e57847382917acf");
-
-        let abc = b"abc";
-        let mut abc_sha1_ctx = Sha1Context::default();
-        abc_sha1_ctx.write(abc);
-        abc_sha1_ctx.finish();
-        let digest_result = abc_sha1_ctx.hex_hash();
-        assert_eq!(digest_result, "a9993e364706816aba3e25717850c26c9cd0d89d");
-
-        let quick_fox = b"The quick brown fox jumps over the lazy dog";
-
-        let mut quick_fox_sha1_ctx = Sha1Context::default();
-        quick_fox_sha1_ctx.write(quick_fox);
-        quick_fox_sha1_ctx.finish();
-        let digest_result = quick_fox_sha1_ctx.hex_hash();
-
-        assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
-
-        // let cavs_message: &str = "7c9c67323a1df1adbfe5ceb415eaef0155ece2820f4d50c1ec22cba4928ac656c83fe585db6a78ce40bc42757aba7e5a3f582428d6ca68d0c3978336a6efb729613e8d9979016204bfd921322fdd5222183554447de5e6e9bbe6edf76d7b71e18dc2e8d6dc89b7398364f652fafc734329aafa3dcd45d4f31e388e4fafd7fc6495f37ca5cbab7f54d586463da4bfeaa3bae09f7b8e9239d832b4f0a733aa609cc1f8d4";
-
-        // let mut cavs_message_sha1_ctx = Sha1Context::default();
-        // cavs_message_sha1_ctx.write(cavs_message.as_ref());
-        // cavs_message_sha1_ctx.finish();
-        // let digest_result = cavs_message_sha1_ctx.hex_hash();
-        //
-        // assert_eq!(digest_result, "d8fd6a91ef3b6ced05b98358a99107c1fac8c807");
-    }
-
     #[test]
     fn bit_shift_method_vs_explicit_operation() {
         let unsigned_integer: u32 = 1684234849;
@@ -870,20 +882,20 @@ mod test {
     }
 }
 
-#[cfg(test)]
-mod competitors_tests {
-    use sha1::{Digest, Sha1};
-
-    #[test]
-    fn test() {
-        let mut sha1 = Sha1::new();
-        let abc = b"abc";
-        sha1.update(abc);
-
-        let digest_result = &sha1.finalize()[..]
-            .iter()
-            .map(|&b| format!("{:02x}", b))
-            .collect::<String>();
-        assert_eq!(digest_result, "a9993e364706816aba3e25717850c26c9cd0d89d");
-    }
-}
+// #[cfg(test)]
+// mod competitors_tests {
+//     use sha1::{Digest, Sha1};
+//
+//     #[test]
+//     fn test() {
+//         let mut sha1 = Sha1::new();
+//         let abc = b"abc";
+//         sha1.update(abc);
+//
+//         let digest_result = &sha1.finalize()[..]
+//             .iter()
+//             .map(|&b| format!("{:02x}", b))
+//             .collect::<String>();
+//         assert_eq!(digest_result, "a9993e364706816aba3e25717850c26c9cd0d89d");
+//     }
+// }

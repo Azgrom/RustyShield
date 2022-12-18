@@ -22,11 +22,6 @@ path = "src/lib/mod.rs"
 
 [dev-dependencies]
 criterion = "0.4.0"
-openssl = "0.10.44"
-openssl-sys = "0.9.79"
-sha1 = "0.10.5"
-hex-literal = "0.3.4"
-hex = "0.4.3"
 
 [profile.release]
 opt-level = 3
