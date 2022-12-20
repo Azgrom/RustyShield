@@ -144,16 +144,14 @@ fn convert_big_endian_bytes_to_u32() {
         format!("{:x}", manually_computed_single_u8_to_u32);
 
     let manually_computed_two_u8_to_u32 = two_be_bytes_to_u32(two_byte_stream_vec);
-    let manually_computed_two_u8_to_u32_hex_str =
-        format!("{:x}", manually_computed_two_u8_to_u32);
+    let manually_computed_two_u8_to_u32_hex_str = format!("{:x}", manually_computed_two_u8_to_u32);
 
     let manually_computed_three_u8_to_u32 = three_be_bytes_to_u32(three_byte_stream_vec);
     let manually_computed_three_u8_to_u32_hex_str =
         format!("{:x}", manually_computed_three_u8_to_u32);
 
     let manually_computed_complete_u32 = four_be_bytes_to_u32(complete_u32_vec);
-    let manually_computed_complete_u32_hex_str =
-        format!("{:x}", manually_computed_complete_u32);
+    let manually_computed_complete_u32_hex_str = format!("{:x}", manually_computed_complete_u32);
 
     let zeroes_bytes: &[u8] = &[0; 3];
     let one_byte_u32_binding = [zeroes_bytes, one_byte_stream_vec].concat();
@@ -163,8 +161,7 @@ fn convert_big_endian_bytes_to_u32() {
     let std_computed_single_u8_to_u32 =
         u32::from_be_bytes(one_byte_u32_binding.try_into().unwrap());
     let std_computed_single_u8_to_u32_hex_str = format!("{:x}", std_computed_single_u8_to_u32);
-    let std_computed_two_u8_to_u32 =
-        u32::from_be_bytes(two_byte_u32_binding.try_into().unwrap());
+    let std_computed_two_u8_to_u32 = u32::from_be_bytes(two_byte_u32_binding.try_into().unwrap());
     let std_computed_two_u8_to_u32_hex_str = format!("{:x}", std_computed_two_u8_to_u32);
     let std_computed_three_u8_to_u32 =
         u32::from_be_bytes(three_byte_u32_binding.try_into().unwrap());

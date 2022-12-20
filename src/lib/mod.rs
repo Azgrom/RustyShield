@@ -170,7 +170,7 @@ impl DWords {
     fn u32_be(c: &[u8]) -> u32 {
         match c.len() {
             4 => u32::from_be_bytes(c.try_into().unwrap()),
-            3 => u32::from_be_bytes([c[0], c[1], c[2], 0].try_into().unwrap()),
+            3 => u32::from_be_bytes([c[0], c[1], c[2], 0]),
             2 => ((c[0] as u32) << 24) | ((c[1] as u32) << 16),
             1 => (c[0] as u32) << 24,
             _ => panic!("this can't possibly happen"),
@@ -240,7 +240,8 @@ impl Default for Sha1Context {
 impl Sha1Context {
     fn zero_padding_length(&self) -> usize {
         1 + 8
-            + (SHA_CBLOCK_LAST_INDEX as u64 & (55 - (self.size & SHA_CBLOCK_LAST_INDEX as u64)))
+            + (SHA_CBLOCK_LAST_INDEX as u64
+                & (55u64.wrapping_sub(self.size & SHA_CBLOCK_LAST_INDEX as u64)))
                 as usize
     }
 
@@ -423,7 +424,7 @@ impl Sha1Context {
     pub fn hex_hash(&self) -> String {
         self.hashes
             .to_slice()
-            .into_iter()
+            .iter()
             .map(|&b| format!("{:08x}", b))
             .collect::<String>()
     }

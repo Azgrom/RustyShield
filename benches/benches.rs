@@ -55,7 +55,8 @@ fn compare_sha1_digestion_with_different_input_sizes(b: &mut Bencher, input: &[u
 }
 
 fn different_message_lengths_comparison(c: &mut Criterion) {
-    let mut benchmark_different_messages_impact = c.benchmark_group("Bench messages from 0 to 16 kilobytes");
+    let mut benchmark_different_messages_impact =
+        c.benchmark_group("Bench messages from 0 to 16 kilobytes");
 
     for current_size in (0..=BASE_INPUT_SIZE).step_by(1024) {
         benchmark_different_messages_impact.bench_with_input(
@@ -66,9 +67,5 @@ fn different_message_lengths_comparison(c: &mut Criterion) {
     }
 }
 
-criterion_group!(
-    benches,
-    bit_rotation,
-    different_message_lengths_comparison,
-);
+criterion_group!(benches, bit_rotation, different_message_lengths_comparison,);
 criterion_main!(benches);
