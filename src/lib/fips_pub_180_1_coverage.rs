@@ -69,7 +69,7 @@ fn start_processing_block_integrity() {
 }
 
 #[test]
-fn hash_values_integrity_for_each_step_00_to_15() {
+fn assert_hash_values_integrity_for_each_step_00_to_15() {
     let context = instantiate_and_preprocess_abc_message();
 
     let [mut a, mut b, mut c, mut d, mut e] = context.hashes.to_slice().clone();
@@ -171,4 +171,40 @@ fn hash_values_integrity_for_each_step_00_to_15() {
         [e, a, b, c, d],
         [0x20BDD62F, 0x196BEE77, 0x644A3DA5, 0x1181ED99, 0x18C623F9]
     );
+}
+
+#[test]
+fn assert_hash_values_integrity_for_each_step_16_to_19() {
+    let mut context = instantiate_and_preprocess_abc_message();
+
+    let [mut a, mut b, mut c, mut d, mut e] = context.hashes.to_slice().clone();
+    Sha1Context::block_00_15(a, &mut b, c, d, &mut e, context.words[0]);
+    Sha1Context::block_00_15(e, &mut a, b, c, &mut d, context.words[1]);
+    Sha1Context::block_00_15(d, &mut e, a, b, &mut c, context.words[2]);
+    Sha1Context::block_00_15(c, &mut d, e, a, &mut b, context.words[3]);
+    Sha1Context::block_00_15(b, &mut c, d, e, &mut a, context.words[4]);
+    Sha1Context::block_00_15(a, &mut b, c, d, &mut e, context.words[5]);
+    Sha1Context::block_00_15(e, &mut a, b, c, &mut d, context.words[6]);
+    Sha1Context::block_00_15(d, &mut e, a, b, &mut c, context.words[7]);
+    Sha1Context::block_00_15(c, &mut d, e, a, &mut b, context.words[8]);
+    Sha1Context::block_00_15(b, &mut c, d, e, &mut a, context.words[9]);
+    Sha1Context::block_00_15(a, &mut b, c, d, &mut e, context.words[10]);
+    Sha1Context::block_00_15(e, &mut a, b, c, &mut d, context.words[11]);
+    Sha1Context::block_00_15(d, &mut e, a, b, &mut c, context.words[12]);
+    Sha1Context::block_00_15(c, &mut d, e, a, &mut b, context.words[13]);
+    Sha1Context::block_00_15(b, &mut c, d, e, &mut a, context.words[14]);
+    Sha1Context::block_00_15(a, &mut b, c, d, &mut e, context.words[15]);
+
+    Sha1Context::block_16_19(16, e, &mut a, b, c, &mut d, &mut context.words);
+
+    assert_eq!([d, e, a, b, c], [0x4E925823, 0x20BDD62F, 0xC65AFB9D, 0x644A3DA5, 0x1181ED99]);
+    Sha1Context::block_16_19(17, d, &mut e, a, b, &mut c, &mut context.words);
+
+    assert_eq!([c, d, e, a, b], [0x82AA6728, 0x4E925823, 0xC82F758B, 0xC65AFB9D, 0x644A3DA5]);
+    Sha1Context::block_16_19(18, c, &mut d, e, a, &mut b, &mut context.words);
+
+    assert_eq!([b, c, d, e, a], [0xDC64901D, 0x82AA6728, 0xD3A49608, 0xC82F758B, 0xC65AFB9D]);
+    Sha1Context::block_16_19(19, b, &mut c, d, e, &mut a, &mut context.words);
+
+    assert_eq!([a, b, c, d, e], [0xFD9E1D7D, 0xDC64901D, 0x20AA99CA, 0xD3A49608, 0xC82F758B]);
 }
