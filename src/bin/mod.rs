@@ -1,5 +1,6 @@
-use lib::Sha1Context;
 use std::{env, fs, process};
+
+use lib::Sha1Context;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

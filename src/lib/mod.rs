@@ -5,102 +5,37 @@ use core::{
 
 const U32_BYTES: usize = size_of::<u32>();
 
-const SHA_LBLOCK: u32 = 16;
-const SHA_CBLOCK: u32 = SHA_LBLOCK * U32_BYTES as u32;
+const SHA_WORD_BLOCKS: u32 = 16;
+const SHA_CBLOCK: u32 = SHA_WORD_BLOCKS * U32_BYTES as u32;
 const SHA_OFFSET_PAD: u32 = SHA_CBLOCK + 8;
 const SHA_CBLOCK_LAST_INDEX: u32 = SHA_CBLOCK - 1;
 
 const H0: u32 = 0x67452301;
-const H1: u32 = 0xefcdab89;
-const H2: u32 = 0x98badcfe;
+const H1: u32 = 0xEFCDAB89;
+const H2: u32 = 0x98BADCFE;
 const H3: u32 = 0x10325476;
-const H4: u32 = 0xc3d2e1f0;
+const H4: u32 = 0xC3D2E1F0;
 
-const T_0_19: u32 = 0x5a827999;
-const T_20_39: u32 = 0x6ed9eba1;
-const T_40_59: u32 = 0x8f1bbcdc;
-const T_60_79: u32 = 0xca62c1d6;
+const T_0_19: u32 = 0x5A827999;
+const T_20_39: u32 = 0x6ED9EBA1;
+const T_40_59: u32 = 0x8F1BBCDC;
+const T_60_79: u32 = 0xCA62C1D6;
 
-/// Represents `F_00_19` SHA steps
-///
-/// # Arguments
-///
-/// * `x`: u32
-/// * `y`: u32
-/// * `z`: u32
-///
-/// returns: u32
-///
-/// # Examples
-///
-/// ```
-/// use lib::ch;
-///
-/// let ch1 = ch(1, 2, 3);
-/// assert_eq!(ch1, 2);
-///
-/// let ch2 = ch(1000, 2001, 3002);
-/// assert_eq!(ch2, 3026);
-/// ```
 #[inline(always)]
-pub fn ch(x: u32, y: u32, z: u32) -> u32 {
+fn ch(x: u32, y: u32, z: u32) -> u32 {
     ((y ^ z) & x) ^ z
 }
 
-/// Represents `F_20_39` and `F_60_79` SHA steps
-///
-/// # Arguments
-///
-/// * `x`: u32
-/// * `y`: u32
-/// * `z`: u32
-///
-/// returns: u32
-///
-/// # Examples
-///
-/// ```
-///
-/// use lib::parity;
-///
-/// let parity1 = parity(1, 2, 3);
-/// assert_eq!(parity1, 0);
-///
-/// let parity2 = parity(1000, 2001, 3002);
-/// assert_eq!(parity2, 3971);
-/// ```
 #[inline(always)]
-pub fn parity(x: u32, y: u32, z: u32) -> u32 {
+fn parity(x: u32, y: u32, z: u32) -> u32 {
     x ^ y ^ z
 }
 
-/// Represents `F_40_59` SHA steps
-///
-/// # Arguments
-///
-/// * `x`: u32
-/// * `y`: u32
-/// * `z`: u32
-///
-/// returns: u32
-///
-/// # Examples
-///
-/// ```
-/// use lib::maj;
-///
-/// let maj1 = maj(1, 2, 3);
-/// assert_eq!(maj1, 3);
-///
-/// let maj2 = maj(1000, 2001, 3002);
-/// assert_eq!(maj2, 1016);
-/// ```
 #[inline(always)]
-pub fn maj(x: u32, y: u32, z: u32) -> u32 {
+fn maj(x: u32, y: u32, z: u32) -> u32 {
     (x & y) | ((x | y) & z)
 }
 
-#[derive(Clone)]
 struct HashValue {
     data: [u32; 5],
 }
@@ -119,29 +54,15 @@ impl HashValue {
     }
 }
 
-impl Index<usize> for HashValue {
-    type Output = u32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        &self.data[index]
-    }
-}
-
-impl IndexMut<usize> for HashValue {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        &mut self.data[index]
-    }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 struct DWords {
-    data: [u32; SHA_LBLOCK as usize],
+    data: [u32; SHA_WORD_BLOCKS as usize],
 }
 
 impl Default for DWords {
     fn default() -> Self {
         Self {
-            data: [u32::MIN; SHA_LBLOCK as usize],
+            data: [u32::MIN; SHA_WORD_BLOCKS as usize],
         }
     }
 }
@@ -317,7 +238,7 @@ impl Sha1Context {
     }
 
     fn hash_block(&mut self) {
-        let [mut a, mut b, mut c, mut d, mut e] = self.hashes.clone().to_slice();
+        let [mut a, mut b, mut c, mut d, mut e] = self.hashes.to_slice().clone();
 
         let mut d_words = self.words.clone();
 
@@ -406,16 +327,17 @@ impl Sha1Context {
         Self::block_60_79(78, c, &mut d, e, a, &mut b, &mut d_words);
         Self::block_60_79(79, b, &mut c, d, e, &mut a, &mut d_words);
 
-        self.hashes[0] = self.hashes[0].wrapping_add(a);
-        self.hashes[1] = self.hashes[1].wrapping_add(b);
-        self.hashes[2] = self.hashes[2].wrapping_add(c);
-        self.hashes[3] = self.hashes[3].wrapping_add(d);
-        self.hashes[4] = self.hashes[4].wrapping_add(e);
+        self.hashes.data[0] = self.hashes.data[0].wrapping_add(a);
+        self.hashes.data[1] = self.hashes.data[1].wrapping_add(b);
+        self.hashes.data[2] = self.hashes.data[2].wrapping_add(c);
+        self.hashes.data[3] = self.hashes.data[3].wrapping_add(d);
+        self.hashes.data[4] = self.hashes.data[4].wrapping_add(e);
     }
 }
 
 impl Sha1Context {
     pub fn bytes_hash(&self) -> [u8; 20] {
+        let hash_value = self.hashes.to_slice();
         let mut hash: [u8; 20] = [0; 20];
         (0..5).for_each(|i| {
             [
@@ -423,7 +345,7 @@ impl Sha1Context {
                 hash[(i * 4) + 1],
                 hash[(i * 4) + 2],
                 hash[(i * 4) + 3],
-            ] = self.hashes[i].to_be_bytes()
+            ] = hash_value[i].to_be_bytes()
         });
 
         hash
@@ -460,7 +382,7 @@ impl Sha1Context {
     }
 
     pub fn write(&mut self, mut bytes: &[u8]) {
-        let mut len_w: u8 = (self.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
+        let mut len_w = (self.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
 
         self.size += bytes.len() as u64;
 
@@ -557,3 +479,6 @@ mod use_cases {
 
 #[cfg(test)]
 mod hypothesis_and_coverage_assurance;
+
+#[cfg(test)]
+mod fips_pub_180_1_coverage;

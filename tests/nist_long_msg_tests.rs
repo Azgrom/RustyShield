@@ -53,8 +53,9 @@ impl Sha1LongMsg {
 
 #[cfg(test)]
 mod long_msgs {
-    use crate::Sha1LongMsg;
     use lib::Sha1Context;
+
+    use crate::Sha1LongMsg;
 
     #[test]
     fn compare_openssl_digestion_of_long_messages() {

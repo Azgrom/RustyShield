@@ -1,5 +1,6 @@
-use crate::DWords;
 use core::ops::{BitOr, Shl, Shr};
+
+use crate::{ch, maj, parity, DWords};
 
 #[test]
 fn fips180_rotate_right_and_left_are_consistent_with_core_rotate_methods() {
@@ -292,6 +293,33 @@ fn bytes_padding_into_32bit_words() {
         d_words,
         [0x61626364, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
+}
+
+#[test]
+fn assert_ch_consistency() {
+    let ch1 = ch(1, 2, 3);
+    assert_eq!(ch1, 2);
+
+    let ch2 = ch(1000, 2001, 3002);
+    assert_eq!(ch2, 3026);
+}
+
+#[test]
+fn assert_parity_consistency() {
+    let parity1 = parity(1, 2, 3);
+    assert_eq!(parity1, 0);
+
+    let parity2 = parity(1000, 2001, 3002);
+    assert_eq!(parity2, 3971);
+}
+
+#[test]
+fn assert_maj_consistency() {
+    let maj1 = maj(1, 2, 3);
+    assert_eq!(maj1, 3);
+
+    let maj2 = maj(1000, 2001, 3002);
+    assert_eq!(maj2, 1016);
 }
 
 fn rotate<R>(x: R, l: R, r: R) -> R

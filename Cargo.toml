@@ -1,27 +1,28 @@
 [package]
 authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
-description = "a Secure Hash Algorithm library based on git's implementation of SHA, but refactored to make it easier to port, maintain, expand and use"
+description = "A git implementation based SHA-1 library , but faster, easier to port, maintain, expand and use"
 categories = ["data-structures", "development-tools"]
 edition = "2021"
 keywords = ["sha", "sha_1", "sha-1"]
 license = "GPL-2.0-only"
-name = "rusty_sha"
+name = "rs_sha1"
 readme = "README.md"
-rust-version = "1.66.0"
 version = "0.1.0"
 
 [lib]
 name = "lib"
 path = "src/lib/mod.rs"
 
-#[[bin]]
-#name = "main"
-#path = "src/bin/mod"
+[[bin]]
+name = "main"
+path = "src/bin/mod.rs"
 
-[dependencies]
+[dependencies.criterion]
+version = "0.4.0"
+optional = true
 
-[dev-dependencies]
-criterion = "0.4.0"
+[features]
+criterion = ["dep:criterion"]
 
 [profile.release]
 opt-level = 3
@@ -29,10 +30,7 @@ lto = true
 codegen-units = 1
 
 [profile.bench]
-inherits = "dev"
-opt-level = 3
-lto = true
-codegen-units = 1
+inherits = "release"
 strip = false
 
 [[bench]]

@@ -1,7 +1,9 @@
 use core::ops::{BitOr, Shl, Shr};
-use criterion::{black_box, criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
+
+#[cfg(feature = "criterion")]
+use criterion::{criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
+
 use lib::Sha1Context;
-use std::fmt::format;
 
 const HASH_SIZE: u32 = 20;
 const ROTATION: u32 = 2;
@@ -24,6 +26,7 @@ fn rotate_right(x: u32, n: u32) -> u32 {
     rotate(x, 32 - n, n)
 }
 
+#[cfg(feature = "criterion")]
 pub fn bit_rotation(c: &mut Criterion) {
     let mut group = c.benchmark_group("Rotation study");
 
@@ -45,6 +48,7 @@ pub fn bit_rotation(c: &mut Criterion) {
 }
 
 #[inline]
+#[cfg(feature = "criterion")]
 fn compare_sha1_digestion_with_different_input_sizes(b: &mut Bencher, input: &[u8]) {
     b.iter(|| {
         let mut sha1_ctx = Sha1Context::default();
@@ -54,6 +58,7 @@ fn compare_sha1_digestion_with_different_input_sizes(b: &mut Bencher, input: &[u
     })
 }
 
+#[cfg(feature = "criterion")]
 fn different_message_lengths_comparison(c: &mut Criterion) {
     let mut benchmark_different_messages_impact =
         c.benchmark_group("Bench messages from 0 to 16 kilobytes");
@@ -67,5 +72,7 @@ fn different_message_lengths_comparison(c: &mut Criterion) {
     }
 }
 
+#[cfg(feature = "criterion")]
 criterion_group!(benches, bit_rotation, different_message_lengths_comparison,);
+#[cfg(feature = "criterion")]
 criterion_main!(benches);
