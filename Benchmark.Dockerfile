@@ -5,4 +5,4 @@ COPY . .
 RUN cargo test
 RUN cargo install cargo-criterion
 
-ENTRYPOINT [ "cargo", "criterion", "--features", "criterion" ]
+ENTRYPOINT [ "cargo", "criterion", "--features", "comparator_build" ]

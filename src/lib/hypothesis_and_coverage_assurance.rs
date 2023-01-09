@@ -1,6 +1,6 @@
 use core::ops::{BitOr, Shl, Shr};
 
-use crate::{ch, maj, parity, DWords};
+use crate::{ch, maj, parity};
 
 #[test]
 fn fips180_rotate_right_and_left_are_consistent_with_core_rotate_methods() {
@@ -269,29 +269,6 @@ fn associative_wrapping_add_property() {
     assert_eq!(
         u8_max.wrapping_add(u8_max.wrapping_add(half_u8_max)),
         half_u8_max - 2
-    );
-}
-
-#[test]
-fn bytes_padding_into_32bit_words() {
-    let first_alphabet_letters: [char; 4] = ['a', 'b', 'c', 'd']; // [0x61, 0x62, 0x63, 0x64]
-    let bytes_64_chunk: [u8; 64] = [
-        first_alphabet_letters
-            .iter()
-            .map(|&c| c as u8)
-            .collect::<Vec<u8>>(),
-        [0; 60].to_vec(),
-    ]
-    .concat()
-    .try_into()
-    .unwrap();
-
-    let mut d_words = DWords::default();
-    d_words.from(&bytes_64_chunk);
-
-    assert_eq!(
-        d_words,
-        [0x61626364, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
 }
 

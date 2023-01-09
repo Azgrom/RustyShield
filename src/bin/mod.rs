@@ -1,6 +1,8 @@
+use core::hash::{BuildHasher, Hasher};
 use std::{env, fs, process};
 
-use lib::Sha1Context;
+use lib::HashContext;
+use lib::sha1_state::Sha1State;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -10,15 +12,13 @@ fn main() {
         process::exit(1);
     });
 
-    let mut sha1context = Sha1Context::default();
+    let mut hasher = Sha1State::default().build_hasher();
     fs::read(file_path)
         .unwrap_or_else(|_| panic!("Not able to read {}", file_path))
         .chunks(128)
-        .for_each(|line| sha1context.write(line.as_ref()));
+        .for_each(|line| hasher.write(line.as_ref()));
 
-    sha1context.finish();
-
-    println!("SHA1({}) = {}", file_path, sha1context.hex_hash())
+    println!("SHA1({}) = {}", file_path, hasher.to_hex_string())
 }
 
 fn parse_arguments<'a>(

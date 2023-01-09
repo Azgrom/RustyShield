@@ -1,6 +1,6 @@
 [package]
 authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
-description = "A git implementation based SHA-1 library , but faster, easier to port, maintain, expand and use"
+description = "A git and openssl based implementation SHA-1 library , but faster, easier to port, maintain, expand and use"
 categories = ["data-structures", "development-tools"]
 edition = "2021"
 keywords = ["sha", "sha_1", "sha-1"]
@@ -17,12 +17,18 @@ path = "src/lib/mod.rs"
 name = "main"
 path = "src/bin/mod.rs"
 
-[dependencies.criterion]
-version = "0.4.0"
-optional = true
+[dependencies]
+criterion = { version = "0.4.0", optional = true }
+criterion-table = { version = "0.4.2", optional = true }
+openssl = { version = "0.10.45", optional = true }
+sha1 = { version = "0.10.5", optional = true }
+sha1_smol = { version = "1.0.0", optional = true }
+const-sha1 = { version = "0.2.0", optional = true }
 
 [features]
 criterion = ["dep:criterion"]
+comparator_build = ["dep:criterion", "dep:criterion-table", "dep:openssl", "dep:sha1", "dep:sha1_smol",
+    "dep:const-sha1"]
 
 [profile.release]
 opt-level = 3

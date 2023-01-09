@@ -53,20 +53,23 @@ impl Sha1LongMsg {
 
 #[cfg(test)]
 mod long_msgs {
-    use lib::Sha1Context;
-
+    use core::hash::Hasher;
+    use std::hash::BuildHasher;
+    use lib::HashContext;
+    use lib::sha1_state::Sha1State;
     use crate::Sha1LongMsg;
 
     #[test]
     fn compare_openssl_digestion_of_long_messages() {
         let cavs_tests = Sha1LongMsg::load();
+        let sha1state = Sha1State::default();
 
-        cavs_tests[1..].iter().for_each(|long_msg| {
-            let mut ctx = Sha1Context::default();
-            ctx.write(&long_msg.message);
-            ctx.finish();
 
-            assert_eq!(ctx.hex_hash(), long_msg.message_digest);
+        cavs_tests.iter().for_each(|long_msg| {
+            let mut hasher = sha1state.build_hasher();
+            hasher.write(long_msg.message.as_ref());
+
+            assert_eq!(hasher.to_hex_string(), long_msg.message_digest);
         })
     }
 }
