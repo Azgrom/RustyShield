@@ -1,5 +1,4 @@
-use std::path::Path;
-use std::{env, fs, process};
+use std::{env, fs, path::Path, process};
 
 struct Sha1LongMsg {
     message: Vec<u8>,
@@ -53,17 +52,14 @@ impl Sha1LongMsg {
 
 #[cfg(test)]
 mod long_msgs {
-    use core::hash::Hasher;
-    use std::hash::BuildHasher;
-    use lib::HashContext;
-    use lib::sha1_state::Sha1State;
-    use crate::Sha1LongMsg;
+    use super::Sha1LongMsg;
+    use core::hash::{BuildHasher, Hasher};
+    use lib::{sha1_state::Sha1State, HashContext};
 
     #[test]
-    fn compare_openssl_digestion_of_long_messages() {
+    fn compare_long_messages_provided_by_sha_validation_system() {
         let cavs_tests = Sha1LongMsg::load();
         let sha1state = Sha1State::default();
-
 
         cavs_tests.iter().for_each(|long_msg| {
             let mut hasher = sha1state.build_hasher();

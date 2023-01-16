@@ -1,6 +1,5 @@
 use crate::{
-    sha1_hasher::Sha1Hasher, H0, H1, H2, H3, H4, SHA_CBLOCK,
-    SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD,
+    sha1_hasher::Sha1Hasher, H0, H1, H2, H3, H4, SHA_CBLOCK, SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD,
 };
 use core::hash::Hasher;
 
@@ -27,7 +26,8 @@ fn completed_words(hasher: &mut Sha1Hasher) {
 
     let len_w = (hasher.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
     let left = (SHA_CBLOCK - len_w as u32) as u8;
-    hasher.words[(len_w as usize)..(len_w + left) as usize].clone_from_slice(&offset_pad[..zero_padding_len]);
+    hasher.words[(len_w as usize)..(len_w + left) as usize]
+        .clone_from_slice(&offset_pad[..zero_padding_len]);
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn assert_hash_values_integrity_for_each_step_00_to_15() {
     let [mut a, mut b, mut c, mut d, mut e] = hasher.state.to_slice().clone();
     let mut d_words: [u32; 16] = [0; 16];
     completed_words(&mut hasher);
-   hasher.u32_words_from_u8_pad(&mut d_words);
+    hasher.u32_words_from_u8_pad(&mut d_words);
 
     assert_eq!([a, b, c, d, e], [H0, H1, H2, H3, H4]);
 

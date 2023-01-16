@@ -1,10 +1,8 @@
-use crate::block::Block;
-use crate::{H0, H1, H2, H3, H4};
+use crate::{block::Block, sha1_hasher::Sha1Hasher, H0, H1, H2, H3, H4};
 use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::{Index, IndexMut},
 };
-use crate::sha1_hasher::Sha1Hasher;
 
 #[derive(Clone)]
 pub struct Sha1State {
@@ -17,9 +15,7 @@ impl BuildHasher for Sha1State {
     fn build_hasher(&self) -> Self::Hasher {
         Sha1Hasher {
             size: 0,
-            state: Sha1State {
-                data: self.data,
-            },
+            state: Sha1State { data: self.data },
             words: Block::default(),
         }
     }

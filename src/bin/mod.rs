@@ -1,8 +1,7 @@
 use core::hash::{BuildHasher, Hasher};
 use std::{env, fs, process};
 
-use lib::HashContext;
-use lib::sha1_state::Sha1State;
+use lib::{sha1_state::Sha1State, HashContext};
 
 fn main() {
     let args: Vec<String> = env::args().collect();

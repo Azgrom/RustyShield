@@ -1,8 +1,6 @@
-use crate::block::Block;
-use crate::sha1_state::Sha1State;
 use crate::{
-    HashContext, SHA_CBLOCK, SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, SHA1_WORD_COUNT,
-    T_0_19, T_20_39, T_40_59, T_60_79,
+    block::Block, sha1_state::Sha1State, HashContext, SHA1_WORD_COUNT, SHA_CBLOCK,
+    SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, T_0_19, T_20_39, T_40_59, T_60_79,
 };
 use core::hash::{Hash, Hasher};
 

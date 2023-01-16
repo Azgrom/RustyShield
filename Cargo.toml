@@ -27,7 +27,11 @@ const-sha1 = { version = "0.2.0", optional = true }
 
 [features]
 criterion = ["dep:criterion"]
-comparator_build = ["dep:criterion", "dep:criterion-table", "dep:openssl", "dep:sha1", "dep:sha1_smol",
+comparator_build = ["dep:criterion",
+    "dep:criterion-table",
+    "dep:openssl",
+    "dep:sha1",
+    "dep:sha1_smol",
     "dep:const-sha1"]
 
 [profile.release]

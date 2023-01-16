@@ -1,7 +1,9 @@
-use core::{
-    hash::Hasher,
-    mem::size_of,
-};
+//! # rs-sha1 - API Documentation
+//!
+//! rs-sha1 is a implementation of the first Secure Hash Algorithm designed to provide a compliant
+//! standard library  SHA-1 API
+
+use core::{hash::Hasher, mem::size_of};
 
 const U32_BYTES: usize = size_of::<u32>();
 
@@ -36,21 +38,21 @@ fn maj(x: u32, y: u32, z: u32) -> u32 {
     (x & y) | ((x | y) & z)
 }
 
-pub mod sha1_state;
-pub mod sha1_hasher;
 mod block;
+pub mod sha1_hasher;
+pub mod sha1_state;
 
-pub trait HashContext : Hasher {
+pub trait HashContext: Hasher {
     fn to_hex_string(&self) -> String;
     fn to_bytes_hash(&self) -> [u8; 20];
 }
 
 #[cfg(test)]
 mod use_cases {
-    use crate::HashContext;
-    use core::hash::{BuildHasher, Hash, Hasher};
     use crate::sha1_hasher::Sha1Hasher;
     use crate::sha1_state::Sha1State;
+    use crate::HashContext;
+    use core::hash::{BuildHasher, Hash, Hasher};
 
     #[test]
     fn empty_string_prefix_collision_resiliency() {
@@ -66,41 +68,47 @@ mod use_cases {
 
         assert_ne!(first_sha1hasher.finish(), second_sha1hasher.finish());
         assert_eq!(first_sha1hasher.finish(), third_sha1hasher.finish());
-        assert_eq!(first_sha1hasher.to_hex_string(), "85e53271e14006f0265921d02d4d736cdc580b0b");
-        assert_eq!(second_sha1hasher.to_hex_string(), "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+        assert_eq!(
+            first_sha1hasher.to_hex_string(),
+            "85e53271e14006f0265921d02d4d736cdc580b0b"
+        );
+        assert_eq!(
+            second_sha1hasher.to_hex_string(),
+            "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+        );
 
-        // let abc = "abc";
-        // let mut abc_sha1_ctx = Sha1Hasher::default();
-        // abc_sha1_ctx.write(abc.as_ref());
-        // abc_sha1_ctx.finish();
-        // let digest_result = abc_sha1_ctx.hex_hash();
-        // assert_eq!(digest_result, "a9993e364706816aba3e25717850c26c9cd0d89d");
-        //
-        // let abcd = "abcd";
-        // let mut abcd_sha1_ctx = Sha1Hasher::default();
-        // abcd_sha1_ctx.write(abcd.as_ref());
-        // abcd_sha1_ctx.finish();
-        // let digest_result = abcd_sha1_ctx.hex_hash();
-        // assert_eq!(digest_result, "81fe8bfe87576c3ecb22426f8e57847382917acf");
-        //
-        // let quick_fox = "The quick brown fox jumps over the lazy dog";
-        //
-        // let mut quick_fox_sha1_ctx = Sha1Hasher::default();
-        // quick_fox_sha1_ctx.write(quick_fox.as_ref());
-        // quick_fox_sha1_ctx.finish();
-        // let digest_result = quick_fox_sha1_ctx.hex_hash();
-        // assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
-        //
-        // let lazy_cog = "The quick brown fox jumps over the lazy cog";
-        // let mut lazy_cog_sha1_ctx = Sha1Hasher::default();
-        // lazy_cog_sha1_ctx.write(lazy_cog.as_ref());
-        // lazy_cog_sha1_ctx.finish();
-        // let digest_result = lazy_cog_sha1_ctx.hex_hash();
-        // assert_eq!(digest_result, "de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3");
+        let abc = "abc";
+        let mut abc_sha1_ctx = Sha1Hasher::default();
+        abc_sha1_ctx.write(abc.as_ref());
+        abc_sha1_ctx.finish();
+        let digest_result = abc_sha1_ctx.to_hex_string();
+        assert_eq!(digest_result, "a9993e364706816aba3e25717850c26c9cd0d89d");
+
+        let abcd = "abcd";
+        let mut abcd_sha1_ctx = Sha1Hasher::default();
+        abcd_sha1_ctx.write(abcd.as_ref());
+        abcd_sha1_ctx.finish();
+        let digest_result = abcd_sha1_ctx.to_hex_string();
+        assert_eq!(digest_result, "81fe8bfe87576c3ecb22426f8e57847382917acf");
+
+        let quick_fox = "The quick brown fox jumps over the lazy dog";
+
+        let mut quick_fox_sha1_ctx = Sha1Hasher::default();
+        quick_fox_sha1_ctx.write(quick_fox.as_ref());
+        quick_fox_sha1_ctx.finish();
+        let digest_result = quick_fox_sha1_ctx.to_hex_string();
+        assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
+
+        let lazy_cog = "The quick brown fox jumps over the lazy cog";
+        let mut lazy_cog_sha1_ctx = Sha1Hasher::default();
+        lazy_cog_sha1_ctx.write(lazy_cog.as_ref());
+        lazy_cog_sha1_ctx.finish();
+        let digest_result = lazy_cog_sha1_ctx.to_hex_string();
+        assert_eq!(digest_result, "de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3");
     }
 
     #[test]
-    fn abc_string_prefix_collision_resiliency(){
+    fn abc_string_prefix_collision_resiliency() {
         let ab = "ab";
         let c = "c";
         let abc = "abc";
@@ -122,11 +130,26 @@ mod use_cases {
         abcd.hash(&mut abcd_sha1hasher);
 
         assert_ne!(ab_then_c_sha1hasher.finish(), abc_sha1hasher.finish());
-        assert_ne!(ab_then_c_then_d_sha1hasher.finish(), abcd_sha1hasher.finish());
-        assert_eq!(abc_sha1hasher.to_hex_string(), "ba0ef8073ef81857932e1e4c81fbd3caade8e550");
-        assert_eq!(abcd_sha1hasher.to_hex_string(), "519b619c2a42a52cbecffd23157c8d3b7c9a52b4");
-        assert_eq!(ab_then_c_sha1hasher.to_hex_string(), "a7b178c8da94a38f49e55d54f2859b613b964edd");
-        assert_eq!(ab_then_c_then_d_sha1hasher.to_hex_string(), "bb27718131043af8844d754cabbb3fc29b3f017c");
+        assert_ne!(
+            ab_then_c_then_d_sha1hasher.finish(),
+            abcd_sha1hasher.finish()
+        );
+        assert_eq!(
+            abc_sha1hasher.to_hex_string(),
+            "ba0ef8073ef81857932e1e4c81fbd3caade8e550"
+        );
+        assert_eq!(
+            abcd_sha1hasher.to_hex_string(),
+            "519b619c2a42a52cbecffd23157c8d3b7c9a52b4"
+        );
+        assert_eq!(
+            ab_then_c_sha1hasher.to_hex_string(),
+            "a7b178c8da94a38f49e55d54f2859b613b964edd"
+        );
+        assert_eq!(
+            ab_then_c_then_d_sha1hasher.to_hex_string(),
+            "bb27718131043af8844d754cabbb3fc29b3f017c"
+        );
     }
 
     #[test]
