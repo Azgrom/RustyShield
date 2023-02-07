@@ -3,6 +3,14 @@ use crate::{
 };
 use core::hash::Hasher;
 
+#[cfg(feature = "nightly")]
+use core::{
+    arch::x86_64::{
+        _mm_sha1msg1_epu32, _mm_sha1msg2_epu32, _mm_sha1nexte_epu32, _mm_sha1rnds4_epu32,
+    },
+    simd::Simd,
+};
+
 const MESSAGE: &str = "abc";
 
 fn instantiate_and_preprocess_abc_message() -> Sha1Hasher {
@@ -50,6 +58,21 @@ fn start_processing_rounds_integrity() {
             .try_into()
             .unwrap();
     assert_eq!(hasher.words, expected_rounds_of_words_2);
+}
+
+#[test]
+fn test() {
+    let simd = Simd::from_array([H0, H1, H2, H3]);
+    let h0_u128 = (H0 as u128) << 96;
+    let h1_u128 = (H1 as u128) << 64;
+    let h2_u128 = (H2 as u128) << 32;
+    let h3_u128 = (H3 as u128);
+    let h0h1h2h3_u128 = h0_u128 | h1_u128 | h2_u128 | h3_u128;
+    // unsafe { let i = _mm_sha1msg1_epu32(h0h1h2h3_u128, 0);
+    // }
+    // _mm_sha1msg2_epu32()
+    // _mm_sha1nexte_epu32()
+    // _mm_sha1rnds4_epu32()
 }
 
 #[test]

@@ -2,8 +2,11 @@
 //!
 //! rs-sha1 is a implementation of the first Secure Hash Algorithm designed to provide a compliant
 //! standard library  SHA-1 API
-
 use core::{hash::Hasher, mem::size_of};
+pub use crate::{
+    sha1_hasher::Sha1Hasher,
+    sha1_state::Sha1State,
+};
 
 const U32_BYTES: usize = size_of::<u32>();
 
@@ -49,9 +52,7 @@ pub trait HashContext: Hasher {
 
 #[cfg(test)]
 mod use_cases {
-    use crate::sha1_hasher::Sha1Hasher;
-    use crate::sha1_state::Sha1State;
-    use crate::HashContext;
+    use super::*;
     use core::hash::{BuildHasher, Hash, Hasher};
 
     #[test]

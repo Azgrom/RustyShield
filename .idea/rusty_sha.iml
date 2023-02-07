@@ -2,9 +2,17 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/benches" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wks/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wks/rs_sha1/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wks/rs_sha1/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wks/rs_sha1/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wks/rs_sha256/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wks/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wks/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/benches" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/wks/rs_sha1/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

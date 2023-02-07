@@ -1,9 +1,11 @@
-use core::hash::{BuildHasher, Hash, Hasher};
-use lib::{sha1_state::Sha1State, HashContext};
+extern crate criterion;
+extern crate lib;
+extern crate openssl as ossl_sha1;
+extern crate hashes_sha1;
 
-use criterion::{criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
-use openssl::sha::Sha1 as ossl_sha1;
-use sha1::{Digest, Sha1 as rsc_sha1};
+use std::hash::{BuildHasher, Hash, Hasher};
+use criterion::{Bencher, BenchmarkId, Criterion, criterion_group, criterion_main};
+use lib::{HashContext, Sha1State};
 
 const BASE_INPUT_SIZE: usize = 4_096;
 const SIXTEEN_KB_BASE_INPUT: [u8; BASE_INPUT_SIZE] = [0x80; BASE_INPUT_SIZE];
@@ -23,7 +25,7 @@ fn this_impl_sha1_simple_digestion_with_given_input_size(b: &mut Bencher, input:
 #[cfg(feature = "comparator_build")]
 fn openssl_bind_sha1_simple_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
     b.iter(|| {
-        let mut sha1_ctx = ossl_sha1::new();
+        let mut sha1_ctx = ossl_sha1::sha::Sha1::new();
         sha1_ctx.update(input);
         let _result = sha1_ctx.finish();
     })
@@ -32,8 +34,9 @@ fn openssl_bind_sha1_simple_digestion_with_given_input_size(b: &mut Bencher, inp
 #[inline(always)]
 #[cfg(feature = "comparator_build")]
 fn rust_crypto_sha1_simple_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
+    use hashes_sha1::Digest;
     b.iter(|| {
-        let mut sha1_ctx = rsc_sha1::new();
+        let mut sha1_ctx = hashes_sha1::Sha1::new();
         sha1_ctx.update(input);
         let _result = sha1_ctx.finalize();
     })
@@ -54,7 +57,7 @@ fn this_impl_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8])
 #[cfg(feature = "comparator_build")]
 fn openssl_bind_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
     b.iter(|| {
-        let mut sha1_ctx = ossl_sha1::new();
+        let mut sha1_ctx = ossl_sha1::sha::Sha1::new();
         sha1_ctx.update(input);
         let _result = sha1_ctx
             .finish()
@@ -67,8 +70,9 @@ fn openssl_bind_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u
 #[inline(always)]
 #[cfg(feature = "comparator_build")]
 fn rust_crypto_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
+    use hashes_sha1::Digest;
     b.iter(|| {
-        let mut sha1_ctx = rsc_sha1::new();
+        let mut sha1_ctx = hashes_sha1::Sha1::new();
         sha1_ctx.update(input);
         let _result = sha1_ctx
             .finalize()
