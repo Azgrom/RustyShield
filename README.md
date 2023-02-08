@@ -12,8 +12,8 @@
 
 ------
 
-A OpenSSL inspired Rust set of reliable, easy to use, standards compliant and `no_std` encryption tools 
+**A OpenSSL inspired Rust set of reliable, easy to use, standards compliant and `no_std` encryption tools** 
 
-[![Build](https://github.com/Azgrom/RustySSL/workflows/Cargo%20Build%20&%20Test/badge.svg?branch=master)](https://github.com/Azgrom/RustySSL/actions)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Azgrom/RustySSL/Cargo%20Build%20&%20Test?label=Build%20and%20Tests)
 
-<\div>
+</div>
