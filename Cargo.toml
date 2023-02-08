@@ -1,9 +1,12 @@
+[package]
+name = "rs_ssl"
+version = "0.1.0"
+edition.workspace = true
+licente.workspace = true
+readme.workspace = true
+
 [workspace]
 members = ["wks/*"]
-
-[package]
-name = "rs_ossl"
-version = "0.1.0"
 
 [workspace.package]
 edition = "2021"
