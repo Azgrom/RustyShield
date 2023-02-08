@@ -3,7 +3,6 @@ name = "rs_ssl"
 version = "0.1.0"
 edition.workspace = true
 licente.workspace = true
-readme.workspace = true
 
 [workspace]
 members = ["wks/*"]
