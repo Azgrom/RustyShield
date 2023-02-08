@@ -1,6 +1,6 @@
 <!-- Allow this file to not have a first line heading -->
 <!-- markdownlint-disable-file MD041 -->
-<!-- Disable warning om emphasis after first heading -->
+<!-- Disable warning on emphasis after first heading -->
 <!-- markdownlint-disable-file MD036 -->
 
 <!-- inline html -->
