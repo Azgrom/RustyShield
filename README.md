@@ -14,6 +14,7 @@
 
 **A OpenSSL inspired Rust set of reliable, easy to use, standards compliant and `no_std` encryption tools** 
 
+[![Documentation](https://img.shields.io/badge/docs-API-blue)](https://crates.io/)
 [![GitHub Workflow Status](https://github.com/Azgrom/RustySSL/workflows/Cargo%20Build%20&%20Test/badge.svg?branch=master)](https://github.com/Azgrom/RustySSL/actions)
 
 </div>
