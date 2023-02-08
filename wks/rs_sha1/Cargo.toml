@@ -7,7 +7,6 @@ name = "rs_sha1"
 version = "0.1.0"
 edition.workspace = true
 license.workspace = true
-readme.workspace = true
 
 [lib]
 name = "lib"
