@@ -1,11 +1,10 @@
 extern crate criterion;
-extern crate lib;
-extern crate openssl as ossl_sha1;
 extern crate hashes_sha1;
+extern crate openssl as ossl_sha1;
 
-use std::hash::{BuildHasher, Hash, Hasher};
-use criterion::{Bencher, BenchmarkId, Criterion, criterion_group, criterion_main};
-use lib::{HashContext, Sha1State};
+use criterion::{criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
+use core::hash::{BuildHasher, Hash, Hasher};
+use rs_sha1_lib::Sha1Context;
 
 const BASE_INPUT_SIZE: usize = 4_096;
 const SIXTEEN_KB_BASE_INPUT: [u8; BASE_INPUT_SIZE] = [0x80; BASE_INPUT_SIZE];
@@ -14,7 +13,7 @@ const SIXTEEN_KB_BASE_INPUT: [u8; BASE_INPUT_SIZE] = [0x80; BASE_INPUT_SIZE];
 #[cfg(feature = "comparator_build")]
 fn this_impl_sha1_simple_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
     b.iter(|| {
-        let sha1_default_state = Sha1State::default();
+        let sha1_default_state = rs_sha1_lib::Sha1State::default();
         let mut sha1hasher = sha1_default_state.build_hasher();
         input.hash(&mut sha1hasher);
         let _result = sha1hasher.finish();
@@ -46,7 +45,7 @@ fn rust_crypto_sha1_simple_digestion_with_given_input_size(b: &mut Bencher, inpu
 #[cfg(feature = "comparator_build")]
 fn this_impl_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
     b.iter(|| {
-        let sha1_default_state = Sha1State::default();
+        let sha1_default_state = rs_sha1_lib::Sha1State::default();
         let mut sha1hasher = sha1_default_state.build_hasher();
         input.hash(&mut sha1hasher);
         let _result = sha1hasher.to_hex_string();

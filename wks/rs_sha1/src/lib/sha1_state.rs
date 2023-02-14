@@ -1,4 +1,4 @@
-use crate::{block::Block, sha1_hasher::Sha1Hasher, H0, H1, H2, H3, H4};
+use crate::{sha1_hasher::Sha1Hasher, sha1_words::Sha1Words, H0, H1, H2, H3, H4};
 use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::{Index, IndexMut},
@@ -14,9 +14,9 @@ impl BuildHasher for Sha1State {
 
     fn build_hasher(&self) -> Self::Hasher {
         Sha1Hasher {
-            size: 0,
+            size: u64::default(),
             state: Sha1State { data: self.data },
-            words: Block::default(),
+            words: Sha1Words::default(),
         }
     }
 }

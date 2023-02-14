@@ -1,5 +1,6 @@
 use crate::{
-    sha1_hasher::Sha1Hasher, H0, H1, H2, H3, H4, SHA_CBLOCK, SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD,
+    sha1_hasher::Sha1Hasher, H0, H1, H2, H3, H4, SHA1_BLOCK_SIZE, SHA_CBLOCK_LAST_INDEX,
+    SHA_OFFSET_PAD,
 };
 use core::hash::Hasher;
 
@@ -33,7 +34,7 @@ fn completed_words(hasher: &mut Sha1Hasher) {
     offset_pad[zero_padding_len - 8..zero_padding_len].clone_from_slice(&pad_len);
 
     let len_w = (hasher.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
-    let left = (SHA_CBLOCK - len_w as u32) as u8;
+    let left = (SHA1_BLOCK_SIZE - len_w as u32) as u8;
     hasher.words[(len_w as usize)..(len_w + left) as usize]
         .clone_from_slice(&offset_pad[..zero_padding_len]);
 }
@@ -43,7 +44,7 @@ fn start_processing_rounds_integrity() {
     let mut hasher = Sha1Hasher::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
 
-    let expected_rounds_of_words_1: [u8; SHA_CBLOCK as usize] =
+    let expected_rounds_of_words_1: [u8; SHA1_BLOCK_SIZE as usize] =
         [vec![0x61, 0x62, 0x63, 0x00], vec![0u8; 60]]
             .concat()
             .try_into()
@@ -52,7 +53,7 @@ fn start_processing_rounds_integrity() {
 
     completed_words(&mut hasher);
 
-    let expected_rounds_of_words_2: [u8; SHA_CBLOCK as usize] =
+    let expected_rounds_of_words_2: [u8; SHA1_BLOCK_SIZE as usize] =
         [vec![0x61, 0x62, 0x63, 0x80], vec![0u8; 59], vec![0x18]]
             .concat()
             .try_into()

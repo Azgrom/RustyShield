@@ -9,5 +9,6 @@ edition.workspace = true
 license.workspace = true
 
 [lib]
-name = "lib"
+# Custom name definition because of multiple rmeta candidates error E0465
+name = "rs_sha1_lib"
 path = "src/lib/mod.rs"

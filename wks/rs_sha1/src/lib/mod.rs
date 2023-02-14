@@ -2,18 +2,15 @@
 //!
 //! rs-sha1 is a implementation of the first Secure Hash Algorithm designed to provide a compliant
 //! standard library  SHA-1 API
+pub use crate::{sha1_hasher::Sha1Hasher, sha1_state::Sha1State};
 use core::{hash::Hasher, mem::size_of};
-pub use crate::{
-    sha1_hasher::Sha1Hasher,
-    sha1_state::Sha1State,
-};
 
-const U32_BYTES: usize = size_of::<u32>();
+const U32_BYTES_COUNT: usize = size_of::<u32>();
 
 const SHA1_WORD_COUNT: u32 = 16;
-const SHA_CBLOCK: u32 = SHA1_WORD_COUNT * U32_BYTES as u32;
-const SHA_OFFSET_PAD: u32 = SHA_CBLOCK + 8;
-const SHA_CBLOCK_LAST_INDEX: u32 = SHA_CBLOCK - 1;
+const SHA1_BLOCK_SIZE: u32 = SHA1_WORD_COUNT * U32_BYTES_COUNT as u32;
+const SHA_OFFSET_PAD: u32 = SHA1_BLOCK_SIZE + 8;
+const SHA_CBLOCK_LAST_INDEX: u32 = SHA1_BLOCK_SIZE - 1;
 
 const H0: u32 = 0x67452301;
 const H1: u32 = 0xEFCDAB89;
@@ -41,11 +38,11 @@ fn maj(x: u32, y: u32, z: u32) -> u32 {
     (x & y) | ((x | y) & z)
 }
 
-mod block;
 pub mod sha1_hasher;
 pub mod sha1_state;
+mod sha1_words;
 
-pub trait HashContext: Hasher {
+pub trait Sha1Context: Hasher {
     fn to_hex_string(&self) -> String;
     fn to_bytes_hash(&self) -> [u8; 20];
 }

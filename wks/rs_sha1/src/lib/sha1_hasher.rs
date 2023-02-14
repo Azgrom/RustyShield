@@ -1,5 +1,5 @@
 use crate::{
-    block::Block, sha1_state::Sha1State, HashContext, SHA1_WORD_COUNT, SHA_CBLOCK,
+    sha1_state::Sha1State, sha1_words::Sha1Words, Sha1Context, SHA1_BLOCK_SIZE, SHA1_WORD_COUNT,
     SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, T_0_19, T_20_39, T_40_59, T_60_79,
 };
 use core::hash::{Hash, Hasher};
@@ -8,7 +8,7 @@ use core::hash::{Hash, Hasher};
 pub struct Sha1Hasher {
     pub(crate) size: u64,
     pub(crate) state: Sha1State,
-    pub(crate) words: Block,
+    pub(crate) words: Sha1Words,
 }
 
 impl Default for Sha1Hasher {
@@ -16,7 +16,7 @@ impl Default for Sha1Hasher {
         Self {
             size: u64::MIN,
             state: Sha1State::default(),
-            words: Block::default(),
+            words: Sha1Words::default(),
         }
     }
 }
@@ -40,7 +40,7 @@ impl Hasher for Sha1Hasher {
         self.size += bytes.len() as u64;
 
         if len_w != 0 {
-            let mut left = (SHA_CBLOCK - len_w as u32) as u8;
+            let mut left = (SHA1_BLOCK_SIZE - len_w as u32) as u8;
             if bytes.len() < left as usize {
                 left = bytes.len() as u8;
             }
@@ -58,10 +58,11 @@ impl Hasher for Sha1Hasher {
             self.hash_block();
         }
 
-        while bytes.len() >= SHA_CBLOCK as usize {
-            self.words.clone_from_slice(&bytes[..(SHA_CBLOCK as usize)]);
+        while bytes.len() >= SHA1_BLOCK_SIZE as usize {
+            self.words
+                .clone_from_slice(&bytes[..(SHA1_BLOCK_SIZE as usize)]);
             self.hash_block();
-            bytes = &bytes[(SHA_CBLOCK as usize)..];
+            bytes = &bytes[(SHA1_BLOCK_SIZE as usize)..];
         }
 
         if !bytes.is_empty() {
@@ -70,7 +71,7 @@ impl Hasher for Sha1Hasher {
     }
 }
 
-impl HashContext for Sha1Hasher {
+impl Sha1Context for Sha1Hasher {
     fn to_hex_string(&self) -> String {
         let mut hasher = self.clone();
         hasher.finish_with_len(self.size);
