@@ -10,3 +10,6 @@ license.workspace = true
 # Custom name definition because of multiple rmeta candidates error E0465
 name = "rs_sha256_lib"
 path = "src/lib/mod.rs"
+
+[dependencies]
+u32_word = { path = "../u32_word" }
