@@ -1,9 +1,9 @@
 pub use sha256_state::Sha256State;
 use u32_word_lib::U32Word;
 
-mod sha256_words;
-mod sha256_state;
 mod sha256_hasher;
+mod sha256_state;
+mod sha256_words;
 
 const H0: u32 = 0x6A09E667;
 const H1: u32 = 0xBB67AE85;

@@ -1,20 +1,10 @@
-use core::{
-    ops::{Index, IndexMut},
-    hash::{BuildHasher, Hash, Hasher}
-};
 use crate::{
-    H0,
-    H1,
-    H2,
-    H3,
-    H4,
-    H5,
-    H6,
-    H7,
-    SHA256_HASH_U32_WORDS_COUNT,
-    U32Word,
-    sha256_hasher::Sha256Hasher,
-    sha256_words::Sha256Words
+    sha256_hasher::Sha256Hasher, sha256_words::Sha256Words, U32Word, H0, H1, H2, H3, H4, H5, H6,
+    H7, SHA256_HASH_U32_WORDS_COUNT,
+};
+use core::{
+    hash::{BuildHasher, Hash, Hasher},
+    ops::{Index, IndexMut},
 };
 
 pub struct Sha256State {

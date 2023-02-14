@@ -1,9 +1,9 @@
-use core::{
-    ops::{Index, IndexMut, Range, RangeTo},
-    hash::{Hash, Hasher},
-    slice::Chunks
-};
 use crate::SHA256_PADDING_U8_WORDS_COUNT;
+use core::{
+    hash::{Hash, Hasher},
+    ops::{Index, IndexMut, Range, RangeTo},
+    slice::Chunks,
+};
 
 pub struct Sha256Words {
     data: [u8; SHA256_PADDING_U8_WORDS_COUNT as usize],

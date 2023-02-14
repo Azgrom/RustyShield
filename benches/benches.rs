@@ -2,8 +2,8 @@ extern crate criterion;
 extern crate hashes_sha1;
 extern crate openssl as ossl_sha1;
 
-use criterion::{criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
 use core::hash::{BuildHasher, Hash, Hasher};
+use criterion::{criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
 use rs_sha1_lib::Sha1Context;
 
 const BASE_INPUT_SIZE: usize = 4_096;

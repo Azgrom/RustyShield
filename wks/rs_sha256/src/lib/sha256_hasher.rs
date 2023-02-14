@@ -1,12 +1,8 @@
-use core::hash::{Hash, Hasher};
 use crate::{
-    SHA256_PADDING_U8_WORDS_COUNT,
-    SHA256_SCHEDULE_U32_WORDS_COUNT,
-    SHA256_SCHEDULE_U8_WORDS_LAST_INDEX,
-    U32Word,
-    sha256_state::Sha256State,
-    sha256_words::Sha256Words
+    sha256_state::Sha256State, sha256_words::Sha256Words, U32Word, SHA256_PADDING_U8_WORDS_COUNT,
+    SHA256_SCHEDULE_U32_WORDS_COUNT, SHA256_SCHEDULE_U8_WORDS_LAST_INDEX,
 };
+use core::hash::{Hash, Hasher};
 
 pub struct Sha256Hasher {
     pub(crate) size: u64,
