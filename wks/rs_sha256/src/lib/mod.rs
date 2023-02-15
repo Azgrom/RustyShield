@@ -1,5 +1,4 @@
 pub use sha256_state::Sha256State;
-use u32_word_lib::U32Word;
 
 mod sha256_hasher;
 mod sha256_state;
@@ -18,21 +17,3 @@ const SHA256_SCHEDULE_U32_WORDS_COUNT: u32 = 64;
 const SHA256_PADDING_U8_WORDS_COUNT: u32 = SHA256_SCHEDULE_U32_WORDS_COUNT;
 const SHA256_SCHEDULE_U8_WORDS_LAST_INDEX: u32 = SHA256_PADDING_U8_WORDS_COUNT - 1;
 const SHA256_HASH_U32_WORDS_COUNT: u32 = 8;
-
-#[inline(always)]
-fn ch(x: u32, y: u32, z: u32) -> u32 {
-    ((y ^ z) & x) ^ z
-}
-
-#[inline(always)]
-fn maj(x: u32, y: u32, z: u32) -> u32 {
-    (x & y) | ((x | y) & z)
-}
-
-fn sigma0(x: u32) -> u32 {
-    x.rotate_right(2) ^ x.rotate_right(13) ^ x.rotate_right(22)
-}
-
-fn sigma1(x: u32) -> u32 {
-    x.rotate_right(6) ^ x.rotate_right(11) ^ x.rotate_right(25)
-}

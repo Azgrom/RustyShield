@@ -22,7 +22,7 @@ impl Sha256Words {
 impl Default for Sha256Words {
     fn default() -> Self {
         Self {
-            data: [0u8; SHA256_PADDING_U8_WORDS_COUNT as usize],
+            data: [u8::MIN; SHA256_PADDING_U8_WORDS_COUNT as usize],
         }
     }
 }

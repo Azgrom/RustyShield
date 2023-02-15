@@ -1,8 +1,18 @@
 use crate::{
-    sha1_state::Sha1State, sha1_words::Sha1Words, Sha1Context, SHA1_BLOCK_SIZE, SHA1_WORD_COUNT,
-    SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, T_0_19, T_20_39, T_40_59, T_60_79,
+    SHA_OFFSET_PAD,
+    SHA1_BLOCK_SIZE,
+    SHA1_WORD_COUNT,
+    SHA_CBLOCK_LAST_INDEX,
+    T_0_19,
+    T_20_39,
+    T_40_59,
+    T_60_79,
+    sha1_state::Sha1State,
+    sha1_words::Sha1Words,
+    sha1_context::Sha1Context
 };
 use core::hash::{Hash, Hasher};
+use u32_word_lib::U32Word;
 
 #[derive(Clone)]
 pub struct Sha1Hasher {
@@ -93,86 +103,86 @@ impl Sha1Hasher {
                 as usize
     }
 
-    pub(crate) fn u32_words_from_u8_pad(&self, d_words: &mut [u32; SHA1_WORD_COUNT as usize]) {
+    pub(crate) fn u32_words_from_u8_pad(&self, d_words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
         d_words[0] =
-            u32::from_be_bytes([self.words[0], self.words[1], self.words[2], self.words[3]]);
+            U32Word::from_be_bytes([self.words[0], self.words[1], self.words[2], self.words[3]]);
         d_words[1] =
-            u32::from_be_bytes([self.words[4], self.words[5], self.words[6], self.words[7]]);
+            U32Word::from_be_bytes([self.words[4], self.words[5], self.words[6], self.words[7]]);
         d_words[2] =
-            u32::from_be_bytes([self.words[8], self.words[9], self.words[10], self.words[11]]);
-        d_words[3] = u32::from_be_bytes([
+            U32Word::from_be_bytes([self.words[8], self.words[9], self.words[10], self.words[11]]);
+        d_words[3] = U32Word::from_be_bytes([
             self.words[12],
             self.words[13],
             self.words[14],
             self.words[15],
         ]);
-        d_words[4] = u32::from_be_bytes([
+        d_words[4] = U32Word::from_be_bytes([
             self.words[16],
             self.words[17],
             self.words[18],
             self.words[19],
         ]);
-        d_words[5] = u32::from_be_bytes([
+        d_words[5] = U32Word::from_be_bytes([
             self.words[20],
             self.words[21],
             self.words[22],
             self.words[23],
         ]);
-        d_words[6] = u32::from_be_bytes([
+        d_words[6] = U32Word::from_be_bytes([
             self.words[24],
             self.words[25],
             self.words[26],
             self.words[27],
         ]);
-        d_words[7] = u32::from_be_bytes([
+        d_words[7] = U32Word::from_be_bytes([
             self.words[28],
             self.words[29],
             self.words[30],
             self.words[31],
         ]);
-        d_words[8] = u32::from_be_bytes([
+        d_words[8] = U32Word::from_be_bytes([
             self.words[32],
             self.words[33],
             self.words[34],
             self.words[35],
         ]);
-        d_words[9] = u32::from_be_bytes([
+        d_words[9] = U32Word::from_be_bytes([
             self.words[36],
             self.words[37],
             self.words[38],
             self.words[39],
         ]);
-        d_words[10] = u32::from_be_bytes([
+        d_words[10] = U32Word::from_be_bytes([
             self.words[40],
             self.words[41],
             self.words[42],
             self.words[43],
         ]);
-        d_words[11] = u32::from_be_bytes([
+        d_words[11] = U32Word::from_be_bytes([
             self.words[44],
             self.words[45],
             self.words[46],
             self.words[47],
         ]);
-        d_words[12] = u32::from_be_bytes([
+        d_words[12] = U32Word::from_be_bytes([
             self.words[48],
             self.words[49],
             self.words[50],
             self.words[51],
         ]);
-        d_words[13] = u32::from_be_bytes([
+        d_words[13] = U32Word::from_be_bytes([
             self.words[52],
             self.words[53],
             self.words[54],
             self.words[55],
         ]);
-        d_words[14] = u32::from_be_bytes([
+        d_words[14] = U32Word::from_be_bytes([
             self.words[56],
             self.words[57],
             self.words[58],
             self.words[59],
         ]);
-        d_words[15] = u32::from_be_bytes([
+        d_words[15] = U32Word::from_be_bytes([
             self.words[60],
             self.words[61],
             self.words[62],
@@ -181,68 +191,43 @@ impl Sha1Hasher {
     }
 
     #[inline(always)]
-    pub(crate) fn rounds_00_15(a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, word: u32) {
-        *e = e
-            .wrapping_add(word)
-            .wrapping_add(T_0_19)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(crate::ch(*b, c, d));
-
+    pub(crate) fn rounds_00_15(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+        *e += word + T_0_19 + a.rotate_left(5) + U32Word::ch(*b, c, d);
         *b = b.rotate_right(2);
     }
 
     #[inline(always)]
-    pub(crate) fn rounds_16_19(a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, word: u32) {
-        *e = e
-            .wrapping_add(word)
-            .wrapping_add(T_0_19)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(crate::ch(*b, c, d));
-
+    pub(crate) fn rounds_16_19(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+        *e += word + T_0_19 + a.rotate_left(5) + U32Word::ch(*b, c, d);
         *b = b.rotate_right(2);
     }
 
     #[inline(always)]
-    pub(crate) fn rounds_20_39(a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, word: u32) {
-        *e = e
-            .wrapping_add(word)
-            .wrapping_add(T_20_39)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(crate::parity(*b, c, d));
-
+    pub(crate) fn rounds_20_39(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+        *e += word + T_20_39 + a.rotate_left(5) + U32Word::parity(*b, c, d);
         *b = b.rotate_right(2);
     }
 
     #[inline(always)]
-    fn rounds_40_59(a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, word: u32) {
-        *e = e
-            .wrapping_add(word)
-            .wrapping_add(T_40_59)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(crate::maj(*b, c, d));
-
+    fn rounds_40_59(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+        *e += word + T_40_59 + a.rotate_left(5) + U32Word::maj(*b, c, d);
         *b = b.rotate_right(2);
     }
 
     #[inline(always)]
-    fn rounds_60_79(a: u32, b: &mut u32, c: u32, d: u32, e: &mut u32, word: u32) {
-        *e = e
-            .wrapping_add(word)
-            .wrapping_add(T_60_79)
-            .wrapping_add(a.rotate_left(5))
-            .wrapping_add(crate::parity(*b, c, d));
-
+    fn rounds_60_79(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+        *e += word + T_60_79 + a.rotate_left(5) + U32Word::parity(*b, c, d);
         *b = b.rotate_right(2);
     }
 
     fn block_00_15(
         &self,
-        a: &mut u32,
-        b: &mut u32,
-        c: &mut u32,
-        d: &mut u32,
-        e: &mut u32,
-        d_words: &mut [u32; SHA1_WORD_COUNT as usize],
+        a: &mut U32Word,
+        b: &mut U32Word,
+        c: &mut U32Word,
+        d: &mut U32Word,
+        e: &mut U32Word,
+        d_words: &mut [U32Word; SHA1_WORD_COUNT as usize],
     ) {
         self.u32_words_from_u8_pad(d_words);
 
@@ -265,12 +250,12 @@ impl Sha1Hasher {
     }
 
     fn block_16_19(
-        a: &mut u32,
-        b: &mut u32,
-        c: &mut u32,
-        d: &mut u32,
-        e: &mut u32,
-        d_words: &mut [u32; SHA1_WORD_COUNT as usize],
+        a: &mut U32Word,
+        b: &mut U32Word,
+        c: &mut U32Word,
+        d: &mut U32Word,
+        e: &mut U32Word,
+        d_words: &mut [U32Word; SHA1_WORD_COUNT as usize],
     ) {
         d_words[0] = (d_words[0] ^ d_words[2] ^ d_words[8] ^ d_words[13]).rotate_left(1);
         d_words[1] = (d_words[1] ^ d_words[3] ^ d_words[9] ^ d_words[14]).rotate_left(1);
@@ -284,12 +269,12 @@ impl Sha1Hasher {
     }
 
     fn block_20_39(
-        a: &mut u32,
-        b: &mut u32,
-        c: &mut u32,
-        d: &mut u32,
-        e: &mut u32,
-        d_words: &mut [u32; SHA1_WORD_COUNT as usize],
+        a: &mut U32Word,
+        b: &mut U32Word,
+        c: &mut U32Word,
+        d: &mut U32Word,
+        e: &mut U32Word,
+        d_words: &mut [U32Word; SHA1_WORD_COUNT as usize],
     ) {
         d_words[4] = (d_words[4] ^ d_words[6] ^ d_words[12] ^ d_words[1]).rotate_left(1);
         d_words[5] = (d_words[5] ^ d_words[7] ^ d_words[13] ^ d_words[2]).rotate_left(1);
@@ -339,12 +324,12 @@ impl Sha1Hasher {
     }
 
     fn block_40_59(
-        a: &mut u32,
-        b: &mut u32,
-        c: &mut u32,
-        d: &mut u32,
-        e: &mut u32,
-        d_words: &mut [u32; SHA1_WORD_COUNT as usize],
+        a: &mut U32Word,
+        b: &mut U32Word,
+        c: &mut U32Word,
+        d: &mut U32Word,
+        e: &mut U32Word,
+        d_words: &mut [U32Word; SHA1_WORD_COUNT as usize],
     ) {
         d_words[8] = (d_words[8] ^ d_words[10] ^ d_words[0] ^ d_words[5]).rotate_left(1);
         d_words[9] = (d_words[9] ^ d_words[11] ^ d_words[1] ^ d_words[6]).rotate_left(1);
@@ -394,12 +379,12 @@ impl Sha1Hasher {
     }
 
     fn block_60_79(
-        a: &mut u32,
-        b: &mut u32,
-        c: &mut u32,
-        d: &mut u32,
-        e: &mut u32,
-        d_words: &mut [u32; SHA1_WORD_COUNT as usize],
+        a: &mut U32Word,
+        b: &mut U32Word,
+        c: &mut U32Word,
+        d: &mut U32Word,
+        e: &mut U32Word,
+        d_words: &mut [U32Word; SHA1_WORD_COUNT as usize],
     ) {
         d_words[12] = (d_words[12] ^ d_words[14] ^ d_words[4] ^ d_words[9]).rotate_left(1);
         d_words[13] = (d_words[13] ^ d_words[15] ^ d_words[5] ^ d_words[10]).rotate_left(1);
@@ -450,7 +435,7 @@ impl Sha1Hasher {
 
     fn hash_block(&mut self) {
         let [mut a, mut b, mut c, mut d, mut e] = *self.state.to_slice();
-        let mut d_words: [u32; SHA1_WORD_COUNT as usize] = [0; 16];
+        let mut d_words: [U32Word; SHA1_WORD_COUNT as usize] = [U32Word::default(); 16];
 
         self.block_00_15(&mut a, &mut b, &mut c, &mut d, &mut e, &mut d_words);
         Self::block_16_19(&mut a, &mut b, &mut c, &mut d, &mut e, &mut d_words);
@@ -458,11 +443,11 @@ impl Sha1Hasher {
         Self::block_40_59(&mut a, &mut b, &mut c, &mut d, &mut e, &mut d_words);
         Self::block_60_79(&mut a, &mut b, &mut c, &mut d, &mut e, &mut d_words);
 
-        self.state[0] = self.state[0].wrapping_add(a);
-        self.state[1] = self.state[1].wrapping_add(b);
-        self.state[2] = self.state[2].wrapping_add(c);
-        self.state[3] = self.state[3].wrapping_add(d);
-        self.state[4] = self.state[4].wrapping_add(e);
+        self.state[0] += a;
+        self.state[1] += b;
+        self.state[2] += c;
+        self.state[3] += d;
+        self.state[4] += e;
     }
 
     fn finish_with_len(&mut self, len: u64) -> u64 {
@@ -475,6 +460,6 @@ impl Sha1Hasher {
 
         self.write(&offset_pad[..zero_padding_length]);
 
-        (self.state[0] as u64) << 32 | (self.state[1] as u64)
+        Into::<u64>::into(self.state[0]) << 32 | Into::<u64>::into(self.state[1])
     }
 }

@@ -1,8 +1,9 @@
 use crate::{
-    sha256_state::Sha256State, sha256_words::Sha256Words, U32Word, SHA256_PADDING_U8_WORDS_COUNT,
+    sha256_state::Sha256State, sha256_words::Sha256Words, SHA256_PADDING_U8_WORDS_COUNT,
     SHA256_SCHEDULE_U32_WORDS_COUNT, SHA256_SCHEDULE_U8_WORDS_LAST_INDEX,
 };
 use core::hash::{Hash, Hasher};
+use u32_word_lib::U32Word;
 
 pub struct Sha256Hasher {
     pub(crate) size: u64,
@@ -75,70 +76,70 @@ impl Sha256Hasher {
         let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = self.state.u32_states();
         let w = self.load_words();
 
-        Self::rnd(a, b, c, &mut d, e, f, g, &mut h, w[0], 0x428A2F98);
-        Self::rnd(h, a, b, &mut c, d, e, f, &mut g, w[1], 0x71374491);
-        Self::rnd(g, h, a, &mut b, c, d, e, &mut f, w[2], 0xB5C0FBCF);
-        Self::rnd(f, g, h, &mut a, b, c, d, &mut e, w[3], 0xE9B5DBA5);
-        Self::rnd(e, f, g, &mut h, a, b, c, &mut d, w[4], 0x3956C25B);
-        Self::rnd(d, e, f, &mut g, h, a, b, &mut c, w[5], 0x59F111F1);
-        Self::rnd(c, d, e, &mut f, g, h, a, &mut b, w[6], 0x923F82A4);
-        Self::rnd(b, c, d, &mut e, f, g, h, &mut a, w[7], 0xAB1C5ED5);
-        Self::rnd(a, b, c, &mut d, e, f, g, &mut h, w[8], 0xD807AA98);
-        Self::rnd(h, a, b, &mut c, d, e, f, &mut g, w[9], 0x12835B01);
-        Self::rnd(g, h, a, &mut b, c, d, e, &mut f, w[10], 0x243185BE);
-        Self::rnd(f, g, h, &mut a, b, c, d, &mut e, w[11], 0x550C7DC3);
-        Self::rnd(e, f, g, &mut h, a, b, c, &mut d, w[12], 0x72BE5D74);
-        Self::rnd(d, e, f, &mut g, h, a, b, &mut c, w[13], 0x80DEB1FE);
-        Self::rnd(c, d, e, &mut f, g, h, a, &mut b, w[14], 0x9BDC06A7);
-        Self::rnd(b, c, d, &mut e, f, g, h, &mut a, w[15], 0xC19BF174);
-        Self::rnd(a, b, c, &mut d, e, f, g, &mut h, w[16], 0xE49B69C1);
-        Self::rnd(h, a, b, &mut c, d, e, f, &mut g, w[17], 0xEFBE4786);
-        Self::rnd(g, h, a, &mut b, c, d, e, &mut f, w[18], 0x0FC19DC6);
-        Self::rnd(f, g, h, &mut a, b, c, d, &mut e, w[19], 0x240CA1CC);
-        Self::rnd(e, f, g, &mut h, a, b, c, &mut d, w[20], 0x2DE92C6F);
-        Self::rnd(d, e, f, &mut g, h, a, b, &mut c, w[21], 0x4A7484AA);
-        Self::rnd(c, d, e, &mut f, g, h, a, &mut b, w[22], 0x5CB0A9DC);
-        Self::rnd(b, c, d, &mut e, f, g, h, &mut a, w[23], 0x76F988DA);
-        Self::rnd(a, b, c, &mut d, e, f, g, &mut h, w[24], 0x983E5152);
-        Self::rnd(h, a, b, &mut c, d, e, f, &mut g, w[25], 0xA831C66D);
-        Self::rnd(g, h, a, &mut b, c, d, e, &mut f, w[26], 0xB00327C8);
-        Self::rnd(f, g, h, &mut a, b, c, d, &mut e, w[27], 0xBF597FC7);
-        Self::rnd(e, f, g, &mut h, a, b, c, &mut d, w[28], 0xC6E00BF3);
-        Self::rnd(d, e, f, &mut g, h, a, b, &mut c, w[29], 0xD5A79147);
-        Self::rnd(c, d, e, &mut f, g, h, a, &mut b, w[30], 0x06CA6351);
-        Self::rnd(b, c, d, &mut e, f, g, h, &mut a, w[31], 0x14292967);
-        Self::rnd(a, b, c, &mut d, e, f, g, &mut h, w[32], 0x27B70A85);
-        Self::rnd(h, a, b, &mut c, d, e, f, &mut g, w[33], 0x2E1B2138);
-        Self::rnd(g, h, a, &mut b, c, d, e, &mut f, w[34], 0x4D2C6DFC);
-        Self::rnd(f, g, h, &mut a, b, c, d, &mut e, w[35], 0x53380D13);
-        Self::rnd(e, f, g, &mut h, a, b, c, &mut d, w[36], 0x650A7354);
-        Self::rnd(d, e, f, &mut g, h, a, b, &mut c, w[37], 0x766A0ABB);
-        Self::rnd(c, d, e, &mut f, g, h, a, &mut b, w[38], 0x81C2C92E);
-        Self::rnd(b, c, d, &mut e, f, g, h, &mut a, w[39], 0x92722C85);
-        Self::rnd(a, b, c, &mut d, e, f, g, &mut h, w[40], 0xA2BFE8A1);
-        Self::rnd(h, a, b, &mut c, d, e, f, &mut g, w[41], 0xA81A664B);
-        Self::rnd(g, h, a, &mut b, c, d, e, &mut f, w[42], 0xC24B8B70);
-        Self::rnd(f, g, h, &mut a, b, c, d, &mut e, w[43], 0xC76C51A3);
-        Self::rnd(e, f, g, &mut h, a, b, c, &mut d, w[44], 0xD192E819);
-        Self::rnd(d, e, f, &mut g, h, a, b, &mut c, w[45], 0xD6990624);
-        Self::rnd(c, d, e, &mut f, g, h, a, &mut b, w[46], 0xF40E3585);
-        Self::rnd(b, c, d, &mut e, f, g, h, &mut a, w[47], 0x106AA070);
-        Self::rnd(a, b, c, &mut d, e, f, g, &mut h, w[48], 0x19A4C116);
-        Self::rnd(h, a, b, &mut c, d, e, f, &mut g, w[49], 0x1E376C08);
-        Self::rnd(g, h, a, &mut b, c, d, e, &mut f, w[50], 0x2748774C);
-        Self::rnd(f, g, h, &mut a, b, c, d, &mut e, w[51], 0x34B0BCB5);
-        Self::rnd(e, f, g, &mut h, a, b, c, &mut d, w[52], 0x391C0CB3);
-        Self::rnd(d, e, f, &mut g, h, a, b, &mut c, w[53], 0x4ED8AA4A);
-        Self::rnd(c, d, e, &mut f, g, h, a, &mut b, w[54], 0x5B9CCA4F);
-        Self::rnd(b, c, d, &mut e, f, g, h, &mut a, w[55], 0x682E6FF3);
-        Self::rnd(a, b, c, &mut d, e, f, g, &mut h, w[56], 0x748F82EE);
-        Self::rnd(h, a, b, &mut c, d, e, f, &mut g, w[57], 0x78A5636F);
-        Self::rnd(g, h, a, &mut b, c, d, e, &mut f, w[58], 0x84C87814);
-        Self::rnd(f, g, h, &mut a, b, c, d, &mut e, w[59], 0x8CC70208);
-        Self::rnd(e, f, g, &mut h, a, b, c, &mut d, w[60], 0x90BEFFFA);
-        Self::rnd(d, e, f, &mut g, h, a, b, &mut c, w[61], 0xA4506CEB);
-        Self::rnd(c, d, e, &mut f, g, h, a, &mut b, w[62], 0xBEF9A3F7);
-        Self::rnd(b, c, d, &mut e, f, g, h, &mut a, w[63], 0xC67178F2);
+        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[0], 0x428A2F98);
+        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[1], 0x71374491);
+        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[2], 0xB5C0FBCF);
+        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[3], 0xE9B5DBA5);
+        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[4], 0x3956C25B);
+        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[5], 0x59F111F1);
+        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[6], 0x923F82A4);
+        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[7], 0xAB1C5ED5);
+        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[8], 0xD807AA98);
+        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[9], 0x12835B01);
+        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[10], 0x243185BE);
+        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[11], 0x550C7DC3);
+        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[12], 0x72BE5D74);
+        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[13], 0x80DEB1FE);
+        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[14], 0x9BDC06A7);
+        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[15], 0xC19BF174);
+        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[16], 0xE49B69C1);
+        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[17], 0xEFBE4786);
+        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[18], 0x0FC19DC6);
+        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[19], 0x240CA1CC);
+        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[20], 0x2DE92C6F);
+        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[21], 0x4A7484AA);
+        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[22], 0x5CB0A9DC);
+        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[23], 0x76F988DA);
+        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[24], 0x983E5152);
+        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[25], 0xA831C66D);
+        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[26], 0xB00327C8);
+        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[27], 0xBF597FC7);
+        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[28], 0xC6E00BF3);
+        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[29], 0xD5A79147);
+        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[30], 0x06CA6351);
+        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[31], 0x14292967);
+        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[32], 0x27B70A85);
+        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[33], 0x2E1B2138);
+        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[34], 0x4D2C6DFC);
+        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[35], 0x53380D13);
+        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[36], 0x650A7354);
+        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[37], 0x766A0ABB);
+        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[38], 0x81C2C92E);
+        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[39], 0x92722C85);
+        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[40], 0xA2BFE8A1);
+        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[41], 0xA81A664B);
+        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[42], 0xC24B8B70);
+        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[43], 0xC76C51A3);
+        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[44], 0xD192E819);
+        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[45], 0xD6990624);
+        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[46], 0xF40E3585);
+        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[47], 0x106AA070);
+        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[48], 0x19A4C116);
+        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[49], 0x1E376C08);
+        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[50], 0x2748774C);
+        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[51], 0x34B0BCB5);
+        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[52], 0x391C0CB3);
+        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[53], 0x4ED8AA4A);
+        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[54], 0x5B9CCA4F);
+        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[55], 0x682E6FF3);
+        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[56], 0x748F82EE);
+        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[57], 0x78A5636F);
+        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[58], 0x84C87814);
+        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[59], 0x8CC70208);
+        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[60], 0x90BEFFFA);
+        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[61], 0xA4506CEB);
+        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[62], 0xBEF9A3F7);
+        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[63], 0xC67178F2);
 
         self.state[0] += a;
         self.state[1] += b;
@@ -209,22 +210,5 @@ impl Sha256Hasher {
         w[63] = ((w[48] + w[49]).gamma0() + w[56] + w[61]).gamma1();
 
         w
-    }
-
-    fn rnd(
-        a: U32Word,
-        b: U32Word,
-        c: U32Word,
-        d: &mut U32Word,
-        e: U32Word,
-        f: U32Word,
-        g: U32Word,
-        h: &mut U32Word,
-        w: U32Word,
-        k: u32,
-    ) {
-        let t0 = *h + crate::sigma1(e.into()) + crate::ch(e.into(), f.into(), g.into()) + k + w;
-        *d += t0;
-        *h = t0 + crate::sigma0(a.into()) + crate::maj(a.into(), b.into(), c.into());
     }
 }

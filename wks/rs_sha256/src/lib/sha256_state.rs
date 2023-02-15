@@ -1,11 +1,12 @@
 use crate::{
-    sha256_hasher::Sha256Hasher, sha256_words::Sha256Words, U32Word, H0, H1, H2, H3, H4, H5, H6,
+    sha256_hasher::Sha256Hasher, sha256_words::Sha256Words, H0, H1, H2, H3, H4, H5, H6,
     H7, SHA256_HASH_U32_WORDS_COUNT,
 };
 use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::{Index, IndexMut},
 };
+use u32_word_lib::U32Word;
 
 pub struct Sha256State {
     data: [U32Word; SHA256_HASH_U32_WORDS_COUNT as usize],
@@ -13,7 +14,7 @@ pub struct Sha256State {
 
 impl Sha256State {
     pub(crate) fn u32_states(&self) -> [U32Word; SHA256_HASH_U32_WORDS_COUNT as usize] {
-        self.data.clone()
+        self.data
     }
 }
 
@@ -23,7 +24,7 @@ impl BuildHasher for Sha256State {
     fn build_hasher(&self) -> Self::Hasher {
         Sha256Hasher {
             size: u64::MIN,
-            state: Sha256State::default(),
+            state: Sha256State { data: self.data },
             words: Sha256Words::default(),
         }
     }

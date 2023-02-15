@@ -1,6 +1,5 @@
 use core::ops::{BitOr, Shl, Shr};
-
-use crate::{ch, maj, parity};
+use u32_word_lib::U32Word;
 
 #[test]
 fn fips180_rotate_right_and_left_are_consistent_with_core_rotate_methods() {
@@ -274,28 +273,28 @@ fn associative_wrapping_add_property() {
 
 #[test]
 fn assert_ch_consistency() {
-    let ch1 = ch(1, 2, 3);
+    let ch1 = U32Word::ch(1.into(), 2.into(), 3.into());
     assert_eq!(ch1, 2);
 
-    let ch2 = ch(1000, 2001, 3002);
+    let ch2 = U32Word::ch(1000.into(), 2001.into(), 3002.into());
     assert_eq!(ch2, 3026);
 }
 
 #[test]
 fn assert_parity_consistency() {
-    let parity1 = parity(1, 2, 3);
+    let parity1 = U32Word::parity(1.into(), 2.into(), 3.into());
     assert_eq!(parity1, 0);
 
-    let parity2 = parity(1000, 2001, 3002);
+    let parity2 = U32Word::parity(1000.into(), 2001.into(), 3002.into());
     assert_eq!(parity2, 3971);
 }
 
 #[test]
 fn assert_maj_consistency() {
-    let maj1 = maj(1, 2, 3);
+    let maj1 = U32Word::maj(1.into(), 2.into(), 3.into());
     assert_eq!(maj1, 3);
 
-    let maj2 = maj(1000, 2001, 3002);
+    let maj2 = U32Word::maj(1000.into(), 2001.into(), 3002.into());
     assert_eq!(maj2, 1016);
 }
 

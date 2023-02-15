@@ -12,7 +12,7 @@ pub(crate) struct Sha1Words {
 impl Default for Sha1Words {
     fn default() -> Self {
         Self {
-            data: [0; SHA1_BLOCK_SIZE as usize],
+            data: [u8::MIN; SHA1_BLOCK_SIZE as usize],
         }
     }
 }

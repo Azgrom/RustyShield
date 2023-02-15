@@ -3,10 +3,11 @@ use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::{Index, IndexMut},
 };
+use u32_word_lib::U32Word;
 
 #[derive(Clone)]
 pub struct Sha1State {
-    data: [u32; 5],
+    data: [U32Word; 5],
 }
 
 impl BuildHasher for Sha1State {
@@ -24,13 +25,13 @@ impl BuildHasher for Sha1State {
 impl Default for Sha1State {
     fn default() -> Self {
         Self {
-            data: [H0, H1, H2, H3, H4],
+            data: [H0.into(), H1.into(), H2.into(), H3.into(), H4.into()],
         }
     }
 }
 
 impl Index<usize> for Sha1State {
-    type Output = u32;
+    type Output = U32Word;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.data[index]
@@ -44,7 +45,7 @@ impl IndexMut<usize> for Sha1State {
 }
 
 impl Sha1State {
-    pub(crate) fn to_slice(&self) -> &[u32; 5] {
+    pub(crate) fn to_slice(&self) -> &[U32Word; 5] {
         &self.data
     }
 
