@@ -59,6 +59,12 @@ impl IndexMut<RangeTo<usize>> for Sha1Words {
     }
 }
 
+impl PartialEq for Sha1Words {
+    fn eq(&self, other: &Self) -> bool {
+        self.data == other.data
+    }
+}
+
 impl PartialEq<[u8; SHA1_BLOCK_SIZE as usize]> for Sha1Words {
     fn eq(&self, other: &[u8; SHA1_BLOCK_SIZE as usize]) -> bool {
         self.data == *other

@@ -1,20 +1,11 @@
 use crate::{
-    SHA_OFFSET_PAD,
-    SHA1_BLOCK_SIZE,
-    SHA1_WORD_COUNT,
-    SHA_CBLOCK_LAST_INDEX,
-    T_0_19,
-    T_20_39,
-    T_40_59,
-    T_60_79,
-    sha1_state::Sha1State,
-    sha1_words::Sha1Words,
-    sha1_context::Sha1Context
+    sha1_context::Sha1Context, sha1_state::Sha1State, sha1_words::Sha1Words, SHA1_BLOCK_SIZE,
+    SHA1_WORD_COUNT, SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, T_0_19, T_20_39, T_40_59, T_60_79,
 };
 use core::hash::{Hash, Hasher};
 use u32_word_lib::U32Word;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Sha1Hasher {
     pub(crate) size: u64,
     pub(crate) state: Sha1State,
@@ -81,11 +72,17 @@ impl Hasher for Sha1Hasher {
     }
 }
 
+impl PartialEq for Sha1Hasher {
+    fn eq(&self, other: &Self) -> bool {
+        self.size == other.size && self.state == other.state && self.words == other.words
+    }
+}
+
 impl Sha1Context for Sha1Hasher {
     fn to_hex_string(&self) -> String {
         let mut hasher = self.clone();
         hasher.finish_with_len(self.size);
-        hasher.state.hex_hash()
+        format!("{:08x}", hasher.state)
     }
 
     fn to_bytes_hash(&self) -> [u8; 20] {
@@ -191,31 +188,66 @@ impl Sha1Hasher {
     }
 
     #[inline(always)]
-    pub(crate) fn rounds_00_15(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+    pub(crate) fn rounds_00_15(
+        a: U32Word,
+        b: &mut U32Word,
+        c: U32Word,
+        d: U32Word,
+        e: &mut U32Word,
+        word: U32Word,
+    ) {
         *e += word + T_0_19 + a.rotate_left(5) + U32Word::ch(*b, c, d);
         *b = b.rotate_right(2);
     }
 
     #[inline(always)]
-    pub(crate) fn rounds_16_19(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+    pub(crate) fn rounds_16_19(
+        a: U32Word,
+        b: &mut U32Word,
+        c: U32Word,
+        d: U32Word,
+        e: &mut U32Word,
+        word: U32Word,
+    ) {
         *e += word + T_0_19 + a.rotate_left(5) + U32Word::ch(*b, c, d);
         *b = b.rotate_right(2);
     }
 
     #[inline(always)]
-    pub(crate) fn rounds_20_39(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+    pub(crate) fn rounds_20_39(
+        a: U32Word,
+        b: &mut U32Word,
+        c: U32Word,
+        d: U32Word,
+        e: &mut U32Word,
+        word: U32Word,
+    ) {
         *e += word + T_20_39 + a.rotate_left(5) + U32Word::parity(*b, c, d);
         *b = b.rotate_right(2);
     }
 
     #[inline(always)]
-    fn rounds_40_59(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+    fn rounds_40_59(
+        a: U32Word,
+        b: &mut U32Word,
+        c: U32Word,
+        d: U32Word,
+        e: &mut U32Word,
+        word: U32Word,
+    ) {
         *e += word + T_40_59 + a.rotate_left(5) + U32Word::maj(*b, c, d);
         *b = b.rotate_right(2);
     }
 
     #[inline(always)]
-    fn rounds_60_79(a: U32Word, b: &mut U32Word, c: U32Word, d: U32Word, e: &mut U32Word, word: U32Word) {
+    fn rounds_60_79(
+        a: U32Word,
+        b: &mut U32Word,
+        c: U32Word,
+        d: U32Word,
+        e: &mut U32Word,
+        word: U32Word,
+    ) {
         *e += word + T_60_79 + a.rotate_left(5) + U32Word::parity(*b, c, d);
         *b = b.rotate_right(2);
     }

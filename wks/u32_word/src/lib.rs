@@ -1,15 +1,11 @@
 use core::{
-    fmt::{Formatter, LowerHex, UpperHex},
-    ops::{
-        BitXor,
-        Shr,
-        Add,
-        AddAssign,
-        BitAnd,
-        BitOr
-    }
+    fmt::{Formatter, LowerHex, Result, UpperHex},
+    hash::{Hash, Hasher},
+    ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shr},
 };
-use std::hash::{Hash, Hasher};
+
+#[cfg(test)]
+mod test_trait_impls;
 
 #[derive(Clone, Copy, Debug)]
 pub struct U32Word(u32);
@@ -46,6 +42,14 @@ impl U32Word {
         self.rotate_right(17) ^ self.rotate_right(19) ^ (self >> 10)
     }
 
+    fn sigma0(&self) -> Self {
+        self.rotate_right(2) ^ self.rotate_right(13) ^ self.rotate_right(22)
+    }
+
+    fn sigma1(&self) -> Self {
+        self.rotate_right(6) ^ self.rotate_right(11) ^ self.rotate_right(25)
+    }
+
     pub fn rnd(
         a: U32Word,
         b: U32Word,
@@ -61,14 +65,6 @@ impl U32Word {
         let t0 = *h + e.sigma1() + Self::ch(e, f, g) + k + w;
         *d += t0;
         *h = t0 + a.sigma0() + Self::maj(a, b, c);
-    }
-
-    fn sigma0(&self) -> Self {
-        self.rotate_right(2) ^ self.rotate_right(13) ^ self.rotate_right(22)
-    }
-
-    fn sigma1(&self) -> Self {
-        self.rotate_right(6) ^ self.rotate_right(11) ^ self.rotate_right(25)
     }
 
     pub fn from_be_bytes(bytes: [u8; 4]) -> Self {
@@ -141,13 +137,13 @@ impl Default for U32Word {
 }
 
 impl LowerHex for U32Word {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         LowerHex::fmt(&self.0, f)
     }
 }
 
 impl UpperHex for U32Word {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         UpperHex::fmt(&self.0, f)
     }
 }

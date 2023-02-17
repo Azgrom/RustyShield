@@ -1,4 +1,4 @@
-use std::hash::Hasher;
+use core::hash::Hasher;
 
 pub trait Sha1Context: Hasher {
     fn to_hex_string(&self) -> String;

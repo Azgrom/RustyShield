@@ -2,11 +2,11 @@
 //!
 //! rs-sha1 is a implementation of the first Secure Hash Algorithm designed to provide a compliant
 //! standard library  SHA-1 API
-pub use crate::{sha1_hasher::Sha1Hasher, sha1_state::Sha1State};
+pub use crate::{sha1_context::Sha1Context, sha1_hasher::Sha1Hasher, sha1_state::Sha1State};
 
+pub mod sha1_context;
 pub mod sha1_hasher;
 pub mod sha1_state;
-mod sha1_context;
 mod sha1_words;
 
 #[cfg(test)]
