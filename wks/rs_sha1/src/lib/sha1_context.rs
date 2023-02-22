@@ -1,3 +1,4 @@
+use alloc::string::String;
 use core::hash::Hasher;
 
 pub trait Sha1Context: Hasher {

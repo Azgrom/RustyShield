@@ -2,6 +2,10 @@ use crate::{
     sha1_context::Sha1Context, sha1_state::Sha1State, sha1_words::Sha1Words, SHA1_BLOCK_SIZE,
     SHA1_WORD_COUNT, SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, T_0_19, T_20_39, T_40_59, T_60_79,
 };
+use alloc::{
+    format,
+    string::String
+};
 use core::hash::{Hash, Hasher};
 use u32_word_lib::U32Word;
 

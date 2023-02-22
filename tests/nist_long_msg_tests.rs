@@ -54,10 +54,7 @@ impl Sha1LongMsg {
 mod long_msgs {
     use super::Sha1LongMsg;
     use core::hash::{BuildHasher, Hasher};
-    use rs_sha1_lib::{
-        sha1_context::Sha1Context,
-        Sha1State
-    };
+    use rs_sha1_lib::{sha1_context::Sha1Context, Sha1State};
 
     #[test]
     fn compare_long_messages_provided_by_sha_validation_system() {

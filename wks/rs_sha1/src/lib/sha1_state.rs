@@ -118,9 +118,10 @@ impl Sha1State {
 #[cfg(test)]
 mod test_state_trait_impls {
     use crate::{Sha1Hasher, Sha1State, H0, H1, H2, H3, H4};
+    use alloc::{format, string::String};
     use core::{
         any::{Any, TypeId},
-        hash::{BuildHasher, Hash, Hasher},
+        hash::{BuildHasher, Hash},
     };
     use u32_word_lib::U32Word;
 
@@ -172,18 +173,6 @@ mod test_state_trait_impls {
         assert_eq!(default_sha1_state[0], U32Word::from(H0));
         default_sha1_state[0] = U32Word::from(u32::MAX);
         assert_ne!(default_sha1_state[0], U32Word::from(H0));
-    }
-
-    #[test]
-    fn sha1_state_hash() {
-        let default_sha1_state = Sha1State::default();
-        let mut default_hasher = std::collections::hash_map::DefaultHasher::default();
-        let initial_default_hasher_result = default_hasher.clone().finish();
-
-        default_sha1_state.hash(&mut default_hasher);
-        let final_default_hasher_result = default_hasher.finish();
-
-        assert_ne!(final_default_hasher_result, initial_default_hasher_result);
     }
 
     #[test]

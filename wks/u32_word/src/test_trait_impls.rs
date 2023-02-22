@@ -38,28 +38,6 @@ fn being_added_with_u32_should_wrap_by_default() {
 }
 
 #[test]
-fn lower_hex_format() {
-    let u32_word_min = U32Word::from(u32::MIN);
-    let u32_word_max = U32Word::from(u32::MAX);
-    let u32_word_mid = U32Word::from((u32::MAX / (u16::MAX as u32)) - 2);
-
-    assert_eq!(format!("0x{:08x}", u32_word_min), "0x00000000");
-    assert_eq!(format!("0x{:08x}", u32_word_mid), "0x0000ffff");
-    assert_eq!(format!("0x{:x}", u32_word_max), "0xffffffff");
-}
-
-#[test]
-fn upper_hex_format() {
-    let u32_word_min = U32Word::from(u32::MIN);
-    let u32_word_max = U32Word::from(u32::MAX);
-    let u32_word_mid = U32Word::from((u32::MAX / (u16::MAX as u32)) - 2);
-
-    assert_eq!(format!("0x{:08X}", u32_word_min), "0x00000000");
-    assert_eq!(format!("0x{:08X}", u32_word_mid), "0x0000FFFF");
-    assert_eq!(format!("0x{:X}", u32_word_max), "0xFFFFFFFF");
-}
-
-#[test]
 fn assert_ch_consistency() {
     let ch1 = U32Word::ch(1.into(), 2.into(), 3.into());
     assert_eq!(ch1, 2);

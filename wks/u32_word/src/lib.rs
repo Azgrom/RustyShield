@@ -1,3 +1,4 @@
+#![no_std]
 use core::{
     fmt::{Formatter, LowerHex, Result, UpperHex},
     hash::{Hash, Hasher},

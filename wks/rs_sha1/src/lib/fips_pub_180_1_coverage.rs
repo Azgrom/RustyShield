@@ -2,6 +2,7 @@ use crate::{
     sha1_hasher::Sha1Hasher, H0, H1, H2, H3, H4, SHA1_BLOCK_SIZE, SHA_CBLOCK_LAST_INDEX,
     SHA_OFFSET_PAD,
 };
+use alloc::vec;
 use core::hash::Hasher;
 
 #[cfg(feature = "nightly")]

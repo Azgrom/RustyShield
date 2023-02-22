@@ -1,3 +1,4 @@
+#![no_std]
 pub use sha256_state::Sha256State;
 
 mod sha256_hasher;

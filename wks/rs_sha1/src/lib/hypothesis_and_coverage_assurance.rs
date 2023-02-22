@@ -1,3 +1,8 @@
+use alloc::{
+    format,
+    string::{String, ToString},
+    vec::Vec,
+};
 use core::ops::{BitOr, Shl, Shr};
 
 #[test]
