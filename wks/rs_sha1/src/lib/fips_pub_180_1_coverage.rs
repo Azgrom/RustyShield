@@ -1,6 +1,8 @@
 use crate::{
-    sha1_hasher::Sha1Hasher, H0, H1, H2, H3, H4, SHA_CBLOCK, SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD,
+    sha1_hasher::Sha1Hasher, H0, H1, H2, H3, H4, SHA1_BLOCK_SIZE, SHA_CBLOCK_LAST_INDEX,
+    SHA_OFFSET_PAD,
 };
+use alloc::vec;
 use core::hash::Hasher;
 
 #[cfg(feature = "nightly")]
@@ -10,6 +12,7 @@ use core::{
     },
     simd::Simd,
 };
+use u32_word_lib::U32Word;
 
 const MESSAGE: &str = "abc";
 
@@ -33,7 +36,7 @@ fn completed_words(hasher: &mut Sha1Hasher) {
     offset_pad[zero_padding_len - 8..zero_padding_len].clone_from_slice(&pad_len);
 
     let len_w = (hasher.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
-    let left = (SHA_CBLOCK - len_w as u32) as u8;
+    let left = (SHA1_BLOCK_SIZE - len_w as u32) as u8;
     hasher.words[(len_w as usize)..(len_w + left) as usize]
         .clone_from_slice(&offset_pad[..zero_padding_len]);
 }
@@ -43,7 +46,7 @@ fn start_processing_rounds_integrity() {
     let mut hasher = Sha1Hasher::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
 
-    let expected_rounds_of_words_1: [u8; SHA_CBLOCK as usize] =
+    let expected_rounds_of_words_1: [u8; SHA1_BLOCK_SIZE as usize] =
         [vec![0x61, 0x62, 0x63, 0x00], vec![0u8; 60]]
             .concat()
             .try_into()
@@ -52,7 +55,7 @@ fn start_processing_rounds_integrity() {
 
     completed_words(&mut hasher);
 
-    let expected_rounds_of_words_2: [u8; SHA_CBLOCK as usize] =
+    let expected_rounds_of_words_2: [u8; SHA1_BLOCK_SIZE as usize] =
         [vec![0x61, 0x62, 0x63, 0x80], vec![0u8; 59], vec![0x18]]
             .concat()
             .try_into()
@@ -60,26 +63,26 @@ fn start_processing_rounds_integrity() {
     assert_eq!(hasher.words, expected_rounds_of_words_2);
 }
 
-#[test]
-fn test() {
-    let simd = Simd::from_array([H0, H1, H2, H3]);
-    let h0_u128 = (H0 as u128) << 96;
-    let h1_u128 = (H1 as u128) << 64;
-    let h2_u128 = (H2 as u128) << 32;
-    let h3_u128 = (H3 as u128);
-    let h0h1h2h3_u128 = h0_u128 | h1_u128 | h2_u128 | h3_u128;
-    // unsafe { let i = _mm_sha1msg1_epu32(h0h1h2h3_u128, 0);
-    // }
-    // _mm_sha1msg2_epu32()
-    // _mm_sha1nexte_epu32()
-    // _mm_sha1rnds4_epu32()
-}
+// #[test]
+// fn test() {
+//     let simd = Simd::from_array([H0, H1, H2, H3]);
+//     let h0_u128 = (H0 as u128) << 96;
+//     let h1_u128 = (H1 as u128) << 64;
+//     let h2_u128 = (H2 as u128) << 32;
+//     let h3_u128 = (H3 as u128);
+//     let h0h1h2h3_u128 = h0_u128 | h1_u128 | h2_u128 | h3_u128;
+//     // unsafe { let i = _mm_sha1msg1_epu32(h0h1h2h3_u128, 0);
+//     // }
+//     // _mm_sha1msg2_epu32()
+//     // _mm_sha1nexte_epu32()
+//     // _mm_sha1rnds4_epu32()
+// }
 
 #[test]
 fn assert_hash_values_integrity_for_each_step_00_to_15() {
     let mut hasher = instantiate_and_preprocess_abc_message();
     let [mut a, mut b, mut c, mut d, mut e] = hasher.state.to_slice().clone();
-    let mut d_words: [u32; 16] = [0; 16];
+    let mut d_words: [U32Word; 16] = [U32Word::default(); 16];
     completed_words(&mut hasher);
     hasher.u32_words_from_u8_pad(&mut d_words);
 
@@ -186,7 +189,7 @@ fn assert_hash_values_integrity_for_each_step_00_to_15() {
 fn assert_hash_values_integrity_for_each_step_16_to_19() {
     let mut hasher = instantiate_and_preprocess_abc_message();
     let [mut a, mut b, mut c, mut d, mut e] = hasher.state.to_slice().clone();
-    let mut d_words: [u32; 16] = [0; 16];
+    let mut d_words: [U32Word; 16] = [U32Word::default(); 16];
     completed_words(&mut hasher);
     hasher.u32_words_from_u8_pad(&mut d_words);
 
@@ -241,7 +244,7 @@ fn assert_hash_values_integrity_for_each_step_16_to_19() {
 fn assert_hash_values_integrity_for_each_step_20_to_39() {
     let mut hasher = instantiate_and_preprocess_abc_message();
     let [mut a, mut b, mut c, mut d, mut e] = hasher.state.to_slice().clone();
-    let mut d_words: [u32; 16] = [0; 16];
+    let mut d_words: [U32Word; 16] = [U32Word::default(); 16];
     completed_words(&mut hasher);
     hasher.u32_words_from_u8_pad(&mut d_words);
 

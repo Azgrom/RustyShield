@@ -2,7 +2,7 @@
 name = "rs_ssl"
 version = "0.1.0"
 edition.workspace = true
-licente.workspace = true
+license.workspace = true
 
 [workspace]
 members = ["wks/*"]
@@ -32,6 +32,7 @@ debug = false
 
 [dependencies]
 rs_sha1 = { path = "wks/rs_sha1" }
+rs_sha256 = { path = "wks/rs_sha256" }
 
 criterion = { version = "0.4.0", optional = true }
 criterion-table = { version = "0.4.2", optional = true }
@@ -48,7 +49,6 @@ comparator_build = ["dep:criterion",
     "dep:hashes_sha1",
     "dep:sha1_smol",
     "dep:const-sha1"]
-nightly = []
 
 [[bench]]
 name = "benches"

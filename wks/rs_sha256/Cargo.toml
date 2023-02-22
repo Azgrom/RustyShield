@@ -1,16 +1,14 @@
 [package]
 authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
-description = "A git and openssl based implementation SHA-1 library , but faster, easier to port, maintain, expand and use"
-categories = ["data-structures", "development-tools"]
-keywords = ["sha", "sha_1", "sha-1"]
-name = "rs_sha1"
+keywords = ["sha", "sha_2", "sha_256", "sha-1"]
+name = "rs_sha256"
 version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 
 [lib]
 # Custom name definition because of multiple rmeta candidates error E0465
-name = "rs_sha1_lib"
+name = "rs_sha256_lib"
 path = "src/lib/mod.rs"
 
 [dependencies]

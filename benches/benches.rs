@@ -1,11 +1,10 @@
 extern crate criterion;
-extern crate lib;
-extern crate openssl as ossl_sha1;
 extern crate hashes_sha1;
+extern crate openssl as ossl_sha1;
 
-use std::hash::{BuildHasher, Hash, Hasher};
-use criterion::{Bencher, BenchmarkId, Criterion, criterion_group, criterion_main};
-use lib::{HashContext, Sha1State};
+use core::hash::{BuildHasher, Hash, Hasher};
+use criterion::{criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
+use rs_sha1_lib::{Sha1Context, Sha1State};
 
 const BASE_INPUT_SIZE: usize = 4_096;
 const SIXTEEN_KB_BASE_INPUT: [u8; BASE_INPUT_SIZE] = [0x80; BASE_INPUT_SIZE];

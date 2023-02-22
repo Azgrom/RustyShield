@@ -1,3 +1,1 @@
-extern crate lib;
-
-pub use lib::{Sha1Hasher, Sha1State};
+pub use rs_sha1_lib::{Sha1Hasher, Sha1State};

@@ -1,11 +1,8 @@
-extern crate lib;
-
-use lib::Sha1State;
+use rs_sha1_lib::Sha1State;
 
 fn main() {
     Sha1State::default();
 }
-
 
 // use core::hash::{BuildHasher, Hasher};
 // use std::{env, fs, process};
