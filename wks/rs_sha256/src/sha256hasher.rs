@@ -1,5 +1,5 @@
 use crate::{
-    sha256_state::Sha256State, sha256_words::Sha256Words, SHA256_PADDING_U8_WORDS_COUNT,
+    sha256state::Sha256State, sha256words::Sha256Words, sha256comp::Sha256Comp, SHA256_PADDING_U8_WORDS_COUNT,
     SHA256_SCHEDULE_U32_WORDS_COUNT, SHA256_SCHEDULE_U32_WORDS_LAST_INDEX,
     SHA256_SCHEDULE_U8_WORDS_LAST_INDEX,
 };
@@ -104,17 +104,25 @@ impl Sha256Hasher {
         let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = self.state.u32_states();
         let w = self.load_words();
 
-        // Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[0], 0x428A2F98);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[0], 0x428A2F98);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g,).rnd(w[1], 0x71374491);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f,).rnd(w[2], 0xB5C0FBCF);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e,).rnd(w[3], 0xE9B5DBA5);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d,).rnd(w[4], 0x3956C25B);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c,).rnd(w[5], 0x59F111F1);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b,).rnd(w[6], 0x923F82A4);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a,).rnd(w[7], 0xAB1C5ED5);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[8], 0xD807AA98);
 
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[0], 0x428A2F98);
-        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[1], 0x71374491);
-        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[2], 0xB5C0FBCF);
-        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[3], 0xE9B5DBA5);
-        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[4], 0x3956C25B);
-        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[5], 0x59F111F1);
-        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[6], 0x923F82A4);
-        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[7], 0xAB1C5ED5);
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[8], 0xD807AA98);
+        // U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[0], 0x428A2F98);
+        // U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[1], 0x71374491);
+        // U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[2], 0xB5C0FBCF);
+        // U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[3], 0xE9B5DBA5);
+        // U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[4], 0x3956C25B);
+        // U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[5], 0x59F111F1);
+        // U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[6], 0x923F82A4);
+        // U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[7], 0xAB1C5ED5);
+        // U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[8], 0xD807AA98);
         U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[9], 0x12835B01);
         U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[10], 0x243185BE);
         U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[11], 0x550C7DC3);
@@ -261,24 +269,5 @@ impl Sha256Hasher {
         self.write(&offset_pad[..zero_padding_length]);
 
         Into::<u64>::into(self.state[0]) << 32 | Into::<u64>::into(self.state[1])
-    }
-}
-
-struct Sha256Comp<'a, 'b>(
-    U32Word,
-    U32Word,
-    U32Word,
-    &'a mut U32Word,
-    U32Word,
-    U32Word,
-    U32Word,
-    &'b mut U32Word,
-);
-
-impl Sha256Comp<'_, '_> {
-    pub fn rnd(&mut self, w: U32Word, k: u32) {
-        let t0 = *self.7 + self.4.sigma1() + U32Word::ch(self.4, self.5, self.6) + k + w;
-        *self.3 += t0;
-        *self.7 = t0 + self.0.sigma0() + U32Word::maj(self.0, self.1, self.2);
     }
 }

@@ -1,4 +1,4 @@
-use crate::{sha1_hasher::Sha1Hasher, sha1_words::Sha1Words, H0, H1, H2, H3, H4};
+use crate::{sha1hasher::Sha1Hasher, sha1words::Sha1Words, H0, H1, H2, H3, H4};
 use alloc::boxed::Box;
 use core::{
     fmt::{Error, Formatter, LowerHex, UpperHex},
