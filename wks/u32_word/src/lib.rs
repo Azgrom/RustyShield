@@ -43,11 +43,11 @@ impl U32Word {
         self.rotate_right(17) ^ self.rotate_right(19) ^ (self >> 10)
     }
 
-    fn sigma0(&self) -> Self {
+    pub fn sigma0(&self) -> Self {
         self.rotate_right(2) ^ self.rotate_right(13) ^ self.rotate_right(22)
     }
 
-    fn sigma1(&self) -> Self {
+    pub fn sigma1(&self) -> Self {
         self.rotate_right(6) ^ self.rotate_right(11) ^ self.rotate_right(25)
     }
 

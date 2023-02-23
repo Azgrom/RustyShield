@@ -2,10 +2,11 @@ use crate::{
     sha256_hasher::Sha256Hasher, sha256_words::Sha256Words, H0, H1, H2, H3, H4, H5, H6, H7,
     SHA256_HASH_U32_WORDS_COUNT,
 };
+use alloc::boxed::Box;
 use core::{
+    fmt::{Error, Formatter, LowerHex, UpperHex},
     hash::{BuildHasher, Hash, Hasher},
     ops::{Index, IndexMut},
-    fmt::{Error, Formatter, LowerHex, UpperHex}
 };
 use u32_word_lib::U32Word;
 
@@ -17,6 +18,20 @@ pub struct Sha256State {
 impl Sha256State {
     pub(crate) fn u32_states(&self) -> [U32Word; SHA256_HASH_U32_WORDS_COUNT as usize] {
         self.data
+    }
+
+    pub(crate) fn bytes_hash(&self) -> Box<[u8]> {
+        let mut hash: [u8; 32] = [0; 32];
+        for i in 0..8 {
+            [
+                hash[i * 4],
+                hash[(i * 4) + 1],
+                hash[(i * 4) + 2],
+                hash[(i * 4) + 3],
+            ] = self[i].to_be_bytes();
+        }
+
+        Box::new(hash)
     }
 }
 
@@ -79,7 +94,7 @@ impl LowerHex for Sha256State {
             LowerHex::fmt(&self[4], f),
             LowerHex::fmt(&self[5], f),
             LowerHex::fmt(&self[6], f),
-            LowerHex::fmt(&self[7], f)
+            LowerHex::fmt(&self[7], f),
         ];
         if results.iter().any(|&x| x.is_err()) {
             return Err(Error);
@@ -99,7 +114,7 @@ impl UpperHex for Sha256State {
             UpperHex::fmt(&self[4], f),
             UpperHex::fmt(&self[5], f),
             UpperHex::fmt(&self[6], f),
-            UpperHex::fmt(&self[7], f)
+            UpperHex::fmt(&self[7], f),
         ];
         if result.iter().any(|&x| x.is_err()) {
             return Err(Error);

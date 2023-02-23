@@ -1,12 +1,14 @@
 use crate::{
-    sha1_context::Sha1Context, sha1_state::Sha1State, sha1_words::Sha1Words, SHA1_BLOCK_SIZE,
-    SHA1_WORD_COUNT, SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, T_0_19, T_20_39, T_40_59, T_60_79,
+    sha1_state::Sha1State, sha1_words::Sha1Words, SHA1_BLOCK_SIZE, SHA1_WORD_COUNT,
+    SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, T_0_19, T_20_39, T_40_59, T_60_79,
 };
 use alloc::{
+    boxed::Box,
     format,
     string::String
 };
 use core::hash::{Hash, Hasher};
+use hash_ctx_lib::HasherContext;
 use u32_word_lib::U32Word;
 
 #[derive(Clone, Debug)]
@@ -82,14 +84,20 @@ impl PartialEq for Sha1Hasher {
     }
 }
 
-impl Sha1Context for Sha1Hasher {
-    fn to_hex_string(&self) -> String {
+impl HasherContext for Sha1Hasher {
+    fn to_lower_hex(&self) -> String {
         let mut hasher = self.clone();
         hasher.finish_with_len(self.size);
         format!("{:08x}", hasher.state)
     }
 
-    fn to_bytes_hash(&self) -> [u8; 20] {
+    fn to_upper_hex(&self) -> String {
+        let mut hasher = self.clone();
+        hasher.finish_with_len(self.size);
+        format!("{:08x}", hasher.state)
+    }
+
+    fn to_bytes_hash(&self) -> Box<[u8]> {
         let mut hasher = self.clone();
         hasher.finish_with_len(self.size);
         hasher.state.bytes_hash()

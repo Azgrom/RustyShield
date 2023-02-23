@@ -6,7 +6,7 @@
 #![no_std]
 extern crate alloc;
 
-pub use crate::{sha1_context::Sha1Context, sha1_hasher::Sha1Hasher, sha1_state::Sha1State};
+pub use crate::{sha1_hasher::Sha1Hasher, sha1_state::Sha1State};
 
 pub mod sha1_context;
 pub mod sha1_hasher;

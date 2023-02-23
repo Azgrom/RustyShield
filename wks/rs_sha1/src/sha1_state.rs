@@ -1,4 +1,5 @@
 use crate::{sha1_hasher::Sha1Hasher, sha1_words::Sha1Words, H0, H1, H2, H3, H4};
+use alloc::boxed::Box;
 use core::{
     fmt::{Error, Formatter, LowerHex, UpperHex},
     hash::{BuildHasher, Hash, Hasher},
@@ -100,7 +101,7 @@ impl Sha1State {
         &self.data
     }
 
-    pub(crate) fn bytes_hash(&self) -> [u8; 20] {
+    pub(crate) fn bytes_hash(&self) -> Box<[u8]> {
         let mut hash: [u8; 20] = [0; 20];
         (0..5).for_each(|i| {
             [
@@ -111,7 +112,7 @@ impl Sha1State {
             ] = self.data[i].to_be_bytes()
         });
 
-        hash
+        Box::new(hash)
     }
 }
 

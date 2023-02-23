@@ -1,11 +1,16 @@
+use crate::{
+    sha256_state::Sha256State, sha256_words::Sha256Words, SHA256_PADDING_U8_WORDS_COUNT,
+    SHA256_SCHEDULE_U32_WORDS_COUNT, SHA256_SCHEDULE_U32_WORDS_LAST_INDEX,
+    SHA256_SCHEDULE_U8_WORDS_LAST_INDEX,
+};
 use alloc::{
+    boxed::Box,
     format,
     string::String
 };
-use crate::{sha256_state::Sha256State, sha256_words::Sha256Words, SHA256_PADDING_U8_WORDS_COUNT, SHA256_SCHEDULE_U32_WORDS_COUNT, SHA256_SCHEDULE_U8_WORDS_LAST_INDEX, SHA256_SCHEDULE_U32_WORDS_LAST_INDEX};
 use core::hash::{Hash, Hasher};
-use u32_word_lib::U32Word;
 use hash_ctx_lib::HasherContext;
+use u32_word_lib::U32Word;
 
 #[derive(Clone, Debug)]
 pub struct Sha256Hasher {
@@ -87,8 +92,10 @@ impl HasherContext for Sha256Hasher {
         format!("{:08X}", hasher.state)
     }
 
-    fn to_bytes_hash(&self) -> &[u8] {
-        todo!()
+    fn to_bytes_hash(&self) -> Box<[u8]> {
+        let mut hasher = self.clone();
+        hasher.finish_with_len(self.size);
+        hasher.state.bytes_hash()
     }
 }
 
@@ -96,6 +103,8 @@ impl Sha256Hasher {
     pub(crate) fn hash_block(&mut self) {
         let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = self.state.u32_states();
         let w = self.load_words();
+
+        // Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[0], 0x428A2F98);
 
         U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[0], 0x428A2F98);
         U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[1], 0x71374491);
@@ -236,8 +245,8 @@ impl Sha256Hasher {
     fn zero_padding_length(&self) -> usize {
         1 + 8
             + (SHA256_SCHEDULE_U32_WORDS_LAST_INDEX as u64
-            & (55u64.wrapping_sub(self.size & SHA256_SCHEDULE_U32_WORDS_LAST_INDEX as u64)))
-        as usize
+                & (55u64.wrapping_sub(self.size & SHA256_SCHEDULE_U32_WORDS_LAST_INDEX as u64)))
+                as usize
     }
 
     fn finish_with_len(&mut self, len: u64) -> u64 {
@@ -252,5 +261,24 @@ impl Sha256Hasher {
         self.write(&offset_pad[..zero_padding_length]);
 
         Into::<u64>::into(self.state[0]) << 32 | Into::<u64>::into(self.state[1])
+    }
+}
+
+struct Sha256Comp<'a, 'b>(
+    U32Word,
+    U32Word,
+    U32Word,
+    &'a mut U32Word,
+    U32Word,
+    U32Word,
+    U32Word,
+    &'b mut U32Word,
+);
+
+impl Sha256Comp<'_, '_> {
+    pub fn rnd(&mut self, w: U32Word, k: u32) {
+        let t0 = *self.7 + self.4.sigma1() + U32Word::ch(self.4, self.5, self.6) + k + w;
+        *self.3 += t0;
+        *self.7 = t0 + self.0.sigma0() + U32Word::maj(self.0, self.1, self.2);
     }
 }
