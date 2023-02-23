@@ -1,5 +1,5 @@
 use crate::{
-    sha256_state::Sha256State, sha256_words::Sha256Words, SHA256_PADDING_U8_WORDS_COUNT,
+    sha256state::Sha256State, sha256words::Sha256Words, sha256comp::Sha256Comp, SHA256_PADDING_U8_WORDS_COUNT,
     SHA256_SCHEDULE_U32_WORDS_COUNT, SHA256_SCHEDULE_U32_WORDS_LAST_INDEX,
     SHA256_SCHEDULE_U8_WORDS_LAST_INDEX,
 };
@@ -11,6 +11,71 @@ use alloc::{
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
 use u32_word_lib::U32Word;
+
+const K0: u32 = 0x428A2F98;
+const K1: u32 = 0x71374491;
+const K2: u32 = 0xB5C0FBCF;
+const K3: u32 = 0xE9B5DBA5;
+const K4: u32 = 0x3956C25B;
+const K5: u32 = 0x59F111F1;
+const K6: u32 = 0x923F82A4;
+const K7: u32 = 0xAB1C5ED5;
+const K8: u32 = 0xD807AA98;
+const K9: u32 = 0x12835B01;
+const K10: u32 = 0x243185BE;
+const K11: u32 = 0x550C7DC3;
+const K12: u32 = 0x72BE5D74;
+const K13: u32 = 0x80DEB1FE;
+const K14: u32 = 0x9BDC06A7;
+const K15: u32 = 0xC19BF174;
+const K16: u32 = 0xE49B69C1;
+const K17: u32 = 0xEFBE4786;
+const K18: u32 = 0x0FC19DC6;
+const K19: u32 = 0x240CA1CC;
+const K20: u32 = 0x2DE92C6F;
+const K21: u32 = 0x4A7484AA;
+const K22: u32 = 0x5CB0A9DC;
+const K23: u32 = 0x76F988DA;
+const K24: u32 = 0x983E5152;
+const K25: u32 = 0xA831C66D;
+const K26: u32 = 0xB00327C8;
+const K27: u32 = 0xBF597FC7;
+const K28: u32 = 0xC6E00BF3;
+const K29: u32 = 0xD5A79147;
+const K30: u32 = 0x06CA6351;
+const K31: u32 = 0x14292967;
+const K32: u32 = 0x27B70A85;
+const K33: u32 = 0x2E1B2138;
+const K34: u32 = 0x4D2C6DFC;
+const K35: u32 = 0x53380D13;
+const K36: u32 = 0x650A7354;
+const K37: u32 = 0x766A0ABB;
+const K38: u32 = 0x81C2C92E;
+const K39: u32 = 0x92722C85;
+const K40: u32 = 0xA2BFE8A1;
+const K41: u32 = 0xA81A664B;
+const K42: u32 = 0xC24B8B70;
+const K43: u32 = 0xC76C51A3;
+const K44: u32 = 0xD192E819;
+const K45: u32 = 0xD6990624;
+const K46: u32 = 0xF40E3585;
+const K47: u32 = 0x106AA070;
+const K48: u32 = 0x19A4C116;
+const K49: u32 = 0x1E376C08;
+const K50: u32 = 0x2748774C;
+const K51: u32 = 0x34B0BCB5;
+const K52: u32 = 0x391C0CB3;
+const K53: u32 = 0x4ED8AA4A;
+const K54: u32 = 0x5B9CCA4F;
+const K55: u32 = 0x682E6FF3;
+const K56: u32 = 0x748F82EE;
+const K57: u32 = 0x78A5636F;
+const K58: u32 = 0x84C87814;
+const K59: u32 = 0x8CC70208;
+const K60: u32 = 0x90BEFFFA;
+const K61: u32 = 0xA4506CEB;
+const K62: u32 = 0xBEF9A3F7;
+const K63: u32 = 0xC67178F2;
 
 #[derive(Clone, Debug)]
 pub struct Sha256Hasher {
@@ -104,72 +169,70 @@ impl Sha256Hasher {
         let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = self.state.u32_states();
         let w = self.load_words();
 
-        // Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[0], 0x428A2F98);
-
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[0], 0x428A2F98);
-        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[1], 0x71374491);
-        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[2], 0xB5C0FBCF);
-        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[3], 0xE9B5DBA5);
-        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[4], 0x3956C25B);
-        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[5], 0x59F111F1);
-        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[6], 0x923F82A4);
-        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[7], 0xAB1C5ED5);
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[8], 0xD807AA98);
-        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[9], 0x12835B01);
-        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[10], 0x243185BE);
-        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[11], 0x550C7DC3);
-        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[12], 0x72BE5D74);
-        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[13], 0x80DEB1FE);
-        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[14], 0x9BDC06A7);
-        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[15], 0xC19BF174);
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[16], 0xE49B69C1);
-        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[17], 0xEFBE4786);
-        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[18], 0x0FC19DC6);
-        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[19], 0x240CA1CC);
-        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[20], 0x2DE92C6F);
-        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[21], 0x4A7484AA);
-        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[22], 0x5CB0A9DC);
-        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[23], 0x76F988DA);
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[24], 0x983E5152);
-        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[25], 0xA831C66D);
-        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[26], 0xB00327C8);
-        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[27], 0xBF597FC7);
-        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[28], 0xC6E00BF3);
-        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[29], 0xD5A79147);
-        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[30], 0x06CA6351);
-        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[31], 0x14292967);
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[32], 0x27B70A85);
-        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[33], 0x2E1B2138);
-        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[34], 0x4D2C6DFC);
-        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[35], 0x53380D13);
-        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[36], 0x650A7354);
-        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[37], 0x766A0ABB);
-        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[38], 0x81C2C92E);
-        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[39], 0x92722C85);
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[40], 0xA2BFE8A1);
-        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[41], 0xA81A664B);
-        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[42], 0xC24B8B70);
-        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[43], 0xC76C51A3);
-        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[44], 0xD192E819);
-        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[45], 0xD6990624);
-        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[46], 0xF40E3585);
-        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[47], 0x106AA070);
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[48], 0x19A4C116);
-        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[49], 0x1E376C08);
-        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[50], 0x2748774C);
-        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[51], 0x34B0BCB5);
-        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[52], 0x391C0CB3);
-        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[53], 0x4ED8AA4A);
-        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[54], 0x5B9CCA4F);
-        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[55], 0x682E6FF3);
-        U32Word::rnd(a, b, c, &mut d, e, f, g, &mut h, w[56], 0x748F82EE);
-        U32Word::rnd(h, a, b, &mut c, d, e, f, &mut g, w[57], 0x78A5636F);
-        U32Word::rnd(g, h, a, &mut b, c, d, e, &mut f, w[58], 0x84C87814);
-        U32Word::rnd(f, g, h, &mut a, b, c, d, &mut e, w[59], 0x8CC70208);
-        U32Word::rnd(e, f, g, &mut h, a, b, c, &mut d, w[60], 0x90BEFFFA);
-        U32Word::rnd(d, e, f, &mut g, h, a, b, &mut c, w[61], 0xA4506CEB);
-        U32Word::rnd(c, d, e, &mut f, g, h, a, &mut b, w[62], 0xBEF9A3F7);
-        U32Word::rnd(b, c, d, &mut e, f, g, h, &mut a, w[63], 0xC67178F2);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[0], K0);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[1], K1);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[2], K2);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[3], K3);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[4], K4);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[5], K5);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[6], K6);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[7], K7);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[8], K8);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[9], K9);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[10], K10);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[11], K11);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[12], K12);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[13], K13);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[14], K14);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[15], K15);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[16], K16);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[17], K17);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[18], K18);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[19], K19);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[20], K20);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[21], K21);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[22], K22);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[23], K23);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[24], K24);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[25], K25);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[26], K26);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[27], K27);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[28], K28);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[29], K29);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[30], K30);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[31], K31);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[32], K32);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[33], K33);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[34], K34);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[35], K35);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[36], K36);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[37], K37);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[38], K38);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[39], K39);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[40], K40);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[41], K41);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[42], K42);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[43], K43);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[44], K44);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[45], K45);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[46], K46);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[47], K47);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[48], K48);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[49], K49);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[50], K50);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[51], K51);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[52], K52);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[53], K53);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[54], K54);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[55], K55);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[56], K56);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[57], K57);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[58], K58);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[59], K59);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[60], K60);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[61], K61);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[62], K62);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[63], K63);
 
         self.state[0] += a;
         self.state[1] += b;
@@ -261,24 +324,5 @@ impl Sha256Hasher {
         self.write(&offset_pad[..zero_padding_length]);
 
         Into::<u64>::into(self.state[0]) << 32 | Into::<u64>::into(self.state[1])
-    }
-}
-
-struct Sha256Comp<'a, 'b>(
-    U32Word,
-    U32Word,
-    U32Word,
-    &'a mut U32Word,
-    U32Word,
-    U32Word,
-    U32Word,
-    &'b mut U32Word,
-);
-
-impl Sha256Comp<'_, '_> {
-    pub fn rnd(&mut self, w: U32Word, k: u32) {
-        let t0 = *self.7 + self.4.sigma1() + U32Word::ch(self.4, self.5, self.6) + k + w;
-        *self.3 += t0;
-        *self.7 = t0 + self.0.sigma0() + U32Word::maj(self.0, self.1, self.2);
     }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    sha256_hasher::Sha256Hasher, sha256_words::Sha256Words, H0, H1, H2, H3, H4, H5, H6, H7,
+    sha256hasher::Sha256Hasher, sha256words::Sha256Words, H0, H1, H2, H3, H4, H5, H6, H7,
     SHA256_HASH_U32_WORDS_COUNT,
 };
 use alloc::boxed::Box;

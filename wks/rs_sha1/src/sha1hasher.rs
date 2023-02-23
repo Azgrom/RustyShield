@@ -1,5 +1,5 @@
 use crate::{
-    sha1_state::Sha1State, sha1_words::Sha1Words, SHA1_BLOCK_SIZE, SHA1_WORD_COUNT,
+    sha1state::Sha1State, sha1words::Sha1Words, SHA1_BLOCK_SIZE, SHA1_WORD_COUNT,
     SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, T_0_19, T_20_39, T_40_59, T_60_79,
 };
 use alloc::{

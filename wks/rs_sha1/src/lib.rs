@@ -6,12 +6,11 @@
 #![no_std]
 extern crate alloc;
 
-pub use crate::{sha1_hasher::Sha1Hasher, sha1_state::Sha1State};
+pub use crate::{sha1hasher::Sha1Hasher, sha1state::Sha1State};
 
-pub mod sha1_context;
-pub mod sha1_hasher;
-pub mod sha1_state;
-mod sha1_words;
+pub mod sha1hasher;
+pub mod sha1state;
+mod sha1words;
 
 const H0: u32 = 0x67452301;
 const H1: u32 = 0xEFCDAB89;

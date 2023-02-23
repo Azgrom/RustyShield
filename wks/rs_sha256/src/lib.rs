@@ -2,11 +2,12 @@
 
 extern crate alloc;
 
-pub use sha256_state::Sha256State;
+pub use sha256state::Sha256State;
 
-mod sha256_hasher;
-mod sha256_state;
-mod sha256_words;
+mod sha256hasher;
+mod sha256state;
+mod sha256words;
+mod sha256comp;
 
 const H0: u32 = 0x6A09E667;
 const H1: u32 = 0xBB67AE85;
