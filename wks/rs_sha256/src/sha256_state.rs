@@ -5,9 +5,11 @@ use crate::{
 use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::{Index, IndexMut},
+    fmt::{Error, Formatter, LowerHex, UpperHex}
 };
 use u32_word_lib::U32Word;
 
+#[derive(Clone, Debug)]
 pub struct Sha256State {
     data: [U32Word; SHA256_HASH_U32_WORDS_COUNT as usize],
 }
@@ -64,5 +66,45 @@ impl IndexMut<usize> for Sha256State {
 impl Hash for Sha256State {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.data.hash(state);
+    }
+}
+
+impl LowerHex for Sha256State {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        let results = [
+            LowerHex::fmt(&self[0], f),
+            LowerHex::fmt(&self[1], f),
+            LowerHex::fmt(&self[2], f),
+            LowerHex::fmt(&self[3], f),
+            LowerHex::fmt(&self[4], f),
+            LowerHex::fmt(&self[5], f),
+            LowerHex::fmt(&self[6], f),
+            LowerHex::fmt(&self[7], f)
+        ];
+        if results.iter().any(|&x| x.is_err()) {
+            return Err(Error);
+        }
+
+        Ok(())
+    }
+}
+
+impl UpperHex for Sha256State {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        let result = [
+            UpperHex::fmt(&self[0], f),
+            UpperHex::fmt(&self[1], f),
+            UpperHex::fmt(&self[2], f),
+            UpperHex::fmt(&self[3], f),
+            UpperHex::fmt(&self[4], f),
+            UpperHex::fmt(&self[5], f),
+            UpperHex::fmt(&self[6], f),
+            UpperHex::fmt(&self[7], f)
+        ];
+        if result.iter().any(|&x| x.is_err()) {
+            return Err(Error);
+        }
+
+        Ok(())
     }
 }

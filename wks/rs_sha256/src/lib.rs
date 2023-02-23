@@ -1,5 +1,7 @@
 #![no_std]
 
+extern crate alloc;
+
 pub use sha256_state::Sha256State;
 
 mod sha256_hasher;
@@ -16,6 +18,10 @@ const H6: u32 = 0x1F83D9AB;
 const H7: u32 = 0x5BE0CD19;
 
 const SHA256_SCHEDULE_U32_WORDS_COUNT: u32 = 64;
+const SHA256_SCHEDULE_U32_WORDS_LAST_INDEX: u32 = SHA256_SCHEDULE_U32_WORDS_COUNT - 1;
 const SHA256_PADDING_U8_WORDS_COUNT: u32 = SHA256_SCHEDULE_U32_WORDS_COUNT;
 const SHA256_SCHEDULE_U8_WORDS_LAST_INDEX: u32 = SHA256_PADDING_U8_WORDS_COUNT - 1;
 const SHA256_HASH_U32_WORDS_COUNT: u32 = 8;
+
+#[cfg(test)]
+mod use_cases;

@@ -2,7 +2,7 @@ use crate::{sha1_context::Sha1Context, Sha1Hasher, Sha1State};
 use core::hash::{BuildHasher, Hash, Hasher};
 
 #[test]
-fn empty_string_prefix_collision_resiliency() {
+fn sha1_empty_string_prefix_collision_resiliency() {
     let empty_str = "";
     let default_sha1_state = Sha1State::default();
     let mut first_sha1hasher = default_sha1_state.build_hasher();
@@ -23,21 +23,30 @@ fn empty_string_prefix_collision_resiliency() {
         second_sha1hasher.to_hex_string(),
         "da39a3ee5e6b4b0d3255bfef95601890afd80709"
     );
+}
 
+#[test]
+fn sha1_abc_string_prefix_collision_resiliency() {
     let abc = "abc";
     let mut abc_sha1_ctx = Sha1Hasher::default();
     abc_sha1_ctx.write(abc.as_ref());
     abc_sha1_ctx.finish();
     let digest_result = abc_sha1_ctx.to_hex_string();
     assert_eq!(digest_result, "a9993e364706816aba3e25717850c26c9cd0d89d");
+}
 
+#[test]
+fn sha1_abcd_string_prefix_collision_resiliency() {
     let abcd = "abcd";
     let mut abcd_sha1_ctx = Sha1Hasher::default();
     abcd_sha1_ctx.write(abcd.as_ref());
     abcd_sha1_ctx.finish();
     let digest_result = abcd_sha1_ctx.to_hex_string();
     assert_eq!(digest_result, "81fe8bfe87576c3ecb22426f8e57847382917acf");
+}
 
+#[test]
+fn sha1_quick_fox_string_prefix_collision_resiliency() {
     let quick_fox = "The quick brown fox jumps over the lazy dog";
 
     let mut quick_fox_sha1_ctx = Sha1Hasher::default();
@@ -45,7 +54,9 @@ fn empty_string_prefix_collision_resiliency() {
     quick_fox_sha1_ctx.finish();
     let digest_result = quick_fox_sha1_ctx.to_hex_string();
     assert_eq!(digest_result, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
+}
 
+fn sha1_lazy_cog_string_prefix_collision_resiliency() {
     let lazy_cog = "The quick brown fox jumps over the lazy cog";
     let mut lazy_cog_sha1_ctx = Sha1Hasher::default();
     lazy_cog_sha1_ctx.write(lazy_cog.as_ref());

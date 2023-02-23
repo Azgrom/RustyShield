@@ -5,6 +5,7 @@ use core::{
     slice::Chunks,
 };
 
+#[derive(Clone, Debug)]
 pub struct Sha256Words {
     data: [u8; SHA256_PADDING_U8_WORDS_COUNT as usize],
 }

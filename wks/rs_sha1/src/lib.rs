@@ -13,15 +13,6 @@ pub mod sha1_hasher;
 pub mod sha1_state;
 mod sha1_words;
 
-#[cfg(test)]
-mod use_cases;
-
-#[cfg(test)]
-mod fips_pub_180_1_coverage;
-
-#[cfg(test)]
-mod hypothesis_and_coverage_assurance;
-
 const H0: u32 = 0x67452301;
 const H1: u32 = 0xEFCDAB89;
 const H2: u32 = 0x98BADCFE;
@@ -37,3 +28,12 @@ const SHA1_WORD_COUNT: u32 = 16;
 const SHA1_BLOCK_SIZE: u32 = SHA1_WORD_COUNT * U32_BYTES_COUNT as u32;
 const SHA_OFFSET_PAD: u32 = SHA1_BLOCK_SIZE + 8;
 const SHA_CBLOCK_LAST_INDEX: u32 = SHA1_BLOCK_SIZE - 1;
+
+#[cfg(test)]
+mod use_cases;
+
+#[cfg(test)]
+mod fips_pub_180_1_coverage;
+
+#[cfg(test)]
+mod hypothesis_and_coverage_assurance;

@@ -1,10 +1,13 @@
-use crate::{
-    sha256_state::Sha256State, sha256_words::Sha256Words, SHA256_PADDING_U8_WORDS_COUNT,
-    SHA256_SCHEDULE_U32_WORDS_COUNT, SHA256_SCHEDULE_U8_WORDS_LAST_INDEX,
+use alloc::{
+    format,
+    string::String
 };
+use crate::{sha256_state::Sha256State, sha256_words::Sha256Words, SHA256_PADDING_U8_WORDS_COUNT, SHA256_SCHEDULE_U32_WORDS_COUNT, SHA256_SCHEDULE_U8_WORDS_LAST_INDEX, SHA256_SCHEDULE_U32_WORDS_LAST_INDEX};
 use core::hash::{Hash, Hasher};
 use u32_word_lib::U32Word;
+use hash_ctx_lib::HasherContext;
 
+#[derive(Clone, Debug)]
 pub struct Sha256Hasher {
     pub(crate) size: u64,
     pub(crate) state: Sha256State,
@@ -31,7 +34,7 @@ impl Hash for Sha256Hasher {
 
 impl Hasher for Sha256Hasher {
     fn finish(&self) -> u64 {
-        todo!()
+        self.clone().finish_with_len(self.size)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
@@ -68,6 +71,24 @@ impl Hasher for Sha256Hasher {
         if !bytes.is_empty() {
             self.words[..bytes.len()].clone_from_slice(bytes)
         }
+    }
+}
+
+impl HasherContext for Sha256Hasher {
+    fn to_lower_hex(&self) -> String {
+        let mut hasher = self.clone();
+        hasher.finish_with_len(self.size);
+        format!("{:08x}", hasher.state)
+    }
+
+    fn to_upper_hex(&self) -> String {
+        let mut hasher = self.clone();
+        hasher.finish_with_len(self.size);
+        format!("{:08X}", hasher.state)
+    }
+
+    fn to_bytes_hash(&self) -> &[u8] {
+        todo!()
     }
 }
 
@@ -210,5 +231,26 @@ impl Sha256Hasher {
         w[63] = ((w[48] + w[49]).gamma0() + w[56] + w[61]).gamma1();
 
         w
+    }
+
+    fn zero_padding_length(&self) -> usize {
+        1 + 8
+            + (SHA256_SCHEDULE_U32_WORDS_LAST_INDEX as u64
+            & (55u64.wrapping_sub(self.size & SHA256_SCHEDULE_U32_WORDS_LAST_INDEX as u64)))
+        as usize
+    }
+
+    fn finish_with_len(&mut self, len: u64) -> u64 {
+        let zero_padding_length = self.zero_padding_length();
+        let mut offset_pad: [u8; SHA256_SCHEDULE_U32_WORDS_COUNT as usize] =
+            [0u8; SHA256_SCHEDULE_U32_WORDS_COUNT as usize];
+        let pad_len: [u8; 8] = (len * 8).to_be_bytes();
+
+        offset_pad[0] = 0x80;
+        offset_pad[zero_padding_length - 8..zero_padding_length].clone_from_slice(&pad_len);
+
+        self.write(&offset_pad[..zero_padding_length]);
+
+        Into::<u64>::into(self.state[0]) << 32 | Into::<u64>::into(self.state[1])
     }
 }
