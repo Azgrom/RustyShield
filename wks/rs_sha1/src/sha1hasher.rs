@@ -1,15 +1,16 @@
 use crate::{
     sha1state::Sha1State, sha1words::Sha1Words, SHA1_BLOCK_SIZE, SHA1_WORD_COUNT,
-    SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD, T_0_19, T_20_39, T_40_59, T_60_79,
+    SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD
 };
-use alloc::{
-    boxed::Box,
-    format,
-    string::String
-};
+use alloc::{boxed::Box, format, string::String};
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
 use u32_word_lib::U32Word;
+
+const T_0_19: u32 = 0x5A827999;
+const T_20_39: u32 = 0x6ED9EBA1;
+const T_40_59: u32 = 0x8F1BBCDC;
+const T_60_79: u32 = 0xCA62C1D6;
 
 #[derive(Clone, Debug)]
 pub struct Sha1Hasher {

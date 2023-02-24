@@ -1,27 +1,22 @@
 use crate::{
-    sha256state::Sha256State, sha256words::Sha256Words, sha256comp::Sha256Comp, SHA256_PADDING_U8_WORDS_COUNT,
-    SHA256_SCHEDULE_U32_WORDS_COUNT, SHA256_SCHEDULE_U32_WORDS_LAST_INDEX,
-    SHA256_SCHEDULE_U8_WORDS_LAST_INDEX,
+    sha256comp::Sha256Comp, sha256state::Sha256State, sha256words::Sha256Words,
+    SHA256_PADDING_U8_WORDS_COUNT, SHA256_SCHEDULE_U32_WORDS_COUNT,
 };
-use alloc::{
-    boxed::Box,
-    format,
-    string::String
-};
+use alloc::{boxed::Box, format, string::String};
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
 use u32_word_lib::U32Word;
 
-const K0: u32 = 0x428A2F98;
-const K1: u32 = 0x71374491;
-const K2: u32 = 0xB5C0FBCF;
-const K3: u32 = 0xE9B5DBA5;
-const K4: u32 = 0x3956C25B;
-const K5: u32 = 0x59F111F1;
-const K6: u32 = 0x923F82A4;
-const K7: u32 = 0xAB1C5ED5;
-const K8: u32 = 0xD807AA98;
-const K9: u32 = 0x12835B01;
+const K00: u32 = 0x428A2F98;
+const K01: u32 = 0x71374491;
+const K02: u32 = 0xB5C0FBCF;
+const K03: u32 = 0xE9B5DBA5;
+const K04: u32 = 0x3956C25B;
+const K05: u32 = 0x59F111F1;
+const K06: u32 = 0x923F82A4;
+const K07: u32 = 0xAB1C5ED5;
+const K08: u32 = 0xD807AA98;
+const K09: u32 = 0x12835B01;
 const K10: u32 = 0x243185BE;
 const K11: u32 = 0x550C7DC3;
 const K12: u32 = 0x72BE5D74;
@@ -76,6 +71,9 @@ const K60: u32 = 0x90BEFFFA;
 const K61: u32 = 0xA4506CEB;
 const K62: u32 = 0xBEF9A3F7;
 const K63: u32 = 0xC67178F2;
+
+const SHA256_SCHEDULE_U32_WORDS_LAST_INDEX: u32 = SHA256_SCHEDULE_U32_WORDS_COUNT - 1;
+const SHA256_SCHEDULE_U8_WORDS_LAST_INDEX: u32 = SHA256_PADDING_U8_WORDS_COUNT - 1;
 
 #[derive(Clone, Debug)]
 pub struct Sha256Hasher {
@@ -169,16 +167,16 @@ impl Sha256Hasher {
         let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = self.state.u32_states();
         let w = self.load_words();
 
-        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[0], K0);
-        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[1], K1);
-        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[2], K2);
-        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[3], K3);
-        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[4], K4);
-        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[5], K5);
-        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[6], K6);
-        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[7], K7);
-        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[8], K8);
-        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[9], K9);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[0], K00);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[1], K01);
+        Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[2], K02);
+        Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[3], K03);
+        Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[4], K04);
+        Sha256Comp(d, e, f, &mut g, h, a, b, &mut c).rnd(w[5], K05);
+        Sha256Comp(c, d, e, &mut f, g, h, a, &mut b).rnd(w[6], K06);
+        Sha256Comp(b, c, d, &mut e, f, g, h, &mut a).rnd(w[7], K07);
+        Sha256Comp(a, b, c, &mut d, e, f, g, &mut h).rnd(w[8], K08);
+        Sha256Comp(h, a, b, &mut c, d, e, f, &mut g).rnd(w[9], K09);
         Sha256Comp(g, h, a, &mut b, c, d, e, &mut f).rnd(w[10], K10);
         Sha256Comp(f, g, h, &mut a, b, c, d, &mut e).rnd(w[11], K11);
         Sha256Comp(e, f, g, &mut h, a, b, c, &mut d).rnd(w[12], K12);

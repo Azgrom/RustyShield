@@ -1,4 +1,4 @@
-use crate::{sha1hasher::Sha1Hasher, sha1words::Sha1Words, H0, H1, H2, H3, H4};
+use crate::{sha1hasher::Sha1Hasher, sha1words::Sha1Words};
 use alloc::boxed::Box;
 use core::{
     fmt::{Error, Formatter, LowerHex, UpperHex},
@@ -6,6 +6,12 @@ use core::{
     ops::{Index, IndexMut},
 };
 use u32_word_lib::U32Word;
+
+const H0: u32 = 0x67452301;
+const H1: u32 = 0xEFCDAB89;
+const H2: u32 = 0x98BADCFE;
+const H3: u32 = 0x10325476;
+const H4: u32 = 0xC3D2E1F0;
 
 #[derive(Clone, Debug)]
 pub struct Sha1State {
