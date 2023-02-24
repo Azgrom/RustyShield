@@ -26,7 +26,7 @@ inherits = "release"
 strip = false
 
 [profile.ci]
-inherits = "dev"
+inherits = "release"
 strip = false
 debug = false
 
