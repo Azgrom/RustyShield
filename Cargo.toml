@@ -1,11 +1,15 @@
 [package]
 name = "rs_ssl"
 version = "0.1.0"
-edition.workspace = true
-license.workspace = true
+edition = "2021"
+license = "GPL-2.0-only"
 
 [workspace]
-members = ["wks/*"]
+members = [
+    "wks/hash_ctx",
+    "wks/u32_word",
+    "wks/hash_functions/*"
+]
 
 [workspace.package]
 edition = "2021"
@@ -32,6 +36,7 @@ debug = false
 
 [dependencies]
 rs_sha1 = { path = "wks/hash_functions/rs_sha1" }
+rs_sha224 = { path = "wks/hash_functions/rs_sha224" }
 rs_sha256 = { path = "wks/hash_functions/rs_sha256" }
 hash_ctx = { path = "wks/hash_ctx" }
 

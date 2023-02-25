@@ -20,7 +20,7 @@ fn sha256_empty_string_prefix_collision_resiliency() {
 }
 
 #[test]
-fn sha256_quick_fox_string_prefix_collision_resiliency() {
+fn sha256_quick_fox_consistency() {
     let quick_fox = "The quick brown fox jumps over the lazy dog";
     let default_sha256state = Sha256State::default();
     let mut sha256hasher = default_sha256state.build_hasher();

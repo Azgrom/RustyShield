@@ -10,7 +10,7 @@ mod sha256state;
 mod sha256words;
 
 #[cfg(test)]
-mod use_cases;
+mod unit_tests;
 
 const SHA256_SCHEDULE_U32_WORDS_COUNT: u32 = 64;
 const SHA256_PADDING_U8_WORDS_COUNT: u32 = SHA256_SCHEDULE_U32_WORDS_COUNT;

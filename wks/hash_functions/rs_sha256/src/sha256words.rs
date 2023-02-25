@@ -6,7 +6,7 @@ use core::{
 };
 
 #[derive(Clone, Debug)]
-pub struct Sha256Words {
+pub(crate) struct Sha256Words {
     data: [u8; SHA256_PADDING_U8_WORDS_COUNT as usize],
 }
 
@@ -50,22 +50,22 @@ impl Index<Range<usize>> for Sha256Words {
     }
 }
 
+impl Index<RangeTo<usize>> for Sha256Words {
+    type Output = [u8];
+
+    fn index(&self, range_to: RangeTo<usize>) -> &Self::Output {
+        &self.data[range_to]
+    }
+}
+
 impl IndexMut<Range<usize>> for Sha256Words {
     fn index_mut(&mut self, range: Range<usize>) -> &mut Self::Output {
         &mut self.data[range]
     }
 }
 
-impl Index<RangeTo<usize>> for Sha256Words {
-    type Output = [u8];
-
-    fn index(&self, range: RangeTo<usize>) -> &Self::Output {
-        &self.data[range]
-    }
-}
-
 impl IndexMut<RangeTo<usize>> for Sha256Words {
-    fn index_mut(&mut self, range: RangeTo<usize>) -> &mut Self::Output {
-        &mut self.data[range]
+    fn index_mut(&mut self, range_to: RangeTo<usize>) -> &mut Self::Output {
+        &mut self.data[range_to]
     }
 }

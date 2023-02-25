@@ -4,6 +4,7 @@ extern crate openssl as ossl_sha1;
 
 use core::hash::{BuildHasher, Hash, Hasher};
 use criterion::{criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
+use hash_ctx_lib::HasherContext;
 use rs_sha1_lib::Sha1State;
 
 const BASE_INPUT_SIZE: usize = 4_096;
@@ -48,7 +49,7 @@ fn this_impl_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8])
         let sha1_default_state = Sha1State::default();
         let mut sha1hasher = sha1_default_state.build_hasher();
         input.hash(&mut sha1hasher);
-        let _result = sha1hasher.to_hex_string();
+        let _result = sha1hasher.to_lower_hex();
     })
 }
 

@@ -13,13 +13,7 @@ pub mod sha1state;
 mod sha1words;
 
 #[cfg(test)]
-mod use_cases;
-#[cfg(test)]
-mod fips_pub_180_1_coverage;
-#[cfg(test)]
-mod hypothesis_and_coverage_assurance;
-#[cfg(test)]
-mod test_state_trait_impls;
+mod unit_tests;
 
 const U32_BYTES_COUNT: usize = 4;
 const SHA1_WORD_COUNT: u32 = 16;

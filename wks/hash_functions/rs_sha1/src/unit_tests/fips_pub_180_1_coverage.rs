@@ -6,6 +6,7 @@ use crate::{
 use alloc::vec;
 use core::hash::Hasher;
 use u32_word_lib::U32Word;
+
 #[cfg(feature = "nightly")]
 use core::{
     arch::x86_64::{

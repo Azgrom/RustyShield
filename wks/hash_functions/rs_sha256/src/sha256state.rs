@@ -1,7 +1,6 @@
 use crate::{sha256hasher::Sha256Hasher, sha256words::Sha256Words};
-use alloc::boxed::Box;
 use core::{
-    fmt::{Error, Formatter, LowerHex, UpperHex},
+    fmt::{Formatter, LowerHex, UpperHex},
     hash::{BuildHasher, Hash, Hasher},
     ops::{Index, IndexMut},
 };
@@ -23,33 +22,13 @@ pub struct Sha256State {
     data: [U32Word; SHA256_HASH_U32_WORDS_COUNT as usize],
 }
 
-impl Sha256State {
-    pub(crate) fn u32_states(&self) -> [U32Word; SHA256_HASH_U32_WORDS_COUNT as usize] {
-        self.data
-    }
-
-    pub(crate) fn bytes_hash(&self) -> Box<[u8]> {
-        let mut hash: [u8; 32] = [0; 32];
-        for i in 0..8 {
-            [
-                hash[i * 4],
-                hash[(i * 4) + 1],
-                hash[(i * 4) + 2],
-                hash[(i * 4) + 3],
-            ] = self[i].to_be_bytes();
-        }
-
-        Box::new(hash)
-    }
-}
-
 impl BuildHasher for Sha256State {
     type Hasher = Sha256Hasher;
 
     fn build_hasher(&self) -> Self::Hasher {
         Sha256Hasher {
             size: u64::MIN,
-            state: Sha256State { data: self.data },
+            state: self.clone(),
             words: Sha256Words::default(),
         }
     }
@@ -72,6 +51,29 @@ impl Default for Sha256State {
     }
 }
 
+impl From<Sha256State> for [u8; 32] {
+    // TODO: replace this for loop with flatten when it stabilizes
+    fn from(value: Sha256State) -> Self {
+        let mut bytes: [u8; 32] = [0; 32];
+        for i in 0..8 {
+            [
+                bytes[i * 4],
+                bytes[(i * 4) + 1],
+                bytes[(i * 4) + 2],
+                bytes[(i * 4) + 3],
+            ] = value[i].to_be_bytes();
+        }
+
+        bytes
+    }
+}
+
+impl From<&Sha256State> for [U32Word; SHA256_HASH_U32_WORDS_COUNT as usize] {
+    fn from(value: &Sha256State) -> Self {
+        value.data
+    }
+}
+
 impl Index<usize> for Sha256State {
     type Output = U32Word;
 
@@ -88,46 +90,34 @@ impl IndexMut<usize> for Sha256State {
 
 impl Hash for Sha256State {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.data.hash(state);
+        self.data.hash(state)
     }
 }
 
+const LOWER_HEX_ERR: &str = "Error trying to format lower hex string";
 impl LowerHex for Sha256State {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        let results = [
-            LowerHex::fmt(&self[0], f),
-            LowerHex::fmt(&self[1], f),
-            LowerHex::fmt(&self[2], f),
-            LowerHex::fmt(&self[3], f),
-            LowerHex::fmt(&self[4], f),
-            LowerHex::fmt(&self[5], f),
-            LowerHex::fmt(&self[6], f),
-            LowerHex::fmt(&self[7], f),
-        ];
-        if results.iter().any(|&x| x.is_err()) {
-            return Err(Error);
-        }
-
-        Ok(())
+        LowerHex::fmt(&self[0], f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self[1], f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self[2], f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self[3], f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self[4], f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self[5], f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self[6], f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self[7], f)
     }
 }
 
+const UPPER_HEX_ERR: &str = "Error trying to format upper hex string";
 impl UpperHex for Sha256State {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        let result = [
-            UpperHex::fmt(&self[0], f),
-            UpperHex::fmt(&self[1], f),
-            UpperHex::fmt(&self[2], f),
-            UpperHex::fmt(&self[3], f),
-            UpperHex::fmt(&self[4], f),
-            UpperHex::fmt(&self[5], f),
-            UpperHex::fmt(&self[6], f),
-            UpperHex::fmt(&self[7], f),
-        ];
-        if result.iter().any(|&x| x.is_err()) {
-            return Err(Error);
-        }
-
-        Ok(())
+        UpperHex::fmt(&self[0], f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self[1], f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self[2], f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self[3], f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self[4], f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self[5], f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self[6], f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self[7], f)
     }
 }
