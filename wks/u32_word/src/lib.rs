@@ -35,37 +35,20 @@ impl U32Word {
         Self(self.0.rotate_right(n))
     }
 
-    pub fn gamma0(self) -> u32 {
-        (self.rotate_right(7) ^ self.rotate_right(18) ^ (self >> 3)).into()
+    pub fn gamma0(self) -> Self {
+        self.rotate_right(7) ^ self.rotate_right(18) ^ (self >> 3)
     }
 
     pub fn gamma1(self) -> Self {
         self.rotate_right(17) ^ self.rotate_right(19) ^ (self >> 10)
     }
 
-    pub fn sigma0(&self) -> Self {
+    pub fn sigma0(self) -> Self {
         self.rotate_right(2) ^ self.rotate_right(13) ^ self.rotate_right(22)
     }
 
-    pub fn sigma1(&self) -> Self {
+    pub fn sigma1(self) -> Self {
         self.rotate_right(6) ^ self.rotate_right(11) ^ self.rotate_right(25)
-    }
-
-    pub fn rnd(
-        a: U32Word,
-        b: U32Word,
-        c: U32Word,
-        d: &mut U32Word,
-        e: U32Word,
-        f: U32Word,
-        g: U32Word,
-        h: &mut U32Word,
-        w: U32Word,
-        k: u32,
-    ) {
-        let t0 = *h + e.sigma1() + Self::ch(e, f, g) + k + w;
-        *d += t0;
-        *h = t0 + a.sigma0() + Self::maj(a, b, c);
     }
 
     pub fn from_be_bytes(bytes: [u8; 4]) -> Self {
