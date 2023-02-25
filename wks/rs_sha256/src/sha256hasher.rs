@@ -304,22 +304,20 @@ impl Sha256Hasher {
     }
 
     fn zero_padding_length(&self) -> usize {
-        1 + 8
-            + (SHA256_SCHEDULE_U32_WORDS_LAST_INDEX as u64
+        1 + (SHA256_SCHEDULE_U32_WORDS_LAST_INDEX as u64
                 & (55u64.wrapping_sub(self.size & SHA256_SCHEDULE_U32_WORDS_LAST_INDEX as u64)))
                 as usize
     }
 
     fn finish_with_len(&mut self, len: u64) -> u64 {
+        let pad_len: [u8; 8] = (len * 8).to_be_bytes();
         let zero_padding_length = self.zero_padding_length();
         let mut offset_pad: [u8; SHA256_SCHEDULE_U32_WORDS_COUNT as usize] =
             [0u8; SHA256_SCHEDULE_U32_WORDS_COUNT as usize];
-        let pad_len: [u8; 8] = (len * 8).to_be_bytes();
-
         offset_pad[0] = 0x80;
-        offset_pad[zero_padding_length - 8..zero_padding_length].clone_from_slice(&pad_len);
 
         self.write(&offset_pad[..zero_padding_length]);
+        self.write(&pad_len);
 
         Into::<u64>::into(self.state[0]) << 32 | Into::<u64>::into(self.state[1])
     }

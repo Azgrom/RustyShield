@@ -18,3 +18,14 @@ fn sha256_empty_string_prefix_collision_resiliency() {
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     )
 }
+
+#[test]
+fn sha256_quick_fox_string_prefix_collision_resiliency() {
+    let quick_fox = "The quick brown fox jumps over the lazy dog";
+    let default_sha256state = Sha256State::default();
+    let mut sha256hasher = default_sha256state.build_hasher();
+
+    sha256hasher.write(quick_fox.as_ref());
+
+    assert_eq!(sha256hasher.to_lower_hex(), "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592");
+}

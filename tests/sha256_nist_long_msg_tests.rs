@@ -1,16 +1,24 @@
-use std::{env, fs, path::Path, process};
+use std::{
+    env,
+    fs,
+    process,
+    path::Path
+};
+use std::hash::{BuildHasher, Hasher};
+use hash_ctx_lib::HasherContext;
+use rs_sha256_lib::Sha256State;
 
-struct Sha1LongMsg {
+struct Sha256LongMsg {
     message: Vec<u8>,
-    message_digest: String,
+    message_digest: String
 }
 
-impl Sha1LongMsg {
-    fn load() -> Vec<Sha1LongMsg> {
+impl Sha256LongMsg {
+    fn load() -> Vec<Self> {
         let cargo_manifest_dir =
             env::var("CARGO_MANIFEST_DIR").expect("Unable to access CARGO_MANIFEST_DIR");
         let project_path = Path::new(&cargo_manifest_dir);
-        let path = Path::new("shabytetestvectors/SHA1LongMsg.rsp");
+        let path = Path::new("shabytetestvectors/SHA256LongMsg.rsp");
         let file_path = project_path.join(Path::new("tests/").join(path));
 
         let long_msgs: Vec<String> = fs::read_to_string(file_path)
@@ -25,13 +33,13 @@ impl Sha1LongMsg {
             .map(|s| s.to_string())
             .collect();
 
-        let mut sha1_long_msgs: Vec<Sha1LongMsg> = Vec::new();
+        let mut sha256_long_msgs: Vec<Self> = Vec::new();
         let mut chunk_offset = 7;
         while long_msgs.len() >= chunk_offset + 4 {
             let (_, hash) = (&long_msgs[chunk_offset..chunk_offset + 4][1]).split_at(6);
             let (_, digest) = (&long_msgs[chunk_offset..chunk_offset + 4][2]).split_at(5);
 
-            sha1_long_msgs.push(Self {
+            sha256_long_msgs.push(Self {
                 message: hash
                     .chars()
                     .map(|c| u8::from_str_radix(&c.to_string(), 16).unwrap())
@@ -46,27 +54,20 @@ impl Sha1LongMsg {
             chunk_offset += 4;
         }
 
-        sha1_long_msgs
+        sha256_long_msgs
     }
 }
 
-#[cfg(test)]
-mod long_msgs {
-    use super::Sha1LongMsg;
-    use core::hash::{BuildHasher, Hasher};
-    use hash_ctx_lib::HasherContext;
-    use rs_sha1_lib::Sha1State;
+#[test]
+fn compare_long_messages_provided_by_sha_validation_system() {
+    let cavs_tests = Sha256LongMsg::load();
+    let state = Sha256State::default();
 
-    #[test]
-    fn compare_long_messages_provided_by_sha_validation_system() {
-        let cavs_tests = Sha1LongMsg::load();
-        let sha1state = Sha1State::default();
+    for long_msg in cavs_tests.iter() {
+        let mut sha256hasher = state.build_hasher();
 
-        cavs_tests.iter().for_each(|long_msg| {
-            let mut hasher = sha1state.build_hasher();
-            hasher.write(long_msg.message.as_ref());
+        sha256hasher.write(long_msg.message.as_ref());
 
-            assert_eq!(hasher.to_lower_hex(), long_msg.message_digest);
-        })
+        assert_eq!(sha256hasher.to_lower_hex(), long_msg.message_digest);
     }
 }
