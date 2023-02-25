@@ -33,6 +33,7 @@ debug = false
 [dependencies]
 rs_sha1 = { path = "wks/rs_sha1" }
 rs_sha256 = { path = "wks/rs_sha256" }
+hash_ctx = { path = "wks/hash_ctx" }
 
 criterion = { version = "0.4.0", optional = true }
 criterion-table = { version = "0.4.2", optional = true }

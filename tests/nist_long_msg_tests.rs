@@ -54,6 +54,7 @@ impl Sha1LongMsg {
 mod long_msgs {
     use super::Sha1LongMsg;
     use core::hash::{BuildHasher, Hasher};
+    use hash_ctx_lib::HasherContext;
     use rs_sha1_lib::Sha1State;
 
     #[test]
@@ -65,7 +66,7 @@ mod long_msgs {
             let mut hasher = sha1state.build_hasher();
             hasher.write(long_msg.message.as_ref());
 
-            assert_eq!(hasher.to_hex_string(), long_msg.message_digest);
+            assert_eq!(hasher.to_lower_hex(), long_msg.message_digest);
         })
     }
 }
