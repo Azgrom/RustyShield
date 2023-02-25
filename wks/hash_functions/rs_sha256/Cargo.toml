@@ -12,5 +12,5 @@ name = "rs_sha256_lib"
 path = "src/lib.rs"
 
 [dependencies]
-u32_word = { path = "../u32_word" }
-hash_ctx = { path = "../hash_ctx" }
+u32_word = { path = "../../u32_word" }
+hash_ctx = { path = "../../hash_ctx" }
