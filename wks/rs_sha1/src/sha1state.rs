@@ -7,15 +7,15 @@ use core::{
 };
 use u32_word_lib::U32Word;
 
-const H0: u32 = 0x67452301;
-const H1: u32 = 0xEFCDAB89;
-const H2: u32 = 0x98BADCFE;
-const H3: u32 = 0x10325476;
-const H4: u32 = 0xC3D2E1F0;
+pub(crate) const H0: u32 = 0x67452301;
+pub(crate) const H1: u32 = 0xEFCDAB89;
+pub(crate) const H2: u32 = 0x98BADCFE;
+pub(crate) const H3: u32 = 0x10325476;
+pub(crate) const H4: u32 = 0xC3D2E1F0;
 
 #[derive(Clone, Debug)]
 pub struct Sha1State {
-    data: [U32Word; 5],
+    pub(crate) data: [U32Word; 5],
 }
 
 impl BuildHasher for Sha1State {

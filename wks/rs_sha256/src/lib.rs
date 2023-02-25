@@ -2,7 +2,7 @@
 
 extern crate alloc;
 
-pub use sha256state::Sha256State;
+pub use crate::{sha256hasher::Sha256Hasher, sha256state::Sha256State};
 
 mod sha256comp;
 mod sha256hasher;

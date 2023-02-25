@@ -1,10 +1,11 @@
 use crate::{
-    sha1hasher::Sha1Hasher, H0, H1, H2, H3, H4, SHA1_BLOCK_SIZE, SHA_CBLOCK_LAST_INDEX,
+    sha1hasher::Sha1Hasher, SHA1_BLOCK_SIZE, SHA_CBLOCK_LAST_INDEX,
+    sha1state::{H0, H1, H2, H3, H4},
     SHA_OFFSET_PAD,
 };
 use alloc::vec;
 use core::hash::Hasher;
-
+use u32_word_lib::U32Word;
 #[cfg(feature = "nightly")]
 use core::{
     arch::x86_64::{
@@ -12,7 +13,6 @@ use core::{
     },
     simd::Simd,
 };
-use u32_word_lib::U32Word;
 
 const MESSAGE: &str = "abc";
 
@@ -29,16 +29,21 @@ fn instantiate_and_preprocess_abc_message() -> Sha1Hasher {
 }
 
 fn completed_words(hasher: &mut Sha1Hasher) {
-    let pad_len: [u8; 8] = (MESSAGE.len() * 8).to_be_bytes();
     let zero_padding_len = hasher.zero_padding_length();
     let mut offset_pad: [u8; SHA_OFFSET_PAD as usize] = [0u8; SHA_OFFSET_PAD as usize];
     offset_pad[0] = 0x80;
-    offset_pad[zero_padding_len - 8..zero_padding_len].clone_from_slice(&pad_len);
 
-    let len_w = (hasher.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
-    let left = (SHA1_BLOCK_SIZE - len_w as u32) as u8;
-    hasher.words[(len_w as usize)..(len_w + left) as usize]
-        .clone_from_slice(&offset_pad[..zero_padding_len]);
+    let mut len_w = (hasher.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
+    let mut left = (SHA1_BLOCK_SIZE - len_w as u32) as u8;
+    hasher.words[len_w..(len_w + left)]
+        .clone_from_slice(&offset_pad[..left as usize]);
+    hasher.size += zero_padding_len as u64;
+
+    let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
+    len_w = (hasher.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
+    left = (SHA1_BLOCK_SIZE - len_w as u32) as u8;
+    hasher.words[len_w..len_w + left].clone_from_slice(&pad_len);
+    hasher.size += zero_padding_len as u64;
 }
 
 #[test]

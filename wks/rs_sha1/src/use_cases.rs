@@ -68,7 +68,7 @@ fn sha1_lazy_cog_string_prefix_collision_resiliency() {
 }
 
 #[test]
-fn abc_string_prefix_collision_resiliency() {
+fn sha1_abc_sequence_string_prefix_collision_resiliency() {
     let ab = "ab";
     let c = "c";
     let abc = "abc";

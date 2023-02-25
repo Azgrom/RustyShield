@@ -31,6 +31,28 @@ impl Index<usize> for Sha1Words {
     }
 }
 
+impl Index<Range<u8>> for Sha1Words {
+    type Output = [u8];
+
+    fn index(&self, range: Range<u8>) -> &Self::Output {
+        let range = Range {
+            start: range.start as usize,
+            end: range.end as usize
+        };
+        &self.data[range]
+    }
+}
+
+impl IndexMut<Range<u8>> for Sha1Words {
+    fn index_mut(&mut self, range: Range<u8>) -> &mut Self::Output {
+        let range = Range {
+            start: range.start as usize,
+            end: range.end as usize
+        };
+        &mut self.data[range]
+    }
+}
+
 impl Index<Range<usize>> for Sha1Words {
     type Output = [u8];
 
@@ -45,17 +67,28 @@ impl IndexMut<Range<usize>> for Sha1Words {
     }
 }
 
+impl Index<RangeTo<u8>> for Sha1Words {
+    type Output = [u8];
+
+    fn index(&self, range_to: RangeTo<u8>) -> &Self::Output {
+        let range_to = RangeTo {
+            end: range_to.end as usize
+        };
+        &self.data[range_to]
+    }
+}
+
 impl Index<RangeTo<usize>> for Sha1Words {
     type Output = [u8];
 
-    fn index(&self, range: RangeTo<usize>) -> &Self::Output {
-        &self.data[range]
+    fn index(&self, range_to: RangeTo<usize>) -> &Self::Output {
+        &self.data[range_to]
     }
 }
 
 impl IndexMut<RangeTo<usize>> for Sha1Words {
-    fn index_mut(&mut self, range: RangeTo<usize>) -> &mut Self::Output {
-        &mut self.data[range]
+    fn index_mut(&mut self, range_to: RangeTo<usize>) -> &mut Self::Output {
+        &mut self.data[range_to]
     }
 }
 

@@ -53,7 +53,7 @@ impl Hasher for Sha1Hasher {
                 left = bytes.len() as u8;
             }
 
-            self.words[(len_w as usize)..((len_w + left) as usize)]
+            self.words[len_w..len_w + left]
                 .clone_from_slice(&bytes[..(left as usize)]);
 
             len_w = (len_w + left) & SHA_CBLOCK_LAST_INDEX as u8;
