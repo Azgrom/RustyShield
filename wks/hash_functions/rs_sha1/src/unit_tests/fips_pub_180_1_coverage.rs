@@ -5,7 +5,7 @@ use crate::{
 };
 use alloc::vec;
 use core::hash::Hasher;
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 
 #[cfg(feature = "nightly")]
 use core::{

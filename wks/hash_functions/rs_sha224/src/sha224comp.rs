@@ -1,4 +1,4 @@
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 
 pub(crate) struct Sha224Comp<'a, 'b>(
     pub(crate) U32Word,

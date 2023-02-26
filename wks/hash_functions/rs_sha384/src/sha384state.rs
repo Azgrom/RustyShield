@@ -1,41 +1,45 @@
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
-    hash::{BuildHasher, Hash, Hasher},
+    hash::{Hash, Hasher},
     ops::{Index, IndexMut}
 };
-use n_bit_words_lib::U32Word;
-use crate::sha224hasher::Sha224Hasher;
-use crate::sha224words::Sha224Words;
+use core::hash::BuildHasher;
+use n_bit_words_lib::U64Word;
+use crate::{
+    SHA384PADDING_SIZE,
+    sha384hasher::Sha384Hasher,
+    sha384words::Sha384Words
+};
 
-const H0: u32 = 0xC1059ED8;
-const H1: u32 = 0x367CD507;
-const H2: u32 = 0x3070DD17;
-const H3: u32 = 0xF70E5939;
-const H4: u32 = 0xFFC00B31;
-const H5: u32 = 0x68581511;
-const H6: u32 = 0x64F98FA7;
-const H7: u32 = 0xBEFA4FA4;
+const H0: u64 = 0xCBBB9D5DC1059ED8;
+const H1: u64 = 0x629A292A367CD507;
+const H2: u64 = 0x9159015A3070DD17;
+const H3: u64 = 0x152FECD8F70E5939;
+const H4: u64 = 0x67332667FFC00B31;
+const H5: u64 = 0x8EB44A8768581511;
+const H6: u64 = 0xDB0C2E0D64F98FA7;
+const H7: u64 = 0x47B5481DBEFA4fA4;
 
-const SHA224_HASH_U32_WORDS_COUNT: u32 = 8;
+const SHA384STATE_CONSTANTS_COUNT: usize = 8;
 
 #[derive(Clone)]
-pub struct Sha224State {
-    data: [U32Word; SHA224_HASH_U32_WORDS_COUNT as usize]
+pub(crate) struct Sha384State {
+    data: [U64Word; SHA384STATE_CONSTANTS_COUNT]
 }
 
-impl BuildHasher for Sha224State {
-    type Hasher = Sha224Hasher;
+impl BuildHasher for Sha384State {
+    type Hasher = Sha384Hasher;
 
     fn build_hasher(&self) -> Self::Hasher {
-        Sha224Hasher {
-            size: u64::MIN,
+        Sha384Hasher {
+            size: u128::MIN,
             state: self.clone(),
-            words: Sha224Words::default()
+            words: Sha384Words::default()
         }
     }
 }
 
-impl Default for Sha224State {
+impl Default for Sha384State {
     fn default() -> Self {
         Self {
             data: [
@@ -52,15 +56,19 @@ impl Default for Sha224State {
     }
 }
 
-impl From<Sha224State> for [u8; 28] {
-    fn from(value: Sha224State) -> Self {
-        let mut bytes: [u8; 28] = [0; 28];
-        for i in 0..7 {
+impl From<Sha384State> for [u8; SHA384PADDING_SIZE] {
+    fn from(value: Sha384State) -> Self {
+        let mut bytes = [0; SHA384PADDING_SIZE];
+        for i in 0..5 {
             [
                 bytes[i * 4],
                 bytes[(i * 4) + 1],
                 bytes[(i * 4) + 2],
-                bytes[(i * 4) + 3]
+                bytes[(i * 4) + 3],
+                bytes[(i * 4) + 4],
+                bytes[(i * 4) + 5],
+                bytes[(i * 4) + 6],
+                bytes[(i * 4) + 7]
             ] = value[i].to_be_bytes();
         }
 
@@ -68,54 +76,60 @@ impl From<Sha224State> for [u8; 28] {
     }
 }
 
-impl From<&Sha224State> for [U32Word; SHA224_HASH_U32_WORDS_COUNT as usize] {
-    fn from(value: &Sha224State) -> Self {
+impl From<&Sha384State> for [U64Word; SHA384STATE_CONSTANTS_COUNT] {
+    fn from(value: &Sha384State) -> Self {
         value.data
     }
 }
 
-impl Index<usize> for Sha224State {
-    type Output = U32Word;
+impl Index<usize> for Sha384State {
+    type Output = U64Word;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.data[index]
     }
 }
 
-impl IndexMut<usize> for Sha224State {
+impl IndexMut<usize> for Sha384State {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.data[index]
     }
 }
 
-impl Hash for Sha224State {
+impl Hash for Sha384State {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.data.hash(state)
+        self[0].hash(state);
+        self[1].hash(state);
+        self[2].hash(state);
+        self[3].hash(state);
+        self[4].hash(state);
+        self[5].hash(state);
+        self[6].hash(state);
+        self[7].hash(state);
     }
 }
 
 const LOWER_HEX_ERR: &str = "Error trying to format lower hex string";
-impl LowerHex for Sha224State {
+impl LowerHex for Sha384State {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         LowerHex::fmt(&self[0], f).expect(LOWER_HEX_ERR);
         LowerHex::fmt(&self[1], f).expect(LOWER_HEX_ERR);
         LowerHex::fmt(&self[2], f).expect(LOWER_HEX_ERR);
         LowerHex::fmt(&self[3], f).expect(LOWER_HEX_ERR);
         LowerHex::fmt(&self[4], f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self[5], f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self[6], f)
+        LowerHex::fmt(&self[5], f)
     }
 }
 
 const UPPER_HEX_ERR: &str = "Error trying to format upper hex string";
-impl UpperHex for Sha224State {
+
+impl UpperHex for Sha384State {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         UpperHex::fmt(&self[0], f).expect(UPPER_HEX_ERR);
         UpperHex::fmt(&self[1], f).expect(UPPER_HEX_ERR);
         UpperHex::fmt(&self[2], f).expect(UPPER_HEX_ERR);
         UpperHex::fmt(&self[3], f).expect(UPPER_HEX_ERR);
         UpperHex::fmt(&self[4], f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self[5], f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self[6], f)
+        UpperHex::fmt(&self[5], f)
     }
 }

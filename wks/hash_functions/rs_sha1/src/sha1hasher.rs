@@ -5,7 +5,7 @@ use crate::{
 use alloc::{boxed::Box, format, string::String};
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 
 const T_0_19: u32 = 0x5A827999;
 const T_20_39: u32 = 0x6ED9EBA1;

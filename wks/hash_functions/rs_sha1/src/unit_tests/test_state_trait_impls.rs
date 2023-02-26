@@ -4,7 +4,7 @@ use core::{
     any::{Any, TypeId},
     hash::{BuildHasher, Hash},
 };
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 use crate::sha1state::{H0, H1, H2, H3, H4};
 
 #[test]

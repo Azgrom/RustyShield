@@ -1,14 +1,14 @@
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 
-pub(crate) struct Sha256Comp<'a, 'b>(
-    pub(crate) U32Word,
-    pub(crate) U32Word,
-    pub(crate) U32Word,
-    pub(crate) &'a mut U32Word,
-    pub(crate) U32Word,
-    pub(crate) U32Word,
-    pub(crate) U32Word,
-    pub(crate) &'b mut U32Word,
+pub struct Sha256Comp<'a, 'b>(
+    pub U32Word,
+    pub U32Word,
+    pub U32Word,
+    pub &'a mut U32Word,
+    pub U32Word,
+    pub U32Word,
+    pub U32Word,
+    pub &'b mut U32Word,
 );
 
 impl Sha256Comp<'_, '_> {

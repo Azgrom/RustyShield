@@ -5,7 +5,7 @@ use crate::{
 use alloc::{boxed::Box, format, string::String};
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 
 const K00: u32 = 0x428A2F98;
 const K01: u32 = 0x71374491;
@@ -82,6 +82,67 @@ pub struct Sha256Hasher {
 }
 
 impl Sha256Hasher {
+    fn load_words(&self) -> [U32Word; SHA256_SCHEDULE_U32_WORDS_COUNT as usize] {
+        let mut w: [U32Word; SHA256_SCHEDULE_U32_WORDS_COUNT as usize] =
+            [U32Word::default(); SHA256_SCHEDULE_U32_WORDS_COUNT as usize];
+
+        self.words
+            .u32_chunks()
+            .enumerate()
+            .for_each(|(i, c)| w[i] = u32::from_be_bytes([c[0], c[1], c[2], c[3]]).into());
+
+        w[16] =  w[0] + w[1].gamma0() + w[9] + w[14].gamma1();
+        w[17] = w[1] + w[2].gamma0() + w[10] + w[15].gamma1();
+        w[18] = w[2] + w[3].gamma0() + w[11] + w[16].gamma1();
+        w[19] = w[3] + w[4].gamma0() + w[12] + w[17].gamma1();
+        w[20] = w[4] + w[5].gamma0() + w[13] + w[18].gamma1();
+        w[21] = w[5] + w[6].gamma0() + w[14] + w[19].gamma1();
+        w[22] = w[6] + w[7].gamma0() + w[15] + w[20].gamma1();
+        w[23] = w[7] + w[8].gamma0() + w[16] + w[21].gamma1();
+        w[24] = w[8] + w[9].gamma0() + w[17] + w[22].gamma1();
+        w[25] = w[9] + w[10].gamma0() + w[18] + w[23].gamma1();
+        w[26] = w[10] + w[11].gamma0() + w[19] + w[24].gamma1();
+        w[27] = w[11] + w[12].gamma0() + w[20] + w[25].gamma1();
+        w[28] = w[12] + w[13].gamma0() + w[21] + w[26].gamma1();
+        w[29] = w[13] + w[14].gamma0() + w[22] + w[27].gamma1();
+        w[30] = w[14] + w[15].gamma0() + w[23] + w[28].gamma1();
+        w[31] = w[15] + w[16].gamma0() + w[24] + w[29].gamma1();
+        w[32] = w[16] + w[17].gamma0() + w[25] + w[30].gamma1();
+        w[33] = w[17] + w[18].gamma0() + w[26] + w[31].gamma1();
+        w[34] = w[18] + w[19].gamma0() + w[27] + w[32].gamma1();
+        w[35] = w[19] + w[20].gamma0() + w[28] + w[33].gamma1();
+        w[36] = w[20] + w[21].gamma0() + w[29] + w[34].gamma1();
+        w[37] = w[21] + w[22].gamma0() + w[30] + w[35].gamma1();
+        w[38] = w[22] + w[23].gamma0() + w[31] + w[36].gamma1();
+        w[39] = w[23] + w[24].gamma0() + w[32] + w[37].gamma1();
+        w[40] = w[24] + w[25].gamma0() + w[33] + w[38].gamma1();
+        w[41] = w[25] + w[26].gamma0() + w[34] + w[39].gamma1();
+        w[42] = w[26] + w[27].gamma0() + w[35] + w[40].gamma1();
+        w[43] = w[27] + w[28].gamma0() + w[36] + w[41].gamma1();
+        w[44] = w[28] + w[29].gamma0() + w[37] + w[42].gamma1();
+        w[45] = w[29] + w[30].gamma0() + w[38] + w[43].gamma1();
+        w[46] = w[30] + w[31].gamma0() + w[39] + w[44].gamma1();
+        w[47] = w[31] + w[32].gamma0() + w[40] + w[45].gamma1();
+        w[48] = w[32] + w[33].gamma0() + w[41] + w[46].gamma1();
+        w[49] = w[33] + w[34].gamma0() + w[42] + w[47].gamma1();
+        w[50] = w[34] + w[35].gamma0() + w[43] + w[48].gamma1();
+        w[51] = w[35] + w[36].gamma0() + w[44] + w[49].gamma1();
+        w[52] = w[36] + w[37].gamma0() + w[45] + w[50].gamma1();
+        w[53] = w[37] + w[38].gamma0() + w[46] + w[51].gamma1();
+        w[54] = w[38] + w[39].gamma0() + w[47] + w[52].gamma1();
+        w[55] = w[39] + w[40].gamma0() + w[48] + w[53].gamma1();
+        w[56] = w[40] + w[41].gamma0() + w[49] + w[54].gamma1();
+        w[57] = w[41] + w[42].gamma0() + w[50] + w[55].gamma1();
+        w[58] = w[42] + w[43].gamma0() + w[51] + w[56].gamma1();
+        w[59] = w[43] + w[44].gamma0() + w[52] + w[57].gamma1();
+        w[60] = w[44] + w[45].gamma0() + w[53] + w[58].gamma1();
+        w[61] = w[45] + w[46].gamma0() + w[54] + w[59].gamma1();
+        w[62] = w[46] + w[47].gamma0() + w[55] + w[60].gamma1();
+        w[63] = w[47] + w[48].gamma0() + w[56] + w[61].gamma1();
+
+        w
+    }
+
     pub(crate) fn hash_block(&mut self) {
         let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = Into::<[U32Word; 8]>::into(&self.state);
         let w = self.load_words();
@@ -161,67 +222,6 @@ impl Sha256Hasher {
         self.state[7] += h;
     }
 
-    fn load_words(&self) -> [U32Word; SHA256_SCHEDULE_U32_WORDS_COUNT as usize] {
-        let mut w: [U32Word; SHA256_SCHEDULE_U32_WORDS_COUNT as usize] =
-            [U32Word::default(); SHA256_SCHEDULE_U32_WORDS_COUNT as usize];
-
-        self.words
-            .u32_chunks()
-            .enumerate()
-            .for_each(|(i, c)| w[i] = u32::from_be_bytes([c[0], c[1], c[2], c[3]]).into());
-
-        w[16] =  w[0] + w[1].gamma0() + w[9] + w[14].gamma1();
-        w[17] = w[1] + w[2].gamma0() + w[10] + w[15].gamma1();
-        w[18] = w[2] + w[3].gamma0() + w[11] + w[16].gamma1();
-        w[19] = w[3] + w[4].gamma0() + w[12] + w[17].gamma1();
-        w[20] = w[4] + w[5].gamma0() + w[13] + w[18].gamma1();
-        w[21] = w[5] + w[6].gamma0() + w[14] + w[19].gamma1();
-        w[22] = w[6] + w[7].gamma0() + w[15] + w[20].gamma1();
-        w[23] = w[7] + w[8].gamma0() + w[16] + w[21].gamma1();
-        w[24] = w[8] + w[9].gamma0() + w[17] + w[22].gamma1();
-        w[25] = w[9] + w[10].gamma0() + w[18] + w[23].gamma1();
-        w[26] = w[10] + w[11].gamma0() + w[19] + w[24].gamma1();
-        w[27] = w[11] + w[12].gamma0() + w[20] + w[25].gamma1();
-        w[28] = w[12] + w[13].gamma0() + w[21] + w[26].gamma1();
-        w[29] = w[13] + w[14].gamma0() + w[22] + w[27].gamma1();
-        w[30] = w[14] + w[15].gamma0() + w[23] + w[28].gamma1();
-        w[31] = w[15] + w[16].gamma0() + w[24] + w[29].gamma1();
-        w[32] = w[16] + w[17].gamma0() + w[25] + w[30].gamma1();
-        w[33] = w[17] + w[18].gamma0() + w[26] + w[31].gamma1();
-        w[34] = w[18] + w[19].gamma0() + w[27] + w[32].gamma1();
-        w[35] = w[19] + w[20].gamma0() + w[28] + w[33].gamma1();
-        w[36] = w[20] + w[21].gamma0() + w[29] + w[34].gamma1();
-        w[37] = w[21] + w[22].gamma0() + w[30] + w[35].gamma1();
-        w[38] = w[22] + w[23].gamma0() + w[31] + w[36].gamma1();
-        w[39] = w[23] + w[24].gamma0() + w[32] + w[37].gamma1();
-        w[40] = w[24] + w[25].gamma0() + w[33] + w[38].gamma1();
-        w[41] = w[25] + w[26].gamma0() + w[34] + w[39].gamma1();
-        w[42] = w[26] + w[27].gamma0() + w[35] + w[40].gamma1();
-        w[43] = w[27] + w[28].gamma0() + w[36] + w[41].gamma1();
-        w[44] = w[28] + w[29].gamma0() + w[37] + w[42].gamma1();
-        w[45] = w[29] + w[30].gamma0() + w[38] + w[43].gamma1();
-        w[46] = w[30] + w[31].gamma0() + w[39] + w[44].gamma1();
-        w[47] = w[31] + w[32].gamma0() + w[40] + w[45].gamma1();
-        w[48] = w[32] + w[33].gamma0() + w[41] + w[46].gamma1();
-        w[49] = w[33] + w[34].gamma0() + w[42] + w[47].gamma1();
-        w[50] = w[34] + w[35].gamma0() + w[43] + w[48].gamma1();
-        w[51] = w[35] + w[36].gamma0() + w[44] + w[49].gamma1();
-        w[52] = w[36] + w[37].gamma0() + w[45] + w[50].gamma1();
-        w[53] = w[37] + w[38].gamma0() + w[46] + w[51].gamma1();
-        w[54] = w[38] + w[39].gamma0() + w[47] + w[52].gamma1();
-        w[55] = w[39] + w[40].gamma0() + w[48] + w[53].gamma1();
-        w[56] = w[40] + w[41].gamma0() + w[49] + w[54].gamma1();
-        w[57] = w[41] + w[42].gamma0() + w[50] + w[55].gamma1();
-        w[58] = w[42] + w[43].gamma0() + w[51] + w[56].gamma1();
-        w[59] = w[43] + w[44].gamma0() + w[52] + w[57].gamma1();
-        w[60] = w[44] + w[45].gamma0() + w[53] + w[58].gamma1();
-        w[61] = w[45] + w[46].gamma0() + w[54] + w[59].gamma1();
-        w[62] = w[46] + w[47].gamma0() + w[55] + w[60].gamma1();
-        w[63] = w[47] + w[48].gamma0() + w[56] + w[61].gamma1();
-
-        w
-    }
-
     fn zero_padding_length(&self) -> usize {
         1 + (SHA256_SCHEDULE_LAST_INDEX as u64
             & (55u64.wrapping_sub(self.size & SHA256_SCHEDULE_LAST_INDEX as u64)))
@@ -271,7 +271,7 @@ impl Hasher for Sha256Hasher {
         self.size += bytes.len() as u64;
 
         if len_w != 0 {
-            let mut left = (SHA256_PADDING_U8_WORDS_COUNT - len_w as u32) as u8;
+            let mut left = (SHA256_PADDING_U8_WORDS_COUNT as u8 - len_w) as u8;
             if bytes.len() < left as usize {
                 left = bytes.len() as u8;
             }
@@ -280,13 +280,13 @@ impl Hasher for Sha256Hasher {
                 .clone_from_slice(&bytes[..(left as usize)]);
 
             len_w = (len_w + left) & SHA256_SCHEDULE_LAST_INDEX as u8;
-            bytes = &bytes[(left as usize)..];
 
             if len_w != 0 {
                 return;
             }
 
             self.hash_block();
+            bytes = &bytes[(left as usize)..];
         }
 
         while bytes.len() >= SHA256_PADDING_U8_WORDS_COUNT as usize {

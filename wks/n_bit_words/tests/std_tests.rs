@@ -1,4 +1,4 @@
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 
 #[test]
 fn lower_hex_format() {

@@ -4,7 +4,7 @@ use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::{Index, IndexMut},
 };
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 
 const H0: u32 = 0x6A09E667;
 const H1: u32 = 0xBB67AE85;
@@ -90,7 +90,14 @@ impl IndexMut<usize> for Sha256State {
 
 impl Hash for Sha256State {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.data.hash(state)
+        self[0].hash(state);
+        self[1].hash(state);
+        self[2].hash(state);
+        self[3].hash(state);
+        self[4].hash(state);
+        self[5].hash(state);
+        self[6].hash(state);
+        self[7].hash(state);
     }
 }
 

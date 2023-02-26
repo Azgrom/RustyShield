@@ -5,7 +5,7 @@ use alloc::{
 };
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 use crate::{SHA224_PADDING_U8_WORDS_COUNT, SHA224_SCHEDULE_U32_WORDS_COUNT, sha224state::Sha224State, sha224words::Sha224Words};
 use crate::sha224comp::Sha224Comp;
 

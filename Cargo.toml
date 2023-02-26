@@ -7,7 +7,7 @@ license = "GPL-2.0-only"
 [workspace]
 members = [
     "wks/hash_ctx",
-    "wks/u32_word",
+    "wks/n_bit_words",
     "wks/hash_functions/*"
 ]
 
@@ -38,6 +38,7 @@ debug = false
 rs_sha1 = { path = "wks/hash_functions/rs_sha1" }
 rs_sha224 = { path = "wks/hash_functions/rs_sha224" }
 rs_sha256 = { path = "wks/hash_functions/rs_sha256" }
+rs_sha384 = { path = "wks/hash_functions/rs_sha384" }
 hash_ctx = { path = "wks/hash_ctx" }
 
 criterion = { version = "0.4.0", optional = true }

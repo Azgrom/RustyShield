@@ -5,7 +5,7 @@ use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::{Index, IndexMut},
 };
-use u32_word_lib::U32Word;
+use n_bit_words_lib::U32Word;
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;
