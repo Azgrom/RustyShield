@@ -23,9 +23,9 @@ fn sha384_empty_string_prefix_collision_resiliency() {
 fn sha384_quick_fox_consistency() {
     let quick_fox = "The quick brown fox jumps over the lazy dog";
     let default_sha256state = Sha384State::default();
-    let mut sha256hasher = default_sha256state.build_hasher();
+    let mut sha384hasher = default_sha256state.build_hasher();
 
-    sha256hasher.write(quick_fox.as_ref());
+    sha384hasher.write(quick_fox.as_ref());
 
-    assert_eq!(sha256hasher.to_lower_hex(), "ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c494011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1");
+    assert_eq!(sha384hasher.to_lower_hex(), "ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c494011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1");
 }

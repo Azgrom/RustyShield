@@ -199,7 +199,7 @@ impl Sha384Hasher {
 
     fn zero_padding_length(&self) -> usize {
         1 + (SHA384BLOCK_LAST_INDEX
-            & (119usize.wrapping_sub((self.size & SHA384BLOCK_LAST_INDEX as u128) as usize)))
+            & (111usize.wrapping_sub((self.size & SHA384BLOCK_LAST_INDEX as u128) as usize)))
     }
 
     fn finish_with_len(&mut self, len: u128) -> u64 {
@@ -276,13 +276,13 @@ impl HasherContext for Sha384Hasher {
     fn to_lower_hex(&self) -> String {
         let mut sha384hasher = self.clone();
         sha384hasher.finish_with_len(sha384hasher.size);
-        format!("{:08x}", sha384hasher.state)
+        format!("{:016x}", sha384hasher.state)
     }
 
     fn to_upper_hex(&self) -> String {
         let mut sha384hasher = self.clone();
         sha384hasher.finish_with_len(sha384hasher.size);
-        format!("{:08X}", sha384hasher.state)
+        format!("{:016X}", sha384hasher.state)
     }
 
     fn to_bytes_hash(&self) -> Box<[u8]> {
