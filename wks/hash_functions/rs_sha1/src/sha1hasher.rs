@@ -7,11 +7,6 @@ use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
 use n_bit_words_lib::U32Word;
 
-const T_0_19: u32 = 0x5A827999;
-const T_20_39: u32 = 0x6ED9EBA1;
-const T_40_59: u32 = 0x8F1BBCDC;
-const T_60_79: u32 = 0xCA62C1D6;
-
 #[derive(Clone, Debug)]
 pub struct Sha1Hasher {
     pub(crate) size: u64,
@@ -208,7 +203,7 @@ impl Sha1Hasher {
         e: &mut U32Word,
         word: U32Word,
     ) {
-        *e += word + T_0_19 + a.rotate_left(5) + U32Word::ch(*b, c, d);
+        *e += word + U32Word::T_00_19 + a.rotate_left(5) + U32Word::ch(*b, c, d);
         *b = b.rotate_right(2);
     }
 
@@ -221,7 +216,7 @@ impl Sha1Hasher {
         e: &mut U32Word,
         word: U32Word,
     ) {
-        *e += word + T_0_19 + a.rotate_left(5) + U32Word::ch(*b, c, d);
+        *e += word + U32Word::T_00_19 + a.rotate_left(5) + U32Word::ch(*b, c, d);
         *b = b.rotate_right(2);
     }
 
@@ -234,7 +229,7 @@ impl Sha1Hasher {
         e: &mut U32Word,
         word: U32Word,
     ) {
-        *e += word + T_20_39 + a.rotate_left(5) + U32Word::parity(*b, c, d);
+        *e += word + U32Word::T_20_39 + a.rotate_left(5) + U32Word::parity(*b, c, d);
         *b = b.rotate_right(2);
     }
 
@@ -247,7 +242,7 @@ impl Sha1Hasher {
         e: &mut U32Word,
         word: U32Word,
     ) {
-        *e += word + T_40_59 + a.rotate_left(5) + U32Word::maj(*b, c, d);
+        *e += word + U32Word::T_40_59 + a.rotate_left(5) + U32Word::maj(*b, c, d);
         *b = b.rotate_right(2);
     }
 
@@ -260,7 +255,7 @@ impl Sha1Hasher {
         e: &mut U32Word,
         word: U32Word,
     ) {
-        *e += word + T_60_79 + a.rotate_left(5) + U32Word::parity(*b, c, d);
+        *e += word + U32Word::T_60_79 + a.rotate_left(5) + U32Word::parity(*b, c, d);
         *b = b.rotate_right(2);
     }
 

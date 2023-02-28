@@ -57,6 +57,7 @@ impl U64Word {
 }
 
 impl U64Word {
+    // SHA-384, SHA-512, SHA-512/224, SHA-512/256 constants
     pub const K00: u64 = 0x428A2F98D728AE22;
     pub const K01: u64 = 0x7137449123EF65CD;
     pub const K02: u64 = 0xB5C0FBCFEC4D3B2F;
