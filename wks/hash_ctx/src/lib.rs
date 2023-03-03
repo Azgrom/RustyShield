@@ -2,12 +2,11 @@
 
 extern crate alloc;
 
-use alloc::boxed::Box;
-use alloc::string::String;
 use core::hash::Hasher;
 
+/// Overloads the finish Hasher method for a version that mutates itself
 pub trait HasherContext: Hasher {
-    fn to_lower_hex(&self) -> String;
-    fn to_upper_hex(&self) -> String;
-    fn to_bytes_hash(&self) -> Box<[u8]>;
+    type State;
+
+    fn finish(&mut self) -> Self::State;
 }

@@ -1,13 +1,13 @@
 use crate::SHA384BLOCK_SIZE;
 use core::{
-    ops::{Index, IndexMut, Range, RangeTo},
     hash::{Hash, Hasher},
-    slice::Chunks
+    ops::{Index, IndexMut, Range, RangeTo},
+    slice::Chunks,
 };
 
 #[derive(Clone, Debug)]
 pub(crate) struct Sha384Words {
-    data: [u8; SHA384BLOCK_SIZE]
+    data: [u8; SHA384BLOCK_SIZE as usize],
 }
 
 impl Sha384Words {
@@ -23,7 +23,7 @@ impl Sha384Words {
 impl Default for Sha384Words {
     fn default() -> Self {
         Self {
-            data: [u8::MIN; SHA384BLOCK_SIZE]
+            data: [u8::MIN; SHA384BLOCK_SIZE as usize],
         }
     }
 }
@@ -48,7 +48,7 @@ impl Index<Range<u8>> for Sha384Words {
     fn index(&self, range: Range<u8>) -> &Self::Output {
         let range = Range {
             start: range.start as usize,
-            end: range.end as usize
+            end: range.end as usize,
         };
         &self.data[range]
     }
@@ -74,7 +74,7 @@ impl IndexMut<Range<u8>> for Sha384Words {
     fn index_mut(&mut self, range: Range<u8>) -> &mut Self::Output {
         let range = Range {
             start: range.start as usize,
-            end: range.end as usize
+            end: range.end as usize,
         };
         &mut self.data[range]
     }

@@ -1,4 +1,5 @@
 use crate::Sha256State;
+use alloc::format;
 use core::hash::{BuildHasher, Hash, Hasher};
 use hash_ctx_lib::HasherContext;
 
@@ -7,14 +8,14 @@ fn sha256_empty_string_prefix_collision_resiliency() {
     let empty_str = "";
     let default_sha256state = Sha256State::default();
     let mut prefix_free_hasher = default_sha256state.build_hasher();
-    let mut prefix_hasher = default_sha256state.build_hasher();
+    let mut sha256hasher = default_sha256state.build_hasher();
 
     empty_str.hash(&mut prefix_free_hasher);
-    prefix_hasher.write(empty_str.as_ref());
+    sha256hasher.write(empty_str.as_ref());
 
-    assert_ne!(prefix_free_hasher.finish(), prefix_hasher.finish());
+    assert_ne!(prefix_free_hasher.finish(), sha256hasher.finish());
     assert_eq!(
-        prefix_hasher.to_lower_hex(),
+        format!("{:08x}", HasherContext::finish(&mut sha256hasher)),
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     )
 }
@@ -27,5 +28,8 @@ fn sha256_quick_fox_consistency() {
 
     sha256hasher.write(quick_fox.as_ref());
 
-    assert_eq!(sha256hasher.to_lower_hex(), "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592");
+    assert_eq!(
+        format!("{:08x}", HasherContext::finish(&mut sha256hasher)),
+        "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592"
+    );
 }

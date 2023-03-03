@@ -1,7 +1,7 @@
 use core::{
     fmt::{Formatter, LowerHex, Result, UpperHex},
     hash::{Hash, Hasher},
-    ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shr}
+    ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shr},
 };
 
 #[derive(Clone, Copy, Debug)]

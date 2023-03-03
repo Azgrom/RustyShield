@@ -84,9 +84,8 @@ fn rust_crypto_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8
 
 #[cfg(feature = "comparator_build")]
 fn compare_simple_digestion_of_different_implementations(c: &mut Criterion) {
-    let mut benchmark_different_messages_lengths_impact = c.benchmark_group(
-        "Compare messages from 0 to 4 kilobytes simple digestion of different implementations",
-    );
+    let mut benchmark_different_messages_lengths_impact =
+        c.benchmark_group("Compare messages from 0 to 4 kilobytes simple digestion of different implementations");
 
     for current_size in (0..=BASE_INPUT_SIZE).step_by(1024) {
         benchmark_different_messages_lengths_impact.bench_with_input(

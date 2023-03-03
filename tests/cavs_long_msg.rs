@@ -1,29 +1,20 @@
-use std::{
-    env,
-    fs,
-    process,
-    path::Path
-};
+use std::{env, fs, path::Path, process};
 
 pub struct CAVSLongMsg {
     pub message: Vec<u8>,
-    pub message_digest: String
+    pub message_digest: String,
 }
 
 impl CAVSLongMsg {
     pub fn load(path: &str) -> Vec<Self> {
-        let cargo_manifest_dir =
-            env::var("CARGO_MANIFEST_DIR").expect("Unable to access CARGO_MANIFEST_DIR");
+        let cargo_manifest_dir = env::var("CARGO_MANIFEST_DIR").expect("Unable to access CARGO_MANIFEST_DIR");
         let project_path = Path::new(&cargo_manifest_dir);
         let path = Path::new(path);
         let file_path = project_path.join(Path::new("tests/").join(path));
 
         let long_msgs: Vec<String> = fs::read_to_string(file_path)
             .unwrap_or_else(|err| {
-                eprintln!(
-                    "Error trying to open and read SHA1LongMsg.rsp, received {}",
-                    err
-                );
+                eprintln!("Error trying to open and read SHA1LongMsg.rsp, received {}", err);
                 process::exit(1);
             })
             .lines()

@@ -1,14 +1,14 @@
+use crate::SHA224_PADDING_U8_WORDS_COUNT;
+use core::hash::Hasher;
 use core::{
     hash::Hash,
     ops::{Index, IndexMut, Range, RangeTo},
-    slice::Chunks
+    slice::Chunks,
 };
-use core::hash::Hasher;
-use crate::SHA224_PADDING_U8_WORDS_COUNT;
 
 #[derive(Clone)]
 pub(crate) struct Sha224Words {
-    data: [u8; SHA224_PADDING_U8_WORDS_COUNT as usize]
+    data: [u8; SHA224_PADDING_U8_WORDS_COUNT as usize],
 }
 
 impl Sha224Words {
@@ -24,7 +24,7 @@ impl Sha224Words {
 impl Default for Sha224Words {
     fn default() -> Self {
         Self {
-            data: [u8::MIN; SHA224_PADDING_U8_WORDS_COUNT as usize]
+            data: [u8::MIN; SHA224_PADDING_U8_WORDS_COUNT as usize],
         }
     }
 }

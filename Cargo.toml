@@ -27,7 +27,6 @@ codegen-units = 1
 
 [profile.bench]
 inherits = "release"
-strip = false
 
 [profile.ci]
 inherits = "release"

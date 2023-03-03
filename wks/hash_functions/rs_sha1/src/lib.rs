@@ -8,6 +8,7 @@ extern crate alloc;
 
 pub use crate::{sha1hasher::Sha1Hasher, sha1state::Sha1State};
 
+mod sha1comp;
 pub mod sha1hasher;
 pub mod sha1state;
 mod sha1words;

@@ -1,3 +1,4 @@
+use crate::sha1state::{H0, H1, H2, H3, H4};
 use crate::{Sha1Hasher, Sha1State};
 use alloc::{format, string::String};
 use core::{
@@ -5,7 +6,6 @@ use core::{
     hash::{BuildHasher, Hash},
 };
 use n_bit_words_lib::U32Word;
-use crate::sha1state::{H0, H1, H2, H3, H4};
 
 #[test]
 fn build_default_sha1_state_hasher() {
@@ -23,15 +23,13 @@ fn build_default_sha1_state_hasher() {
 #[test]
 fn default_sha1_state() {
     let default_state = Sha1State::default();
-    let expected_result = Sha1State {
-        data: [
-            U32Word::from(H0),
-            U32Word::from(H1),
-            U32Word::from(H2),
-            U32Word::from(H3),
-            U32Word::from(H4),
-        ],
-    };
+    let expected_result = Sha1State(
+        U32Word::from(H0),
+        U32Word::from(H1),
+        U32Word::from(H2),
+        U32Word::from(H3),
+        U32Word::from(H4),
+    );
 
     assert_eq!(default_state, expected_result);
     assert_eq!(default_state.type_id(), expected_result.type_id());
@@ -41,20 +39,20 @@ fn default_sha1_state() {
 fn index_sha1_state() {
     let default_sha1_state = Sha1State::default();
 
-    assert_eq!(default_sha1_state[0], U32Word::from(H0));
-    assert_eq!(default_sha1_state[1], U32Word::from(H1));
-    assert_eq!(default_sha1_state[2], U32Word::from(H2));
-    assert_eq!(default_sha1_state[3], U32Word::from(H3));
-    assert_eq!(default_sha1_state[4], U32Word::from(H4));
+    assert_eq!(default_sha1_state.0, U32Word::from(H0));
+    assert_eq!(default_sha1_state.1, U32Word::from(H1));
+    assert_eq!(default_sha1_state.2, U32Word::from(H2));
+    assert_eq!(default_sha1_state.3, U32Word::from(H3));
+    assert_eq!(default_sha1_state.4, U32Word::from(H4));
 }
 
 #[test]
 fn index_mut_sha1_state() {
     let mut default_sha1_state: Sha1State = Sha1State::default();
 
-    assert_eq!(default_sha1_state[0], U32Word::from(H0));
-    default_sha1_state[0] = U32Word::from(u32::MAX);
-    assert_ne!(default_sha1_state[0], U32Word::from(H0));
+    assert_eq!(default_sha1_state.0, U32Word::from(H0));
+    default_sha1_state.0 = U32Word::from(u32::MAX);
+    assert_ne!(default_sha1_state.0, U32Word::from(H0));
 }
 
 #[test]
