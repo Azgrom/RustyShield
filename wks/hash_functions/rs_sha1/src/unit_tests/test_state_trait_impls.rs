@@ -5,6 +5,7 @@ use core::{
     any::{Any, TypeId},
     hash::{BuildHasher, Hash},
 };
+use internal_state::Sha160BitsState;
 use n_bit_words_lib::U32Word;
 
 #[test]
@@ -23,36 +24,16 @@ fn build_default_sha1_state_hasher() {
 #[test]
 fn default_sha1_state() {
     let default_state = Sha1State::default();
-    let expected_result = Sha1State(
+    let expected_result = Sha1State(Sha160BitsState(
         U32Word::from(H0),
         U32Word::from(H1),
         U32Word::from(H2),
         U32Word::from(H3),
-        U32Word::from(H4),
+        U32Word::from(H4),)
     );
 
     assert_eq!(default_state, expected_result);
     assert_eq!(default_state.type_id(), expected_result.type_id());
-}
-
-#[test]
-fn index_sha1_state() {
-    let default_sha1_state = Sha1State::default();
-
-    assert_eq!(default_sha1_state.0, U32Word::from(H0));
-    assert_eq!(default_sha1_state.1, U32Word::from(H1));
-    assert_eq!(default_sha1_state.2, U32Word::from(H2));
-    assert_eq!(default_sha1_state.3, U32Word::from(H3));
-    assert_eq!(default_sha1_state.4, U32Word::from(H4));
-}
-
-#[test]
-fn index_mut_sha1_state() {
-    let mut default_sha1_state: Sha1State = Sha1State::default();
-
-    assert_eq!(default_sha1_state.0, U32Word::from(H0));
-    default_sha1_state.0 = U32Word::from(u32::MAX);
-    assert_ne!(default_sha1_state.0, U32Word::from(H0));
 }
 
 #[test]
