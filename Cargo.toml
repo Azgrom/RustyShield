@@ -8,6 +8,7 @@ license = "GPL-2.0-only"
 members = [
     "wks/hash_ctx",
     "wks/n_bit_words",
+    "wks/internal_state",
     "wks/hash_functions/*"
 ]
 

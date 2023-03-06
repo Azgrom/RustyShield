@@ -10,4 +10,5 @@ path = "src/lib.rs"
 
 [dependencies]
 n_bit_words = { path = "../../n_bit_words" }
+internal_state = { path = "../../internal_state" }
 hash_ctx = { path = "../../hash_ctx" }

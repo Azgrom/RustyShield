@@ -1,7 +1,5 @@
 use crate::{sha1state::Sha1State, sha1words::Sha1Padding, SHA1_BLOCK_SIZE, SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD};
-use core::{
-    hash::{Hash, Hasher},
-};
+use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
 use n_bit_words_lib::U32Word;
 
@@ -51,7 +49,7 @@ impl Sha1Hasher {
         self.state += state;
     }
 
-     fn finish_with_len(&mut self, len: u64) -> Sha1State {
+    fn finish_with_len(&mut self, len: u64) -> Sha1State {
         let zero_padding_length = self.zero_padding_length();
         let mut offset_pad: [u8; SHA_OFFSET_PAD as usize] = [0u8; SHA_OFFSET_PAD as usize];
         offset_pad[0] = 0x80;
@@ -60,7 +58,6 @@ impl Sha1Hasher {
         self.write(&(len * 8).to_be_bytes());
 
         self.state.clone()
-
     }
 }
 
@@ -91,7 +88,7 @@ impl Hash for Sha1Hasher {
 impl Hasher for Sha1Hasher {
     fn finish(&self) -> u64 {
         let state = self.clone().finish_with_len(self.size);
-        Into::<u64>::into(state.0) << 32 | Into::<u64>::into(state.1)
+        Into::<u64>::into(state.0.0) << 32 | Into::<u64>::into(state.0.1)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {

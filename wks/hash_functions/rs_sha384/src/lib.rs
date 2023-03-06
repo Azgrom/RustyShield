@@ -4,7 +4,6 @@ extern crate alloc;
 
 pub use crate::{sha384hasher::Sha384Hasher, sha384state::Sha384State};
 
-mod sha384comp;
 mod sha384hasher;
 mod sha384state;
 mod sha384words;

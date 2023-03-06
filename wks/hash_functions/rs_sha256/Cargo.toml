@@ -12,5 +12,6 @@ name = "rs_sha256_lib"
 path = "src/lib.rs"
 
 [dependencies]
-n_bit_words = { path = "../../n_bit_words" }
 hash_ctx = { path = "../../hash_ctx" }
+internal_state = { path = "../../internal_state" }
+n_bit_words = { path = "../../n_bit_words" }

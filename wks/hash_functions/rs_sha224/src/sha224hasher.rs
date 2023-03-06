@@ -84,7 +84,7 @@ impl Hash for Sha224Hasher {
 impl Hasher for Sha224Hasher {
     fn finish(&self) -> u64 {
         let state = self.clone().finish_with_len(self.size);
-        Into::<u64>::into(state.0) << 32 | Into::<u64>::into(state.1)
+        Into::<u64>::into(state.0.0) << 32 | Into::<u64>::into(state.0.1)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {

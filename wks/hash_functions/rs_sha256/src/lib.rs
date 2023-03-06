@@ -4,7 +4,6 @@ extern crate alloc;
 
 pub use crate::{sha256hasher::Sha256Hasher, sha256state::Sha256State};
 
-mod sha256comp;
 mod sha256hasher;
 mod sha256state;
 mod sha256words;

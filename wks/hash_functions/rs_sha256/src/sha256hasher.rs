@@ -1,9 +1,7 @@
 use crate::{
     sha256state::Sha256State, sha256words::Sha256Words, SHA256_PADDING_U32_WORDS_COUNT, SHA256_PADDING_U8_WORDS_COUNT,
 };
-use core::{
-    hash::{Hash, Hasher},
-};
+use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
 use n_bit_words_lib::U32Word;
 
@@ -85,11 +83,11 @@ impl Hash for Sha256Hasher {
 impl Hasher for Sha256Hasher {
     fn finish(&self) -> u64 {
         let state = self.clone().finish_with_len(self.size);
-        Into::<u64>::into(state.0) << 32 | Into::<u64>::into(state.1)
+        Into::<u64>::into(state.0.0) << 32 | Into::<u64>::into(state.0.1)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
-        let mut len_w = (self.size & SHA256_SCHEDULE_LAST_INDEX as u64) as u8;
+        let len_w = (self.size & SHA256_SCHEDULE_LAST_INDEX as u64) as u8;
 
         self.size += bytes.len() as u64;
 
@@ -101,7 +99,7 @@ impl Hasher for Sha256Hasher {
 
             self.words[(len_w as usize)..((len_w + left) as usize)].clone_from_slice(&bytes[..(left as usize)]);
 
-            if (len_w + left) & SHA256_SCHEDULE_LAST_INDEX {
+            if (len_w + left) & SHA256_SCHEDULE_LAST_INDEX != 0 {
                 return;
             }
 
