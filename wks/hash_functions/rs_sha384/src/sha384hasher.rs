@@ -44,7 +44,7 @@ impl Sha384Hasher {
         1 + (SHA384BLOCK_LAST_INDEX & (111usize.wrapping_sub((self.size & SHA384BLOCK_LAST_INDEX as u128) as usize)))
     }
 
-    fn finish_with_len(&mut self, len: u128) -> u64 {
+    fn finish_with_len(&mut self, len: u128) -> Sha384State {
         let zero_padding_len = self.zero_padding_length();
         let mut offset_pad = [0u8; SHA384BLOCK_SIZE as usize];
         offset_pad[0] = 0x80;
@@ -52,7 +52,7 @@ impl Sha384Hasher {
         self.write(&offset_pad[..zero_padding_len]);
         self.write(&(len * 8).to_be_bytes());
 
-        Into::<u64>::into(self.state.0) << 32 | Into::<u64>::into(self.state.1)
+        self.state.clone()
     }
 }
 
@@ -82,7 +82,8 @@ impl Hash for Sha384Hasher {
 
 impl Hasher for Sha384Hasher {
     fn finish(&self) -> u64 {
-        self.clone().finish_with_len(self.size)
+        let state = self.clone().finish_with_len(self.size);
+        Into::<u64>::into(state.0) << 32 | Into::<u64>::into(state.1)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
@@ -123,7 +124,6 @@ impl HasherContext for Sha384Hasher {
     type State = Sha384State;
 
     fn finish(&mut self) -> Self::State {
-        self.finish_with_len(self.size);
-        self.state.clone()
+        self.finish_with_len(self.size)
     }
 }

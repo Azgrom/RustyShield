@@ -28,8 +28,8 @@ impl Sha224Hasher {
         self.state += state;
     }
 
-    fn load_words(&self) -> [U32Word; 16 as usize] {
-        let mut w: [U32Word; 16 as usize] = [U32Word::default(); 16 as usize];
+    fn load_words(&self) -> [U32Word; 16] {
+        let mut w: [U32Word; 16] = [U32Word::default(); 16];
 
         for (w, c) in w.iter_mut().zip(self.words.u32_chunks()) {
             *w = u32::from_be_bytes([c[0], c[1], c[2], c[3]]).into()
@@ -43,7 +43,7 @@ impl Sha224Hasher {
             as usize
     }
 
-    fn finish_with_len(&mut self, len: u64) -> u64 {
+    fn finish_with_len(&mut self, len: u64) -> Sha224State {
         let pad_len: [u8; 8] = (len * 8).to_be_bytes();
         let zero_padding_length = self.zero_padding_length();
         let mut offset_pad: [u8; SHA224_SCHEDULE_U32_WORDS_COUNT as usize] =
@@ -53,7 +53,7 @@ impl Sha224Hasher {
         self.write(&offset_pad[..zero_padding_length]);
         self.write(&pad_len);
 
-        Into::<u64>::into(self.state.0) << 32 | Into::<u64>::into(self.state.1)
+        self.state.clone()
     }
 }
 
@@ -83,7 +83,8 @@ impl Hash for Sha224Hasher {
 
 impl Hasher for Sha224Hasher {
     fn finish(&self) -> u64 {
-        self.clone().finish_with_len(self.size)
+        let state = self.clone().finish_with_len(self.size);
+        Into::<u64>::into(state.0) << 32 | Into::<u64>::into(state.1)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
@@ -126,7 +127,6 @@ impl HasherContext for Sha224Hasher {
     type State = Sha224State;
 
     fn finish(&mut self) -> Self::State {
-        self.finish_with_len(self.size);
-        self.state.clone()
+        self.finish_with_len(self.size)
     }
 }

@@ -45,7 +45,7 @@ impl Sha256Hasher {
             as usize
     }
 
-    fn finish_with_len(&mut self, len: u64) -> u64 {
+    fn finish_with_len(&mut self, len: u64) -> Sha256State {
         let zero_padding_length = self.zero_padding_length();
         let mut offset_pad: [u8; SHA256_PADDING_U8_WORDS_COUNT as usize] =
             [0u8; SHA256_PADDING_U8_WORDS_COUNT as usize];
@@ -54,7 +54,7 @@ impl Sha256Hasher {
         self.write(&offset_pad[..zero_padding_length]);
         self.write(&(len * 8).to_be_bytes());
 
-        Into::<u64>::into(self.state.0) << 32 | Into::<u64>::into(self.state.1)
+        self.state.clone()
     }
 }
 
@@ -84,7 +84,8 @@ impl Hash for Sha256Hasher {
 
 impl Hasher for Sha256Hasher {
     fn finish(&self) -> u64 {
-        self.clone().finish_with_len(self.size)
+        let state = self.clone().finish_with_len(self.size);
+        Into::<u64>::into(state.0) << 32 | Into::<u64>::into(state.1)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
@@ -127,7 +128,6 @@ impl HasherContext for Sha256Hasher {
     type State = Sha256State;
 
     fn finish(&mut self) -> Self::State {
-        self.finish_with_len(self.size);
-        self.state.clone()
+        self.finish_with_len(self.size)
     }
 }
