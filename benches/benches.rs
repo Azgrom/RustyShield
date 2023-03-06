@@ -49,7 +49,7 @@ fn this_impl_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8])
         let sha1_default_state = Sha1State::default();
         let mut sha1hasher = sha1_default_state.build_hasher();
         input.hash(&mut sha1hasher);
-        let _result = sha1hasher.to_lower_hex();
+        let _result = HasherContext::finish(&mut sha1hasher);
     })
 }
 
@@ -59,11 +59,7 @@ fn openssl_bind_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u
     b.iter(|| {
         let mut sha1_ctx = ossl_sha1::sha::Sha1::new();
         sha1_ctx.update(input);
-        let _result = sha1_ctx
-            .finish()
-            .iter()
-            .map(|&b| format!("{:02x}", b))
-            .collect::<String>();
+        let _result = sha1_ctx.finish();
     })
 }
 
@@ -74,11 +70,7 @@ fn rust_crypto_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8
     b.iter(|| {
         let mut sha1_ctx = hashes_sha1::Sha1::new();
         sha1_ctx.update(input);
-        let _result = sha1_ctx
-            .finalize()
-            .iter()
-            .map(|&b| format!("{:02x}", b))
-            .collect::<String>();
+        let _result = sha1_ctx.finalize();
     })
 }
 
