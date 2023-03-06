@@ -51,7 +51,7 @@ impl Sha1Hasher {
         self.state += state;
     }
 
-    fn finish_with_len(&mut self, len: u64) -> Sha1State {
+     fn finish_with_len(&mut self, len: u64) -> Sha1State {
         let zero_padding_length = self.zero_padding_length();
         let mut offset_pad: [u8; SHA_OFFSET_PAD as usize] = [0u8; SHA_OFFSET_PAD as usize];
         offset_pad[0] = 0x80;
@@ -95,7 +95,7 @@ impl Hasher for Sha1Hasher {
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
-        let mut len_w = (self.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
+        let len_w = (self.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
 
         self.size += bytes.len() as u64;
 
@@ -107,25 +107,30 @@ impl Hasher for Sha1Hasher {
 
             self.words[len_w..len_w + left].clone_from_slice(&bytes[..(left as usize)]);
 
-            len_w = (len_w + left) & SHA_CBLOCK_LAST_INDEX as u8;
-            bytes = &bytes[(left as usize)..];
-
-            if len_w != 0 {
+            if (len_w + left) & SHA_CBLOCK_LAST_INDEX as u8 != 0 {
                 return;
             }
 
             self.hash_block();
+            bytes = &bytes[(left as usize)..];
         }
 
-        while bytes.len() >= SHA1_BLOCK_SIZE as usize {
-            self.words.clone_from_slice(&bytes[..(SHA1_BLOCK_SIZE as usize)]);
+        let mut chunks_exact = bytes.chunks_exact(SHA1_BLOCK_SIZE as usize);
+        while let Some(schedule_chunk) = chunks_exact.next() {
+            self.words.clone_from_slice(schedule_chunk);
             self.hash_block();
-            bytes = &bytes[(SHA1_BLOCK_SIZE as usize)..];
         }
 
-        if !bytes.is_empty() {
-            self.words[..bytes.len()].clone_from_slice(bytes)
+        let schedule_remainder = chunks_exact.remainder();
+        if !schedule_remainder.is_empty() {
+            self.words[..schedule_remainder.len()].clone_from_slice(schedule_remainder);
         }
+    }
+}
+
+impl PartialEq for Sha1Hasher {
+    fn eq(&self, other: &Self) -> bool {
+        self.size == other.size && self.state == other.state && self.words == other.words
     }
 }
 

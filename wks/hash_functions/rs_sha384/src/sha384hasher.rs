@@ -87,7 +87,7 @@ impl Hasher for Sha384Hasher {
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
-        let mut len_w = (self.size & SHA384BLOCK_LAST_INDEX as u128) as u8;
+        let len_w = (self.size & SHA384BLOCK_LAST_INDEX as u128) as u8;
         self.size += bytes.len() as u128;
 
         if len_w != 0 {
@@ -98,9 +98,7 @@ impl Hasher for Sha384Hasher {
 
             self.words[len_w..(len_w + left)].clone_from_slice(&bytes[..left as usize]);
 
-            len_w = (len_w + left) & SHA384BLOCK_LAST_INDEX as u8;
-
-            if len_w != 0 {
+            if (len_w + left) & SHA384BLOCK_LAST_INDEX as u8 != 0 {
                 return;
             }
 
@@ -108,14 +106,15 @@ impl Hasher for Sha384Hasher {
             bytes = &bytes[(left as usize)..];
         }
 
-        while bytes.len() >= SHA384BLOCK_SIZE.into() {
-            self.words.clone_from_slice(&bytes[..SHA384BLOCK_SIZE.into()]);
+        let mut chunks_exact = bytes.chunks_exact(SHA384BLOCK_SIZE as usize);
+        while let Some(schedule_chunk) = chunks_exact.next() {
+            self.words.clone_from_slice(schedule_chunk);
             self.hash_block();
-            bytes = &bytes[SHA384BLOCK_SIZE.into()..];
         }
 
-        if !bytes.is_empty() {
-            self.words[..bytes.len()].clone_from_slice(bytes)
+        let schedule_remainder = chunks_exact.remainder();
+        if !schedule_remainder.is_empty() {
+            self.words[..schedule_remainder.len()].clone_from_slice(schedule_remainder);
         }
     }
 }

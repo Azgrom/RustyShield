@@ -88,7 +88,7 @@ impl Hasher for Sha224Hasher {
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
-        let mut len_w = (self.size & SHA224_SCHEDULE_LAST_INDEX as u64) as u8;
+        let len_w = (self.size & SHA224_SCHEDULE_LAST_INDEX as u64) as u8;
 
         self.size += bytes.len() as u64;
 
@@ -100,25 +100,23 @@ impl Hasher for Sha224Hasher {
 
             self.words[(len_w as usize)..((len_w + left) as usize)].clone_from_slice(&bytes[..(left as usize)]);
 
-            len_w = (len_w + left) & SHA224_SCHEDULE_LAST_INDEX as u8;
-            bytes = &bytes[(left as usize)..];
-
-            if len_w != 0 {
+            if (len_w + left) & SHA224_SCHEDULE_LAST_INDEX as u8 != 0 {
                 return;
             }
 
             self.hash_block();
+            bytes = &bytes[(left as usize)..];
         }
 
-        while bytes.len() >= SHA224_PADDING_U8_WORDS_COUNT as usize {
-            self.words
-                .clone_from_slice(&bytes[..(SHA224_PADDING_U8_WORDS_COUNT as usize)]);
+        let mut chunks_exact = bytes.chunks_exact(SHA224_PADDING_U8_WORDS_COUNT as usize);
+        while let Some(schedule_chunk) = chunks_exact.next() {
+            self.words.clone_from_slice(schedule_chunk);
             self.hash_block();
-            bytes = &bytes[(SHA224_PADDING_U8_WORDS_COUNT as usize)..];
         }
 
-        if !bytes.is_empty() {
-            self.words[..bytes.len()].clone_from_slice(bytes)
+        let schedule_remainder = chunks_exact.remainder();
+        if !schedule_remainder.is_empty() {
+            self.words[..schedule_remainder.len()].clone_from_slice(schedule_remainder);
         }
     }
 }

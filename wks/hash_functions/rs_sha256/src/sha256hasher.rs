@@ -101,9 +101,7 @@ impl Hasher for Sha256Hasher {
 
             self.words[(len_w as usize)..((len_w + left) as usize)].clone_from_slice(&bytes[..(left as usize)]);
 
-            len_w = (len_w + left) & SHA256_SCHEDULE_LAST_INDEX;
-
-            if len_w != 0 {
+            if (len_w + left) & SHA256_SCHEDULE_LAST_INDEX {
                 return;
             }
 
@@ -111,15 +109,15 @@ impl Hasher for Sha256Hasher {
             bytes = &bytes[(left as usize)..];
         }
 
-        while bytes.len() >= SHA256_PADDING_U8_WORDS_COUNT as usize {
-            self.words
-                .clone_from_slice(&bytes[..(SHA256_PADDING_U8_WORDS_COUNT as usize)]);
+        let mut chunks_exact = bytes.chunks_exact(SHA256_PADDING_U8_WORDS_COUNT as usize);
+        while let Some(schedule_chunk) = chunks_exact.next() {
+            self.words.clone_from_slice(schedule_chunk);
             self.hash_block();
-            bytes = &bytes[(SHA256_PADDING_U8_WORDS_COUNT as usize)..];
         }
 
-        if !bytes.is_empty() {
-            self.words[..bytes.len()].clone_from_slice(bytes)
+        let schedule_remainder = chunks_exact.remainder();
+        if !schedule_remainder.is_empty() {
+            self.words[..schedule_remainder.len()].clone_from_slice(schedule_remainder);
         }
     }
 }
