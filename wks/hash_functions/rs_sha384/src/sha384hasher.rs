@@ -105,7 +105,7 @@ impl Hasher for Sha384Hasher {
         }
 
         let mut chunks_exact = bytes.chunks_exact(SHA384BLOCK_SIZE as usize);
-        while let Some(schedule_chunk) = chunks_exact.next() {
+        for schedule_chunk in chunks_exact.by_ref() {
             self.words.clone_from_slice(schedule_chunk);
             self.hash_block();
         }

@@ -109,7 +109,7 @@ impl Hasher for Sha224Hasher {
         }
 
         let mut chunks_exact = bytes.chunks_exact(SHA224_PADDING_U8_WORDS_COUNT as usize);
-        while let Some(schedule_chunk) = chunks_exact.next() {
+        for schedule_chunk in chunks_exact.by_ref() {
             self.words.clone_from_slice(schedule_chunk);
             self.hash_block();
         }
