@@ -13,7 +13,12 @@ pub(crate) struct Sha1Padding {
 
 impl Sha1Padding {
     pub(crate) fn to_be_u32(&self, i: usize) -> U32Word {
-        U32Word::from_be_bytes([self[(i * 4)], self[(i * 4) + 1], self[(i * 4) + 2], self[(i * 4) + 3]])
+        U32Word::from_be_bytes([
+            self[(i * 4)],
+            self[(i * 4) + 1],
+            self[(i * 4) + 2],
+            self[(i * 4) + 3],
+        ])
     }
 
     pub(crate) fn clone_from_slice(&mut self, src: &[u8]) {

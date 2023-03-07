@@ -1,8 +1,8 @@
+use crate::rotors::sha160rotor::Sha160Rotor as Rotor;
 use core::{
     hash::{Hash, Hasher},
-    ops::AddAssign
+    ops::AddAssign,
 };
-use crate::rotors::sha160rotor::Sha160Rotor as Rotor;
 use n_bit_words_lib::U32Word;
 
 #[derive(Clone, Debug)]

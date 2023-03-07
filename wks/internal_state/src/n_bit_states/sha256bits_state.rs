@@ -1,7 +1,7 @@
 use crate::rotors::sha256rotor::Sha256Rotor as Rotor;
 use core::{
+    hash::{Hash, Hasher},
     ops::AddAssign,
-    hash::{Hash, Hasher}
 };
 use n_bit_words_lib::U32Word;
 
@@ -30,7 +30,7 @@ impl Sha256BitsState {
             &mut self.7,
             w[0],
         )
-            .rnd(U32Word::K00);
+        .rnd(U32Word::K00);
         Rotor(
             self.7,
             self.0,
@@ -42,7 +42,7 @@ impl Sha256BitsState {
             &mut self.6,
             w[1],
         )
-            .rnd(U32Word::K01);
+        .rnd(U32Word::K01);
         Rotor(
             self.6,
             self.7,
@@ -54,7 +54,7 @@ impl Sha256BitsState {
             &mut self.5,
             w[2],
         )
-            .rnd(U32Word::K02);
+        .rnd(U32Word::K02);
         Rotor(
             self.5,
             self.6,
@@ -66,7 +66,7 @@ impl Sha256BitsState {
             &mut self.4,
             w[3],
         )
-            .rnd(U32Word::K03);
+        .rnd(U32Word::K03);
         Rotor(
             self.4,
             self.5,
@@ -78,7 +78,7 @@ impl Sha256BitsState {
             &mut self.3,
             w[4],
         )
-            .rnd(U32Word::K04);
+        .rnd(U32Word::K04);
         Rotor(
             self.3,
             self.4,
@@ -90,7 +90,7 @@ impl Sha256BitsState {
             &mut self.2,
             w[5],
         )
-            .rnd(U32Word::K05);
+        .rnd(U32Word::K05);
         Rotor(
             self.2,
             self.3,
@@ -102,7 +102,7 @@ impl Sha256BitsState {
             &mut self.1,
             w[6],
         )
-            .rnd(U32Word::K06);
+        .rnd(U32Word::K06);
         Rotor(
             self.1,
             self.2,
@@ -114,7 +114,7 @@ impl Sha256BitsState {
             &mut self.0,
             w[7],
         )
-            .rnd(U32Word::K07);
+        .rnd(U32Word::K07);
         Rotor(
             self.0,
             self.1,
@@ -126,7 +126,7 @@ impl Sha256BitsState {
             &mut self.7,
             w[8],
         )
-            .rnd(U32Word::K08);
+        .rnd(U32Word::K08);
         Rotor(
             self.7,
             self.0,
@@ -138,7 +138,7 @@ impl Sha256BitsState {
             &mut self.6,
             w[9],
         )
-            .rnd(U32Word::K09);
+        .rnd(U32Word::K09);
         Rotor(
             self.6,
             self.7,
@@ -150,7 +150,7 @@ impl Sha256BitsState {
             &mut self.5,
             w[10],
         )
-            .rnd(U32Word::K10);
+        .rnd(U32Word::K10);
         Rotor(
             self.5,
             self.6,
@@ -162,7 +162,7 @@ impl Sha256BitsState {
             &mut self.4,
             w[11],
         )
-            .rnd(U32Word::K11);
+        .rnd(U32Word::K11);
         Rotor(
             self.4,
             self.5,
@@ -174,7 +174,7 @@ impl Sha256BitsState {
             &mut self.3,
             w[12],
         )
-            .rnd(U32Word::K12);
+        .rnd(U32Word::K12);
         Rotor(
             self.3,
             self.4,
@@ -186,7 +186,7 @@ impl Sha256BitsState {
             &mut self.2,
             w[13],
         )
-            .rnd(U32Word::K13);
+        .rnd(U32Word::K13);
         Rotor(
             self.2,
             self.3,
@@ -198,7 +198,7 @@ impl Sha256BitsState {
             &mut self.1,
             w[14],
         )
-            .rnd(U32Word::K14);
+        .rnd(U32Word::K14);
         Rotor(
             self.1,
             self.2,
@@ -210,7 +210,7 @@ impl Sha256BitsState {
             &mut self.0,
             w[15],
         )
-            .rnd(U32Word::K15);
+        .rnd(U32Word::K15);
     }
 
     pub fn block_16_31(&mut self, w: &mut [U32Word; 16]) {
@@ -242,7 +242,7 @@ impl Sha256BitsState {
             &mut self.7,
             w[0],
         )
-            .rnd(U32Word::K16);
+        .rnd(U32Word::K16);
         Rotor(
             self.7,
             self.0,
@@ -254,7 +254,7 @@ impl Sha256BitsState {
             &mut self.6,
             w[1],
         )
-            .rnd(U32Word::K17);
+        .rnd(U32Word::K17);
         Rotor(
             self.6,
             self.7,
@@ -266,7 +266,7 @@ impl Sha256BitsState {
             &mut self.5,
             w[2],
         )
-            .rnd(U32Word::K18);
+        .rnd(U32Word::K18);
         Rotor(
             self.5,
             self.6,
@@ -278,7 +278,7 @@ impl Sha256BitsState {
             &mut self.4,
             w[3],
         )
-            .rnd(U32Word::K19);
+        .rnd(U32Word::K19);
         Rotor(
             self.4,
             self.5,
@@ -290,7 +290,7 @@ impl Sha256BitsState {
             &mut self.3,
             w[4],
         )
-            .rnd(U32Word::K20);
+        .rnd(U32Word::K20);
         Rotor(
             self.3,
             self.4,
@@ -302,7 +302,7 @@ impl Sha256BitsState {
             &mut self.2,
             w[5],
         )
-            .rnd(U32Word::K21);
+        .rnd(U32Word::K21);
         Rotor(
             self.2,
             self.3,
@@ -314,7 +314,7 @@ impl Sha256BitsState {
             &mut self.1,
             w[6],
         )
-            .rnd(U32Word::K22);
+        .rnd(U32Word::K22);
         Rotor(
             self.1,
             self.2,
@@ -326,7 +326,7 @@ impl Sha256BitsState {
             &mut self.0,
             w[7],
         )
-            .rnd(U32Word::K23);
+        .rnd(U32Word::K23);
         Rotor(
             self.0,
             self.1,
@@ -338,7 +338,7 @@ impl Sha256BitsState {
             &mut self.7,
             w[8],
         )
-            .rnd(U32Word::K24);
+        .rnd(U32Word::K24);
         Rotor(
             self.7,
             self.0,
@@ -350,7 +350,7 @@ impl Sha256BitsState {
             &mut self.6,
             w[9],
         )
-            .rnd(U32Word::K25);
+        .rnd(U32Word::K25);
         Rotor(
             self.6,
             self.7,
@@ -362,7 +362,7 @@ impl Sha256BitsState {
             &mut self.5,
             w[10],
         )
-            .rnd(U32Word::K26);
+        .rnd(U32Word::K26);
         Rotor(
             self.5,
             self.6,
@@ -374,7 +374,7 @@ impl Sha256BitsState {
             &mut self.4,
             w[11],
         )
-            .rnd(U32Word::K27);
+        .rnd(U32Word::K27);
         Rotor(
             self.4,
             self.5,
@@ -386,7 +386,7 @@ impl Sha256BitsState {
             &mut self.3,
             w[12],
         )
-            .rnd(U32Word::K28);
+        .rnd(U32Word::K28);
         Rotor(
             self.3,
             self.4,
@@ -398,7 +398,7 @@ impl Sha256BitsState {
             &mut self.2,
             w[13],
         )
-            .rnd(U32Word::K29);
+        .rnd(U32Word::K29);
         Rotor(
             self.2,
             self.3,
@@ -410,7 +410,7 @@ impl Sha256BitsState {
             &mut self.1,
             w[14],
         )
-            .rnd(U32Word::K30);
+        .rnd(U32Word::K30);
         Rotor(
             self.1,
             self.2,
@@ -422,7 +422,7 @@ impl Sha256BitsState {
             &mut self.0,
             w[15],
         )
-            .rnd(U32Word::K31);
+        .rnd(U32Word::K31);
     }
 
     pub fn block_32_47(&mut self, w: &mut [U32Word; 16]) {
@@ -454,7 +454,7 @@ impl Sha256BitsState {
             &mut self.7,
             w[0],
         )
-            .rnd(U32Word::K32);
+        .rnd(U32Word::K32);
         Rotor(
             self.7,
             self.0,
@@ -466,7 +466,7 @@ impl Sha256BitsState {
             &mut self.6,
             w[1],
         )
-            .rnd(U32Word::K33);
+        .rnd(U32Word::K33);
         Rotor(
             self.6,
             self.7,
@@ -478,7 +478,7 @@ impl Sha256BitsState {
             &mut self.5,
             w[2],
         )
-            .rnd(U32Word::K34);
+        .rnd(U32Word::K34);
         Rotor(
             self.5,
             self.6,
@@ -490,7 +490,7 @@ impl Sha256BitsState {
             &mut self.4,
             w[3],
         )
-            .rnd(U32Word::K35);
+        .rnd(U32Word::K35);
         Rotor(
             self.4,
             self.5,
@@ -502,7 +502,7 @@ impl Sha256BitsState {
             &mut self.3,
             w[4],
         )
-            .rnd(U32Word::K36);
+        .rnd(U32Word::K36);
         Rotor(
             self.3,
             self.4,
@@ -514,7 +514,7 @@ impl Sha256BitsState {
             &mut self.2,
             w[5],
         )
-            .rnd(U32Word::K37);
+        .rnd(U32Word::K37);
         Rotor(
             self.2,
             self.3,
@@ -526,7 +526,7 @@ impl Sha256BitsState {
             &mut self.1,
             w[6],
         )
-            .rnd(U32Word::K38);
+        .rnd(U32Word::K38);
         Rotor(
             self.1,
             self.2,
@@ -538,7 +538,7 @@ impl Sha256BitsState {
             &mut self.0,
             w[7],
         )
-            .rnd(U32Word::K39);
+        .rnd(U32Word::K39);
         Rotor(
             self.0,
             self.1,
@@ -550,7 +550,7 @@ impl Sha256BitsState {
             &mut self.7,
             w[8],
         )
-            .rnd(U32Word::K40);
+        .rnd(U32Word::K40);
         Rotor(
             self.7,
             self.0,
@@ -562,7 +562,7 @@ impl Sha256BitsState {
             &mut self.6,
             w[9],
         )
-            .rnd(U32Word::K41);
+        .rnd(U32Word::K41);
         Rotor(
             self.6,
             self.7,
@@ -574,7 +574,7 @@ impl Sha256BitsState {
             &mut self.5,
             w[10],
         )
-            .rnd(U32Word::K42);
+        .rnd(U32Word::K42);
         Rotor(
             self.5,
             self.6,
@@ -586,7 +586,7 @@ impl Sha256BitsState {
             &mut self.4,
             w[11],
         )
-            .rnd(U32Word::K43);
+        .rnd(U32Word::K43);
         Rotor(
             self.4,
             self.5,
@@ -598,7 +598,7 @@ impl Sha256BitsState {
             &mut self.3,
             w[12],
         )
-            .rnd(U32Word::K44);
+        .rnd(U32Word::K44);
         Rotor(
             self.3,
             self.4,
@@ -610,7 +610,7 @@ impl Sha256BitsState {
             &mut self.2,
             w[13],
         )
-            .rnd(U32Word::K45);
+        .rnd(U32Word::K45);
         Rotor(
             self.2,
             self.3,
@@ -622,7 +622,7 @@ impl Sha256BitsState {
             &mut self.1,
             w[14],
         )
-            .rnd(U32Word::K46);
+        .rnd(U32Word::K46);
         Rotor(
             self.1,
             self.2,
@@ -634,7 +634,7 @@ impl Sha256BitsState {
             &mut self.0,
             w[15],
         )
-            .rnd(U32Word::K47);
+        .rnd(U32Word::K47);
     }
 
     pub fn block_48_63(&mut self, w: &mut [U32Word; 16]) {
@@ -666,7 +666,7 @@ impl Sha256BitsState {
             &mut self.7,
             w[0],
         )
-            .rnd(U32Word::K48);
+        .rnd(U32Word::K48);
         Rotor(
             self.7,
             self.0,
@@ -678,7 +678,7 @@ impl Sha256BitsState {
             &mut self.6,
             w[1],
         )
-            .rnd(U32Word::K49);
+        .rnd(U32Word::K49);
         Rotor(
             self.6,
             self.7,
@@ -690,7 +690,7 @@ impl Sha256BitsState {
             &mut self.5,
             w[2],
         )
-            .rnd(U32Word::K50);
+        .rnd(U32Word::K50);
         Rotor(
             self.5,
             self.6,
@@ -702,7 +702,7 @@ impl Sha256BitsState {
             &mut self.4,
             w[3],
         )
-            .rnd(U32Word::K51);
+        .rnd(U32Word::K51);
         Rotor(
             self.4,
             self.5,
@@ -714,7 +714,7 @@ impl Sha256BitsState {
             &mut self.3,
             w[4],
         )
-            .rnd(U32Word::K52);
+        .rnd(U32Word::K52);
         Rotor(
             self.3,
             self.4,
@@ -726,7 +726,7 @@ impl Sha256BitsState {
             &mut self.2,
             w[5],
         )
-            .rnd(U32Word::K53);
+        .rnd(U32Word::K53);
         Rotor(
             self.2,
             self.3,
@@ -738,7 +738,7 @@ impl Sha256BitsState {
             &mut self.1,
             w[6],
         )
-            .rnd(U32Word::K54);
+        .rnd(U32Word::K54);
         Rotor(
             self.1,
             self.2,
@@ -750,7 +750,7 @@ impl Sha256BitsState {
             &mut self.0,
             w[7],
         )
-            .rnd(U32Word::K55);
+        .rnd(U32Word::K55);
         Rotor(
             self.0,
             self.1,
@@ -762,7 +762,7 @@ impl Sha256BitsState {
             &mut self.7,
             w[8],
         )
-            .rnd(U32Word::K56);
+        .rnd(U32Word::K56);
         Rotor(
             self.7,
             self.0,
@@ -774,7 +774,7 @@ impl Sha256BitsState {
             &mut self.6,
             w[9],
         )
-            .rnd(U32Word::K57);
+        .rnd(U32Word::K57);
         Rotor(
             self.6,
             self.7,
@@ -786,7 +786,7 @@ impl Sha256BitsState {
             &mut self.5,
             w[10],
         )
-            .rnd(U32Word::K58);
+        .rnd(U32Word::K58);
         Rotor(
             self.5,
             self.6,
@@ -798,7 +798,7 @@ impl Sha256BitsState {
             &mut self.4,
             w[11],
         )
-            .rnd(U32Word::K59);
+        .rnd(U32Word::K59);
         Rotor(
             self.4,
             self.5,
@@ -810,7 +810,7 @@ impl Sha256BitsState {
             &mut self.3,
             w[12],
         )
-            .rnd(U32Word::K60);
+        .rnd(U32Word::K60);
         Rotor(
             self.3,
             self.4,
@@ -822,7 +822,7 @@ impl Sha256BitsState {
             &mut self.2,
             w[13],
         )
-            .rnd(U32Word::K61);
+        .rnd(U32Word::K61);
         Rotor(
             self.2,
             self.3,
@@ -834,7 +834,7 @@ impl Sha256BitsState {
             &mut self.1,
             w[14],
         )
-            .rnd(U32Word::K62);
+        .rnd(U32Word::K62);
         Rotor(
             self.1,
             self.2,
@@ -846,7 +846,7 @@ impl Sha256BitsState {
             &mut self.0,
             w[15],
         )
-            .rnd(U32Word::K63);
+        .rnd(U32Word::K63);
     }
 }
 

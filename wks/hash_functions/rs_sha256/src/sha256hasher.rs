@@ -1,5 +1,6 @@
 use crate::{
-    sha256state::Sha256State, sha256words::Sha256Words, SHA256_PADDING_U32_WORDS_COUNT, SHA256_PADDING_U8_WORDS_COUNT,
+    sha256state::Sha256State, sha256words::Sha256Words, SHA256_PADDING_U32_WORDS_COUNT,
+    SHA256_PADDING_U8_WORDS_COUNT,
 };
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
@@ -39,7 +40,8 @@ impl Sha256Hasher {
     }
 
     fn zero_padding_length(&self) -> usize {
-        1 + (SHA256_SCHEDULE_LAST_INDEX as u64 & (55u64.wrapping_sub(self.size & SHA256_SCHEDULE_LAST_INDEX as u64)))
+        1 + (SHA256_SCHEDULE_LAST_INDEX as u64
+            & (55u64.wrapping_sub(self.size & SHA256_SCHEDULE_LAST_INDEX as u64)))
             as usize
     }
 
@@ -83,7 +85,7 @@ impl Hash for Sha256Hasher {
 impl Hasher for Sha256Hasher {
     fn finish(&self) -> u64 {
         let state = self.clone().finish_with_len(self.size);
-        Into::<u64>::into(state.0.0) << 32 | Into::<u64>::into(state.0.1)
+        Into::<u64>::into(state.0 .0) << 32 | Into::<u64>::into(state.0 .1)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
@@ -97,7 +99,8 @@ impl Hasher for Sha256Hasher {
                 left = bytes.len() as u8;
             }
 
-            self.words[(len_w as usize)..((len_w + left) as usize)].clone_from_slice(&bytes[..(left as usize)]);
+            self.words[(len_w as usize)..((len_w + left) as usize)]
+                .clone_from_slice(&bytes[..(left as usize)]);
 
             if (len_w + left) & SHA256_SCHEDULE_LAST_INDEX != 0 {
                 return;

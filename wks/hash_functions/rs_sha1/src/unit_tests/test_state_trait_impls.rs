@@ -29,8 +29,8 @@ fn default_sha1_state() {
         U32Word::from(H1),
         U32Word::from(H2),
         U32Word::from(H3),
-        U32Word::from(H4),)
-    );
+        U32Word::from(H4),
+    ));
 
     assert_eq!(default_state, expected_result);
     assert_eq!(default_state.type_id(), expected_result.type_id());

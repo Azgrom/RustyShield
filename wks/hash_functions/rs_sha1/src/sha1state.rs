@@ -52,7 +52,13 @@ impl Hash for Sha1State {
 
 impl Default for Sha1State {
     fn default() -> Self {
-        Self(Sha160BitsState(H0.into(), H1.into(), H2.into(), H3.into(), H4.into()))
+        Self(Sha160BitsState(
+            H0.into(),
+            H1.into(),
+            H2.into(),
+            H3.into(),
+            H4.into(),
+        ))
     }
 }
 
@@ -70,15 +76,15 @@ impl BuildHasher for Sha1State {
 
 impl From<Sha1State> for [u8; 20] {
     fn from(value: Sha1State) -> Self {
-        let x = value.0.0.to_be_bytes();
-        let y = value.0.1.to_be_bytes();
-        let z = value.0.2.to_be_bytes();
-        let w = value.0.3.to_be_bytes();
-        let t = value.0.4.to_be_bytes();
+        let x = value.0 .0.to_be_bytes();
+        let y = value.0 .1.to_be_bytes();
+        let z = value.0 .2.to_be_bytes();
+        let w = value.0 .3.to_be_bytes();
+        let t = value.0 .4.to_be_bytes();
 
         [
-            x[0], x[1], x[2], x[3], y[0], y[1], y[2], y[3], z[0], z[1], z[2], z[3], w[0], w[1], w[2], w[3], t[0], t[1],
-            t[2], t[3],
+            x[0], x[1], x[2], x[3], y[0], y[1], y[2], y[3], z[0], z[1], z[2], z[3], w[0], w[1],
+            w[2], w[3], t[0], t[1], t[2], t[3],
         ]
     }
 }
@@ -86,11 +92,11 @@ impl From<Sha1State> for [u8; 20] {
 const LOWER_HEX_ERR: &str = "Error trying to format lower hex string";
 impl LowerHex for Sha1State {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        LowerHex::fmt(&self.0.0, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.0.1, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.0.2, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.0.3, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.0.4, f)
+        LowerHex::fmt(&self.0 .0, f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self.0 .1, f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self.0 .2, f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self.0 .3, f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self.0 .4, f)
     }
 }
 
@@ -103,10 +109,10 @@ impl PartialEq for Sha1State {
 const UPPER_HEX_ERR: &str = "Error trying to format upper hex string";
 impl UpperHex for Sha1State {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        UpperHex::fmt(&self.0.0, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.0.1, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.0.2, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.0.3, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.0.4, f)
+        UpperHex::fmt(&self.0 .0, f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self.0 .1, f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self.0 .2, f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self.0 .3, f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self.0 .4, f)
     }
 }

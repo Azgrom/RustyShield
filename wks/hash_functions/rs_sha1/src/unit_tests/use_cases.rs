@@ -100,7 +100,10 @@ fn sha1_abc_sequence_string_prefix_collision_resiliency() {
     abcd.hash(&mut abcd_sha1hasher);
 
     assert_ne!(ab_then_c_sha1hasher.finish(), abc_sha1hasher.finish());
-    assert_ne!(ab_then_c_then_d_sha1hasher.finish(), abcd_sha1hasher.finish());
+    assert_ne!(
+        ab_then_c_then_d_sha1hasher.finish(),
+        abcd_sha1hasher.finish()
+    );
 
     assert_eq!(
         format!("{:08x}", HasherContext::finish(&mut abc_sha1hasher)),
@@ -115,7 +118,10 @@ fn sha1_abc_sequence_string_prefix_collision_resiliency() {
         "a7b178c8da94a38f49e55d54f2859b613b964edd"
     );
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut ab_then_c_then_d_sha1hasher)),
+        format!(
+            "{:08x}",
+            HasherContext::finish(&mut ab_then_c_then_d_sha1hasher)
+        ),
         "bb27718131043af8844d754cabbb3fc29b3f017c"
     );
 }
@@ -130,8 +136,8 @@ fn test_phrases_with_their_bytes_sequences() {
     assert_eq!(
         digest_result.as_ref(),
         [
-            0xdau8, 0x39u8, 0xa3u8, 0xeeu8, 0x5eu8, 0x6bu8, 0x4bu8, 0x0d, 0x32u8, 0x55u8, 0xbfu8, 0xefu8, 0x95u8,
-            0x60u8, 0x18u8, 0x90u8, 0xafu8, 0xd8u8, 0x07u8, 0x09u8
+            0xdau8, 0x39u8, 0xa3u8, 0xeeu8, 0x5eu8, 0x6bu8, 0x4bu8, 0x0d, 0x32u8, 0x55u8, 0xbfu8,
+            0xefu8, 0x95u8, 0x60u8, 0x18u8, 0x90u8, 0xafu8, 0xd8u8, 0x07u8, 0x09u8
         ]
     );
 }

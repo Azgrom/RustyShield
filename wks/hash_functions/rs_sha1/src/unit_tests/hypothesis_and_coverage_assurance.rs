@@ -101,11 +101,13 @@ fn assert_value_to_append_one_at_message_end() {
 #[test]
 fn first_w_bit_word_in_fips180_documentation_conversion_test() {
     let w32_hex_str: u32 = 0xa103fe23;
-    let four_w32_bit_str = ["1010", "0001", "0000", "0011", "1111", "1110", "0010", "0011"];
+    let four_w32_bit_str = [
+        "1010", "0001", "0000", "0011", "1111", "1110", "0010", "0011",
+    ];
     let w64_hex_str: u64 = 0xa103fe2332ef301a;
     let four_w64_bit_str = [
-        "1010", "0001", "0000", "0011", "1111", "1110", "0010", "0011", "0011", "0010", "1110", "1111", "0011", "0000",
-        "0001", "1010",
+        "1010", "0001", "0000", "0011", "1111", "1110", "0010", "0011", "0011", "0010", "1110",
+        "1111", "0011", "0000", "0001", "1010",
     ];
 
     let w32_ones_count = w32_hex_str.count_ones();
@@ -142,13 +144,15 @@ fn convert_big_endian_bytes_to_u32() {
     let complete_u32_vec: &[u8] = &[FIRST_U8, SECOND_U8, THIRD_U8, FOURTH_U8];
 
     let manually_computed_single_u8_to_u32 = be_byte_to_u32(one_byte_stream_vec);
-    let manually_computed_single_u8_to_u32_hex_str = format!("{:x}", manually_computed_single_u8_to_u32);
+    let manually_computed_single_u8_to_u32_hex_str =
+        format!("{:x}", manually_computed_single_u8_to_u32);
 
     let manually_computed_two_u8_to_u32 = two_be_bytes_to_u32(two_byte_stream_vec);
     let manually_computed_two_u8_to_u32_hex_str = format!("{:x}", manually_computed_two_u8_to_u32);
 
     let manually_computed_three_u8_to_u32 = three_be_bytes_to_u32(three_byte_stream_vec);
-    let manually_computed_three_u8_to_u32_hex_str = format!("{:x}", manually_computed_three_u8_to_u32);
+    let manually_computed_three_u8_to_u32_hex_str =
+        format!("{:x}", manually_computed_three_u8_to_u32);
 
     let manually_computed_complete_u32 = four_be_bytes_to_u32(complete_u32_vec);
     let manually_computed_complete_u32_hex_str = format!("{:x}", manually_computed_complete_u32);
@@ -158,16 +162,23 @@ fn convert_big_endian_bytes_to_u32() {
     let two_byte_u32_binding = [&zeroes_bytes[..2], two_byte_stream_vec].concat();
     let three_byte_u32_binding = [&zeroes_bytes[..1], three_byte_stream_vec].concat();
 
-    let std_computed_single_u8_to_u32 = u32::from_be_bytes(one_byte_u32_binding.try_into().unwrap());
+    let std_computed_single_u8_to_u32 =
+        u32::from_be_bytes(one_byte_u32_binding.try_into().unwrap());
     let std_computed_single_u8_to_u32_hex_str = format!("{:x}", std_computed_single_u8_to_u32);
     let std_computed_two_u8_to_u32 = u32::from_be_bytes(two_byte_u32_binding.try_into().unwrap());
     let std_computed_two_u8_to_u32_hex_str = format!("{:x}", std_computed_two_u8_to_u32);
-    let std_computed_three_u8_to_u32 = u32::from_be_bytes(three_byte_u32_binding.try_into().unwrap());
+    let std_computed_three_u8_to_u32 =
+        u32::from_be_bytes(three_byte_u32_binding.try_into().unwrap());
     let std_computed_three_u8_to_u32_hex_str = format!("{:x}", std_computed_three_u8_to_u32);
-    let std_computed_complete_u8_pack_to_u32 = u32::from_be_bytes(complete_u32_vec.try_into().unwrap());
-    let std_computed_complete_u8_to_u32_hex_str = format!("{:x}", std_computed_complete_u8_pack_to_u32);
+    let std_computed_complete_u8_pack_to_u32 =
+        u32::from_be_bytes(complete_u32_vec.try_into().unwrap());
+    let std_computed_complete_u8_to_u32_hex_str =
+        format!("{:x}", std_computed_complete_u8_pack_to_u32);
 
-    assert_eq!(std_computed_single_u8_to_u32, manually_computed_single_u8_to_u32);
+    assert_eq!(
+        std_computed_single_u8_to_u32,
+        manually_computed_single_u8_to_u32
+    );
     assert_eq!(
         std_computed_single_u8_to_u32_hex_str,
         manually_computed_single_u8_to_u32_hex_str
@@ -177,12 +188,18 @@ fn convert_big_endian_bytes_to_u32() {
         std_computed_two_u8_to_u32_hex_str,
         manually_computed_two_u8_to_u32_hex_str
     );
-    assert_eq!(std_computed_three_u8_to_u32, manually_computed_three_u8_to_u32);
+    assert_eq!(
+        std_computed_three_u8_to_u32,
+        manually_computed_three_u8_to_u32
+    );
     assert_eq!(
         std_computed_three_u8_to_u32_hex_str,
         manually_computed_three_u8_to_u32_hex_str
     );
-    assert_eq!(std_computed_complete_u8_pack_to_u32, manually_computed_complete_u32);
+    assert_eq!(
+        std_computed_complete_u8_pack_to_u32,
+        manually_computed_complete_u32
+    );
     assert_eq!(
         std_computed_complete_u8_to_u32_hex_str,
         manually_computed_complete_u32_hex_str
@@ -214,7 +231,11 @@ fn bit_shift_method_vs_explicit_operation() {
         65_535u32,
         "Assert equality for u16::MAX"
     );
-    assert_eq!(max_u32_unsigned_integer.shr(24), 255_u32, "Assert equality for u8::MAX");
+    assert_eq!(
+        max_u32_unsigned_integer.shr(24),
+        255_u32,
+        "Assert equality for u8::MAX"
+    );
 
     // Assert cast has logic for pointing the least significant bits, by the amount of the new
     // type size. It seems to make use of Copy, because it looses original information in case a
@@ -236,10 +257,22 @@ fn associative_wrapping_add_property() {
     assert_eq!(half_u8_max.wrapping_add(u8_max), half_u8_max - 1);
     assert_eq!(u8_max.wrapping_add(half_u8_max), half_u8_max - 1);
 
-    assert_eq!(u8_max.wrapping_add(u8_max).wrapping_add(half_u8_max), half_u8_max - 2);
-    assert_eq!(u8_max.wrapping_add(half_u8_max.wrapping_add(u8_max)), half_u8_max - 2);
-    assert_eq!(u8_max.wrapping_add(half_u8_max).wrapping_add(u8_max), half_u8_max - 2);
-    assert_eq!(u8_max.wrapping_add(u8_max.wrapping_add(half_u8_max)), half_u8_max - 2);
+    assert_eq!(
+        u8_max.wrapping_add(u8_max).wrapping_add(half_u8_max),
+        half_u8_max - 2
+    );
+    assert_eq!(
+        u8_max.wrapping_add(half_u8_max.wrapping_add(u8_max)),
+        half_u8_max - 2
+    );
+    assert_eq!(
+        u8_max.wrapping_add(half_u8_max).wrapping_add(u8_max),
+        half_u8_max - 2
+    );
+    assert_eq!(
+        u8_max.wrapping_add(u8_max.wrapping_add(half_u8_max)),
+        half_u8_max - 2
+    );
 }
 
 fn rotate<R>(x: R, l: R, r: R) -> R

@@ -1,4 +1,6 @@
-use crate::{sha384state::Sha384State, sha384words::Sha384Words, SHA384BLOCK_SIZE, SHA384PADDING_SIZE};
+use crate::{
+    sha384state::Sha384State, sha384words::Sha384Words, SHA384BLOCK_SIZE, SHA384PADDING_SIZE,
+};
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::HasherContext;
 use n_bit_words_lib::U64Word;
@@ -39,7 +41,8 @@ impl Sha384Hasher {
     }
 
     fn zero_padding_length(&self) -> usize {
-        1 + (SHA384BLOCK_LAST_INDEX & (111usize.wrapping_sub((self.size & SHA384BLOCK_LAST_INDEX as u128) as usize)))
+        1 + (SHA384BLOCK_LAST_INDEX
+            & (111usize.wrapping_sub((self.size & SHA384BLOCK_LAST_INDEX as u128) as usize)))
     }
 
     fn finish_with_len(&mut self, len: u128) -> Sha384State {
@@ -81,7 +84,7 @@ impl Hash for Sha384Hasher {
 impl Hasher for Sha384Hasher {
     fn finish(&self) -> u64 {
         let state = self.clone().finish_with_len(self.size);
-        Into::<u64>::into(state.0.0) << 32 | Into::<u64>::into(state.0.1)
+        Into::<u64>::into(state.0 .0) << 32 | Into::<u64>::into(state.0 .1)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {

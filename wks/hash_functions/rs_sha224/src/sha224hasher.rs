@@ -1,5 +1,6 @@
 use crate::{
-    sha224state::Sha224State, sha224words::Sha224Words, SHA224_PADDING_U8_WORDS_COUNT, SHA224_SCHEDULE_U32_WORDS_COUNT,
+    sha224state::Sha224State, sha224words::Sha224Words, SHA224_PADDING_U8_WORDS_COUNT,
+    SHA224_SCHEDULE_U32_WORDS_COUNT,
 };
 pub use core::fmt::{Formatter, LowerHex, UpperHex};
 use core::hash::{Hash, Hasher};
@@ -39,7 +40,8 @@ impl Sha224Hasher {
     }
 
     fn zero_padding_length(&self) -> usize {
-        1 + (SHA224_SCHEDULE_LAST_INDEX as u64 & (55u64.wrapping_sub(self.size & SHA224_SCHEDULE_LAST_INDEX as u64)))
+        1 + (SHA224_SCHEDULE_LAST_INDEX as u64
+            & (55u64.wrapping_sub(self.size & SHA224_SCHEDULE_LAST_INDEX as u64)))
             as usize
     }
 
@@ -84,7 +86,7 @@ impl Hash for Sha224Hasher {
 impl Hasher for Sha224Hasher {
     fn finish(&self) -> u64 {
         let state = self.clone().finish_with_len(self.size);
-        Into::<u64>::into(state.0.0) << 32 | Into::<u64>::into(state.0.1)
+        Into::<u64>::into(state.0 .0) << 32 | Into::<u64>::into(state.0 .1)
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
@@ -98,7 +100,8 @@ impl Hasher for Sha224Hasher {
                 left = bytes.len() as u8;
             }
 
-            self.words[(len_w as usize)..((len_w + left) as usize)].clone_from_slice(&bytes[..(left as usize)]);
+            self.words[(len_w as usize)..((len_w + left) as usize)]
+                .clone_from_slice(&bytes[..(left as usize)]);
 
             if (len_w + left) & SHA224_SCHEDULE_LAST_INDEX as u8 != 0 {
                 return;
