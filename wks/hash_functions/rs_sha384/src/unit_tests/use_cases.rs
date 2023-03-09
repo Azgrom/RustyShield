@@ -28,8 +28,9 @@ fn sha384_quick_fox_consistency() {
 
     sha384hasher.write(quick_fox.as_ref());
 
+    let result = HasherContext::finish(&mut sha384hasher);
     assert_eq!(
-        format!("{:016x}", HasherContext::finish(&mut sha384hasher)),
+        format!("{result:016x}"),
         "ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c494011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1"
     );
 }

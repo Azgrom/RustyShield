@@ -1,9 +1,10 @@
-use crate::{sha1hasher::Sha1Hasher, sha1words::Sha1Padding, SHA1_WORD_COUNT};
+use crate::{sha1hasher::Sha1Hasher, sha1padding::Sha1Padding, SHA1_WORD_COUNT};
 use core::{
     fmt::{Error, Formatter, LowerHex, UpperHex},
     hash::{BuildHasher, Hash, Hasher},
     ops::AddAssign,
 };
+use hash_ctx_lib::Hasher32BitState;
 use internal_state::Sha160BitsState;
 use n_bit_words_lib::U32Word;
 
@@ -16,24 +17,24 @@ pub(crate) const H4: u32 = 0xC3D2E1F0;
 #[derive(Clone, Debug)]
 pub struct Sha1State(pub(crate) Sha160BitsState);
 
-impl Sha1State {
-    pub(crate) fn block_00_15(&mut self, words: &[U32Word; SHA1_WORD_COUNT as usize]) {
+impl Hasher32BitState for Sha1State {
+    fn block_00_15(&mut self, words: &[U32Word; SHA1_WORD_COUNT as usize]) {
         self.0.block_00_15(words)
     }
 
-    pub(crate) fn block_16_31(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
+    fn block_16_31(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
         self.0.block_16_31(words)
     }
 
-    pub(crate) fn block_32_47(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
+    fn block_32_47(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
         self.0.block_32_47(words)
     }
 
-    pub(crate) fn block_48_63(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
+    fn block_48_63(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
         self.0.block_48_63(words)
     }
 
-    pub(crate) fn block_64_79(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
+    fn block_64_79(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
         self.0.block_64_79(words)
     }
 }
@@ -52,13 +53,7 @@ impl Hash for Sha1State {
 
 impl Default for Sha1State {
     fn default() -> Self {
-        Self(Sha160BitsState(
-            H0.into(),
-            H1.into(),
-            H2.into(),
-            H3.into(),
-            H4.into(),
-        ))
+        Self(Sha160BitsState(H0.into(), H1.into(), H2.into(), H3.into(), H4.into()))
     }
 }
 
@@ -69,7 +64,7 @@ impl BuildHasher for Sha1State {
         Sha1Hasher {
             size: u64::default(),
             state: self.clone(),
-            words: Sha1Padding::default(),
+            padding: Sha1Padding::default(),
         }
     }
 }
@@ -83,8 +78,8 @@ impl From<Sha1State> for [u8; 20] {
         let t = value.0 .4.to_be_bytes();
 
         [
-            x[0], x[1], x[2], x[3], y[0], y[1], y[2], y[3], z[0], z[1], z[2], z[3], w[0], w[1],
-            w[2], w[3], t[0], t[1], t[2], t[3],
+            x[0], x[1], x[2], x[3], y[0], y[1], y[2], y[3], z[0], z[1], z[2], z[3], w[0], w[1], w[2], w[3], t[0], t[1],
+            t[2], t[3],
         ]
     }
 }

@@ -1,8 +1,9 @@
 use crate::{
     sha1hasher::Sha1Hasher,
     sha1state::{H0, H1, H2, H3, H4},
-    SHA1_BLOCK_SIZE, SHA_CBLOCK_LAST_INDEX, SHA_OFFSET_PAD,
+    SHA1_BLOCK_SIZE, SHA_CBLOCK_LAST_INDEX,
 };
+use hash_ctx_lib::{Hasher32BitsPadding, Hasher32BitState, InternalHasherContext};
 use alloc::vec;
 use core::hash::Hasher;
 use internal_state::Sha160Rotor as Sha160;
@@ -10,9 +11,7 @@ use n_bit_words_lib::U32Word;
 
 #[cfg(feature = "nightly")]
 use core::{
-    arch::x86_64::{
-        _mm_sha1msg1_epu32, _mm_sha1msg2_epu32, _mm_sha1nexte_epu32, _mm_sha1rnds4_epu32,
-    },
+    arch::x86_64::{_mm_sha1msg1_epu32, _mm_sha1msg2_epu32, _mm_sha1nexte_epu32, _mm_sha1rnds4_epu32},
     simd::Simd,
 };
 
@@ -21,31 +20,31 @@ const MESSAGE: &str = "abc";
 fn instantiate_and_preprocess_abc_message() -> Sha1Hasher {
     let mut hasher = Sha1Hasher::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
-    let zero_padding_length = Sha1Hasher::zero_padding_length(&hasher);
+    let zero_padding_length = Sha1Hasher::zeros_pad_length(hasher.size as usize);
     let pad_len: [u8; 8] = (hasher.size * 8).to_be_bytes();
-    let mut offset_pad: [u8; SHA_OFFSET_PAD as usize] = [0u8; SHA_OFFSET_PAD as usize];
+    let mut offset_pad: [u8; SHA1_BLOCK_SIZE as usize] = [0u8; SHA1_BLOCK_SIZE as usize];
     offset_pad[0] = 0x80;
 
     Hasher::write(&mut hasher, &offset_pad[..zero_padding_length]);
-    hasher.words[56u8..].clone_from_slice(&pad_len);
+    hasher.padding[56u8..].clone_from_slice(&pad_len);
 
     hasher
 }
 
 fn completed_words(hasher: &mut Sha1Hasher) {
-    let zero_padding_len = hasher.zero_padding_length();
-    let mut offset_pad: [u8; SHA_OFFSET_PAD as usize] = [0u8; SHA_OFFSET_PAD as usize];
+    let zero_padding_len = Sha1Hasher::zeros_pad_length(hasher.size as usize);
+    let mut offset_pad: [u8; SHA1_BLOCK_SIZE as usize] = [0u8; SHA1_BLOCK_SIZE as usize];
     offset_pad[0] = 0x80;
 
     let mut len_w = (hasher.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
-    let mut left = (SHA1_BLOCK_SIZE - len_w as u32) as u8;
-    hasher.words[len_w..(len_w + left)].clone_from_slice(&offset_pad[..left as usize]);
+    let mut left = SHA1_BLOCK_SIZE as u8 - len_w;
+    hasher.padding[len_w..(len_w + left)].clone_from_slice(&offset_pad[..left as usize]);
     hasher.size += zero_padding_len as u64;
 
     let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
     len_w = (hasher.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
-    left = (SHA1_BLOCK_SIZE - len_w as u32) as u8;
-    hasher.words[len_w..len_w + left].clone_from_slice(&pad_len);
+    left = SHA1_BLOCK_SIZE as u8 - len_w;
+    hasher.padding[len_w..len_w + left].clone_from_slice(&pad_len);
     hasher.size += zero_padding_len as u64;
 }
 
@@ -54,12 +53,11 @@ fn start_processing_rounds_integrity() {
     let mut hasher = Sha1Hasher::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
 
-    let expected_rounds_of_words_1: [u8; SHA1_BLOCK_SIZE as usize] =
-        [vec![0x61, 0x62, 0x63, 0x00], vec![0u8; 60]]
-            .concat()
-            .try_into()
-            .unwrap();
-    assert_eq!(hasher.words, expected_rounds_of_words_1);
+    let expected_rounds_of_words_1: [u8; SHA1_BLOCK_SIZE as usize] = [vec![0x61, 0x62, 0x63, 0x00], vec![0u8; 60]]
+        .concat()
+        .try_into()
+        .unwrap();
+    assert_eq!(hasher.padding, expected_rounds_of_words_1);
 
     completed_words(&mut hasher);
 
@@ -68,7 +66,7 @@ fn start_processing_rounds_integrity() {
             .concat()
             .try_into()
             .unwrap();
-    assert_eq!(hasher.words, expected_rounds_of_words_2);
+    assert_eq!(hasher.padding, expected_rounds_of_words_2);
 }
 
 // #[test]
@@ -89,7 +87,7 @@ fn start_processing_rounds_integrity() {
 #[test]
 fn assert_hash_values_integrity_for_each_step_00_to_15() {
     let mut hasher = instantiate_and_preprocess_abc_message();
-    let words: [U32Word; 16] = hasher.u32_words_from_u8_pad();
+    let words: [U32Word; 16] = hasher.padding.load_words();
     completed_words(&mut hasher);
 
     let mut state = hasher.state.clone();
@@ -327,7 +325,7 @@ fn assert_hash_values_integrity_for_each_step_00_to_15() {
 #[test]
 fn assert_hash_values_integrity_for_each_step_16_to_19() {
     let mut hasher = instantiate_and_preprocess_abc_message();
-    let mut words: [U32Word; 16] = hasher.u32_words_from_u8_pad();
+    let mut words: [U32Word; 16] = hasher.padding.load_words();
     completed_words(&mut hasher);
 
     let mut state = hasher.state.clone();

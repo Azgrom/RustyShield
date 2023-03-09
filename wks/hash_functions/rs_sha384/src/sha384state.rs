@@ -1,4 +1,4 @@
-use crate::{sha384hasher::Sha384Hasher, sha384words::Sha384Words, SHA384PADDING_SIZE};
+use crate::{sha384hasher::Sha384Hasher, sha384padding::Sha384Padding, SHA384_HEX_HASH_SIZE};
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::BuildHasher,
@@ -55,7 +55,7 @@ impl BuildHasher for Sha384State {
         Sha384Hasher {
             size: u128::MIN,
             state: self.clone(),
-            words: Sha384Words::default(),
+            padding: Sha384Padding::default(),
         }
     }
 }
@@ -75,7 +75,7 @@ impl Default for Sha384State {
     }
 }
 
-impl From<Sha384State> for [u8; SHA384PADDING_SIZE as usize] {
+impl From<Sha384State> for [u8; SHA384_HEX_HASH_SIZE as usize] {
     fn from(value: Sha384State) -> Self {
         let a = value.0 .0.to_be_bytes();
         let b = value.0 .1.to_be_bytes();
@@ -85,10 +85,9 @@ impl From<Sha384State> for [u8; SHA384PADDING_SIZE as usize] {
         let f = value.0 .5.to_be_bytes();
 
         [
-            a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], b[0], b[1], b[2], b[3], b[4], b[5],
-            b[6], b[7], c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], d[0], d[1], d[2], d[3],
-            d[4], d[5], d[6], d[5], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], f[0], f[1],
-            f[2], f[3], f[4], f[5], f[6], f[7],
+            a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], c[0], c[1],
+            c[2], c[3], c[4], c[5], c[6], c[7], d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[5], e[0], e[1], e[2], e[3],
+            e[4], e[5], e[6], e[7], f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7],
         ]
     }
 }

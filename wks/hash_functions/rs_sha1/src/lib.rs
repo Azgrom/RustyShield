@@ -9,14 +9,13 @@ extern crate alloc;
 pub use crate::{sha1hasher::Sha1Hasher, sha1state::Sha1State};
 
 pub mod sha1hasher;
+mod sha1padding;
 pub mod sha1state;
-mod sha1words;
 
 #[cfg(test)]
 mod unit_tests;
 
 const U32_BYTES_COUNT: usize = 4;
-const SHA1_WORD_COUNT: u32 = 16;
-const SHA1_BLOCK_SIZE: u32 = SHA1_WORD_COUNT * U32_BYTES_COUNT as u32;
-const SHA_OFFSET_PAD: u32 = SHA1_BLOCK_SIZE + 8;
-const SHA_CBLOCK_LAST_INDEX: u32 = SHA1_BLOCK_SIZE - 1;
+const SHA1_WORD_COUNT: usize = 16;
+const SHA1_BLOCK_SIZE: usize = SHA1_WORD_COUNT * U32_BYTES_COUNT;
+const SHA_CBLOCK_LAST_INDEX: usize = SHA1_BLOCK_SIZE - 1;

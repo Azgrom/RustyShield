@@ -1,9 +1,10 @@
-use crate::{sha256hasher::Sha256Hasher, sha256words::Sha256Words};
+use crate::{sha256hasher::Sha256Hasher, sha256padding::Sha256Padding};
 use core::ops::AddAssign;
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::{BuildHasher, Hash, Hasher},
 };
+use hash_ctx_lib::Hasher32BitState;
 use internal_state::Sha256BitsState;
 use n_bit_words_lib::U32Word;
 
@@ -19,22 +20,24 @@ const H7: u32 = 0x5BE0CD19;
 #[derive(Clone, Debug)]
 pub struct Sha256State(pub(crate) Sha256BitsState);
 
-impl Sha256State {
-    pub(crate) fn block_00_15(&mut self, w: &[U32Word; 16]) {
+impl Hasher32BitState for Sha256State {
+    fn block_00_15(&mut self, w: &[U32Word; 16]) {
         self.0.block_00_15(w)
     }
 
-    pub(crate) fn block_16_31(&mut self, w: &mut [U32Word; 16]) {
+    fn block_16_31(&mut self, w: &mut [U32Word; 16]) {
         self.0.block_16_31(w)
     }
 
-    pub(crate) fn block_32_47(&mut self, w: &mut [U32Word; 16]) {
+    fn block_32_47(&mut self, w: &mut [U32Word; 16]) {
         self.0.block_32_47(w)
     }
 
-    pub(crate) fn block_48_63(&mut self, w: &mut [U32Word; 16]) {
+    fn block_48_63(&mut self, w: &mut [U32Word; 16]) {
         self.0.block_48_63(w)
     }
+
+    fn block_64_79(&mut self, _w: &mut [U32Word; 16]) {}
 }
 
 impl AddAssign for Sha256State {
@@ -50,7 +53,7 @@ impl BuildHasher for Sha256State {
         Sha256Hasher {
             size: u64::MIN,
             state: self.clone(),
-            words: Sha256Words::default(),
+            padding: Sha256Padding::default(),
         }
     }
 }
@@ -82,9 +85,8 @@ impl From<Sha256State> for [u8; 32] {
         let h = value.0 .7.to_be_bytes();
 
         [
-            a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3], c[0], c[1], c[2], c[3], d[0], d[1],
-            d[2], d[3], e[0], e[1], e[2], e[3], f[0], f[1], f[2], f[3], g[0], g[1], g[2], g[3],
-            h[0], h[1], h[2], h[3],
+            a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3], c[0], c[1], c[2], c[3], d[0], d[1], d[2], d[3], e[0], e[1],
+            e[2], e[3], f[0], f[1], f[2], f[3], g[0], g[1], g[2], g[3], h[0], h[1], h[2], h[3],
         ]
     }
 }

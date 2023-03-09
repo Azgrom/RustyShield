@@ -1,40 +1,30 @@
-use crate::SHA256_PADDING_U8_WORDS_COUNT;
 use core::{
     hash::{Hash, Hasher},
     ops::{Index, IndexMut, Range, RangeTo},
-    slice::Chunks,
 };
+use hash_ctx_lib::{Hasher32BitsPadding};
+use n_bit_words_lib::U32Word;
 
 #[derive(Clone, Debug)]
-pub(crate) struct Sha256Words {
-    data: [u8; SHA256_PADDING_U8_WORDS_COUNT as usize],
+pub(crate) struct Sha256Padding {
+    data: [u8; Self::U8_PADDING_COUNT],
 }
 
-impl Sha256Words {
-    pub(crate) fn clone_from_slice(&mut self, src: &[u8]) {
-        self.data.clone_from_slice(src);
-    }
-
-    pub(crate) fn u32_chunks(&self) -> Chunks<'_, u8> {
-        self.data.chunks(4)
-    }
-}
-
-impl Default for Sha256Words {
+impl Default for Sha256Padding {
     fn default() -> Self {
         Self {
-            data: [u8::MIN; SHA256_PADDING_U8_WORDS_COUNT as usize],
+            data: [u8::MIN; Self::U8_PADDING_COUNT],
         }
     }
 }
 
-impl Hash for Sha256Words {
+impl Hash for Sha256Padding {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.data.hash(state)
     }
 }
 
-impl Index<usize> for Sha256Words {
+impl Index<usize> for Sha256Padding {
     type Output = u8;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -42,7 +32,7 @@ impl Index<usize> for Sha256Words {
     }
 }
 
-impl Index<Range<usize>> for Sha256Words {
+impl Index<Range<usize>> for Sha256Padding {
     type Output = [u8];
 
     fn index(&self, range: Range<usize>) -> &Self::Output {
@@ -50,7 +40,7 @@ impl Index<Range<usize>> for Sha256Words {
     }
 }
 
-impl Index<RangeTo<usize>> for Sha256Words {
+impl Index<RangeTo<usize>> for Sha256Padding {
     type Output = [u8];
 
     fn index(&self, range_to: RangeTo<usize>) -> &Self::Output {
@@ -58,14 +48,26 @@ impl Index<RangeTo<usize>> for Sha256Words {
     }
 }
 
-impl IndexMut<Range<usize>> for Sha256Words {
+impl IndexMut<Range<usize>> for Sha256Padding {
     fn index_mut(&mut self, range: Range<usize>) -> &mut Self::Output {
         &mut self.data[range]
     }
 }
 
-impl IndexMut<RangeTo<usize>> for Sha256Words {
+impl IndexMut<RangeTo<usize>> for Sha256Padding {
     fn index_mut(&mut self, range_to: RangeTo<usize>) -> &mut Self::Output {
         &mut self.data[range_to]
+    }
+}
+
+impl Hasher32BitsPadding for Sha256Padding {
+    const U8_PADDING_COUNT: usize = 64;
+
+    fn clone_from_slice(&mut self, src: &[u8]) {
+        self.data.clone_from_slice(src)
+    }
+
+    fn to_be_word(&self, i: usize) -> U32Word {
+        U32Word::from_be_bytes([self[(i * 4)], self[(i * 4) + 1], self[(i * 4) + 2], self[(i * 4) + 3]])
     }
 }

@@ -41,7 +41,7 @@ fn main(){
 
 > Default SHA1 hasher u64 hex result: 2fd4e1c67a2d28fc
 
-As [Rust's Hash trait implementation for the `str`](https://doc.rust-lang.org/core/hash/trait.Hash.html#prefix-collisions) primitive tries to ensure prefix collisions resiliency for any  type that implements the [Hasher trait](https://doc.rust-lang.org/core/hash/trait.Hasher.html), it should be noted that unless you pass a reference of `[u8]` instead of `str` or `String` it will pass an extra `0xFF` byte to the `Hasher` so that the [resulting state of `["ab", "c"]` be completely different from `["a", "bc"]`](https://doc.rust-lang.org/core/hash/trait.Hash.html#prefix-collisions).
+As [Rust's Hash trait implementation for the `str`](https://doc.rust-lang.org/core/hash/trait.Hash.html#prefix-collisions) primitive tries to ensure prefix collisions resiliency for any  type that implements the [Hasher trait](https://doc.rust-lang.org/core/hash/trait.Hasher.html), it should be noted that unless you pass a reference of `[u8]` instead of `str` or `String` it will pass an extra `0xFF` byte to the `Hasher` so that the [resulting STATE of `["ab", "c"]` be completely different from `["a", "bc"]`](https://doc.rust-lang.org/core/hash/trait.Hash.html#prefix-collisions).
 
 Because of that, the `.as_ref()` from the example above conveniently casts the `quick_brown_fox` string to a byte array.
 

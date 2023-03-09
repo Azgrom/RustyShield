@@ -9,6 +9,7 @@ members = [
     "wks/hash_ctx",
     "wks/n_bit_words",
     "wks/internal_state",
+    "wks/internal_hasher_processor",
     "wks/hash_functions/*"
 ]
 

@@ -6,3 +6,6 @@ license.workspace = true
 
 [lib]
 name = "hash_ctx_lib"
+
+[dependencies]
+n_bit_words = { path = "../n_bit_words" }
