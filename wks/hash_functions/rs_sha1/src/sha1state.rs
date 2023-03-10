@@ -1,12 +1,15 @@
-use crate::{sha1hasher::Sha1Hasher, sha1padding::Sha1Padding, SHA1_WORD_COUNT};
 use core::{
     fmt::{Error, Formatter, LowerHex, UpperHex},
     hash::{BuildHasher, Hash, Hasher},
-    ops::AddAssign,
+    ops::AddAssign
 };
 use hash_ctx_lib::Hasher32BitState;
 use internal_state::Sha160BitsState;
 use n_bit_words_lib::U32Word;
+use crate::{
+    Sha1Hasher,
+    sha1padding::Sha1Padding
+};
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;
@@ -18,23 +21,23 @@ pub(crate) const H4: u32 = 0xC3D2E1F0;
 pub struct Sha1State(pub(crate) Sha160BitsState);
 
 impl Hasher32BitState for Sha1State {
-    fn block_00_15(&mut self, words: &[U32Word; SHA1_WORD_COUNT as usize]) {
+    fn block_00_15(&mut self, words: &[U32Word; 16]) {
         self.0.block_00_15(words)
     }
 
-    fn block_16_31(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
+    fn block_16_31(&mut self, words: &mut [U32Word; 16]) {
         self.0.block_16_31(words)
     }
 
-    fn block_32_47(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
+    fn block_32_47(&mut self, words: &mut [U32Word; 16]) {
         self.0.block_32_47(words)
     }
 
-    fn block_48_63(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
+    fn block_48_63(&mut self, words: &mut [U32Word; 16]) {
         self.0.block_48_63(words)
     }
 
-    fn block_64_79(&mut self, words: &mut [U32Word; SHA1_WORD_COUNT as usize]) {
+    fn block_64_79(&mut self, words: &mut [U32Word; 16]) {
         self.0.block_64_79(words)
     }
 }

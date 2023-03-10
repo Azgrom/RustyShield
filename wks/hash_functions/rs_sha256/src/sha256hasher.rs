@@ -1,11 +1,9 @@
-use crate::{
-    sha256padding::Sha256Padding, sha256state::Sha256State,
-    SHA256_PADDING_U8_WORDS_COUNT,
-};
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::{Hasher32BitsPadding, HasherContext, InternalHasherContext};
-
-const SHA256_SCHEDULE_LAST_INDEX: u8 = 63;
+use crate::{
+    sha256padding::Sha256Padding,
+    Sha256State
+};
 
 #[derive(Clone, Debug)]
 pub struct Sha256Hasher {
@@ -13,50 +11,6 @@ pub struct Sha256Hasher {
     pub(crate) state: Sha256State,
     pub(crate) padding: Sha256Padding,
 }
-
-impl InternalHasherContext for Sha256Hasher {
-    const U8_PADDING_COUNT: usize = 64;
-    const U8_PAD_LAST_INDEX: usize = Self::U8_PADDING_COUNT - 1;
-}
-
-// impl Sha256Hasher {
-//     pub(crate) fn hash_block(&mut self) {
-//         let mut w = self.padding.load_words();
-//         let mut state = self.state.clone();
-//
-//         state.block_00_15(&w);
-//         state.block_16_31(&mut w);
-//         state.block_32_47(&mut w);
-//         state.block_48_63(&mut w);
-//
-//         self.state += state;
-//     }
-//
-//     fn zeros_pad_length(&self) -> usize {
-//         1 + (SHA256_SCHEDULE_LAST_INDEX as u64 & (55u64.wrapping_sub(self.size & SHA256_SCHEDULE_LAST_INDEX as u64)))
-//             as usize
-//     }
-//
-//     fn left(len_w: u8, bytes: &&[u8]) -> u8 {
-//         let left = SHA256_PADDING_U8_WORDS_COUNT as u8 - len_w;
-//         let bytes_len = bytes.len() as u8;
-//
-//         return if bytes_len < left { bytes_len } else { left };
-//     }
-//
-//     fn finish_with_len(&mut self, len: u64) -> Sha256State {
-//         let zero_padding_length = self.zeros_pad_length();
-//         let mut offset_pad: [u8; SHA256_PADDING_U8_WORDS_COUNT as usize] =
-//             [0u8; SHA256_PADDING_U8_WORDS_COUNT as usize];
-//         offset_pad[0] = 0x80;
-//
-//         self.write(&offset_pad[..zero_padding_length]);
-//         self.write(&(len * 8).to_be_bytes());
-//
-//         self.state.clone()
-//     }
-//
-// }
 
 impl Default for Sha256Hasher {
     fn default() -> Self {
@@ -89,7 +43,7 @@ impl Hasher for Sha256Hasher {
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
-        let len_w = (self.size & SHA256_SCHEDULE_LAST_INDEX as u64) as u8;
+        let len_w = (self.size & Self::U8_PAD_LAST_INDEX as u64) as u8;
         self.size += bytes.len() as u64;
 
         if len_w != 0 {
@@ -105,10 +59,10 @@ impl Hasher for Sha256Hasher {
             bytes = &bytes[(left as usize)..];
         }
 
-        while bytes.len() >= SHA256_PADDING_U8_WORDS_COUNT as usize {
-            self.padding.clone_from_slice(&bytes[..SHA256_PADDING_U8_WORDS_COUNT]);
+        while bytes.len() >= Self::U8_PADDING_COUNT as usize {
+            self.padding.clone_from_slice(&bytes[..Self::U8_PADDING_COUNT]);
             Self::hash_block(&self.padding, &mut self.state);
-            bytes = &bytes[SHA256_PADDING_U8_WORDS_COUNT..];
+            bytes = &bytes[Self::U8_PADDING_COUNT..];
         }
 
         if !bytes.is_empty() {
@@ -131,4 +85,9 @@ impl HasherContext for Sha256Hasher {
 
         self.state.clone()
     }
+}
+
+impl InternalHasherContext for Sha256Hasher {
+    const U8_PADDING_COUNT: usize = 64;
+    const U8_PAD_LAST_INDEX: usize = Self::U8_PADDING_COUNT - 1;
 }

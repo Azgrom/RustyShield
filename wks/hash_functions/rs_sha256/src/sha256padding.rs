@@ -24,6 +24,18 @@ impl Hash for Sha256Padding {
     }
 }
 
+impl Hasher32BitsPadding for Sha256Padding {
+    const U8_PADDING_COUNT: usize = 64;
+
+    fn clone_from_slice(&mut self, src: &[u8]) {
+        self.data.clone_from_slice(src)
+    }
+
+    fn to_be_word(&self, i: usize) -> U32Word {
+        U32Word::from_be_bytes([self[(i * 4)], self[(i * 4) + 1], self[(i * 4) + 2], self[(i * 4) + 3]])
+    }
+}
+
 impl Index<usize> for Sha256Padding {
     type Output = u8;
 
@@ -57,17 +69,5 @@ impl IndexMut<Range<usize>> for Sha256Padding {
 impl IndexMut<RangeTo<usize>> for Sha256Padding {
     fn index_mut(&mut self, range_to: RangeTo<usize>) -> &mut Self::Output {
         &mut self.data[range_to]
-    }
-}
-
-impl Hasher32BitsPadding for Sha256Padding {
-    const U8_PADDING_COUNT: usize = 64;
-
-    fn clone_from_slice(&mut self, src: &[u8]) {
-        self.data.clone_from_slice(src)
-    }
-
-    fn to_be_word(&self, i: usize) -> U32Word {
-        U32Word::from_be_bytes([self[(i * 4)], self[(i * 4) + 1], self[(i * 4) + 2], self[(i * 4) + 3]])
     }
 }

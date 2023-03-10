@@ -1,12 +1,15 @@
-use crate::{sha256hasher::Sha256Hasher, sha256padding::Sha256Padding};
-use core::ops::AddAssign;
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::{BuildHasher, Hash, Hasher},
+    ops::AddAssign
 };
 use hash_ctx_lib::Hasher32BitState;
 use internal_state::Sha256BitsState;
 use n_bit_words_lib::U32Word;
+use crate::{
+    Sha256Hasher,
+    sha256padding::Sha256Padding
+};
 
 const H0: u32 = 0x6A09E667;
 const H1: u32 = 0xBB67AE85;

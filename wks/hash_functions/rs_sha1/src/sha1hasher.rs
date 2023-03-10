@@ -1,6 +1,9 @@
-use crate::{sha1padding::Sha1Padding, sha1state::Sha1State, SHA1_BLOCK_SIZE, SHA_CBLOCK_LAST_INDEX};
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::{Hasher32BitsPadding, HasherContext, InternalHasherContext};
+use crate::{
+    sha1padding::Sha1Padding,
+    Sha1State
+};
 
 #[derive(Clone, Debug)]
 pub struct Sha1Hasher {
@@ -40,7 +43,7 @@ impl Hasher for Sha1Hasher {
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
-        let len_w = (self.size & SHA_CBLOCK_LAST_INDEX as u64) as u8;
+        let len_w = (self.size & Self::U8_PAD_LAST_INDEX as u64) as u8;
         self.size += bytes.len() as u64;
 
         if len_w != 0 {
@@ -56,26 +59,15 @@ impl Hasher for Sha1Hasher {
             bytes = &bytes[left as usize..];
         }
 
-        while bytes.len() >= SHA1_BLOCK_SIZE as usize {
-            self.padding.clone_from_slice(&bytes[..SHA1_BLOCK_SIZE]);
+        while bytes.len() >= Self::U8_PADDING_COUNT as usize {
+            self.padding.clone_from_slice(&bytes[..Self::U8_PADDING_COUNT]);
             Self::hash_block(&self.padding, &mut self.state);
-            bytes = &bytes[SHA1_BLOCK_SIZE..];
+            bytes = &bytes[Self::U8_PADDING_COUNT..];
         }
 
         if !bytes.is_empty() {
             self.padding[..bytes.len()].clone_from_slice(bytes);
         }
-    }
-}
-
-impl InternalHasherContext for Sha1Hasher {
-    const U8_PADDING_COUNT: usize = 64;
-    const U8_PAD_LAST_INDEX: usize = 63;
-}
-
-impl PartialEq for Sha1Hasher {
-    fn eq(&self, other: &Self) -> bool {
-        self.size == other.size && self.state == other.state && self.padding == other.padding
     }
 }
 
@@ -92,5 +84,16 @@ impl HasherContext for Sha1Hasher {
         self.write(&(len * 8).to_be_bytes());
 
         self.state.clone()
+    }
+}
+
+impl InternalHasherContext for Sha1Hasher {
+    const U8_PADDING_COUNT: usize = 64;
+    const U8_PAD_LAST_INDEX: usize = 63;
+}
+
+impl PartialEq for Sha1Hasher {
+    fn eq(&self, other: &Self) -> bool {
+        self.size == other.size && self.state == other.state && self.padding == other.padding
     }
 }
