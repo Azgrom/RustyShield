@@ -7,7 +7,7 @@ use n_bit_words_lib::U64Word;
 
 #[derive(Clone, Debug)]
 pub(crate) struct Sha384Padding {
-    data: [u8; SHA384_U8_WORDS_COUNT as usize],
+    data: [u8; SHA384_U8_WORDS_COUNT],
 }
 
 impl Sha384Padding {
@@ -32,7 +32,7 @@ impl Sha384Padding {
 impl Default for Sha384Padding {
     fn default() -> Self {
         Self {
-            data: [u8::MIN; SHA384_U8_WORDS_COUNT as usize],
+            data: [u8::MIN; SHA384_U8_WORDS_COUNT],
         }
     }
 }

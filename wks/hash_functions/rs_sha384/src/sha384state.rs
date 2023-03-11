@@ -75,7 +75,7 @@ impl Default for Sha384State {
     }
 }
 
-impl From<Sha384State> for [u8; SHA384_HEX_HASH_SIZE as usize] {
+impl From<Sha384State> for [u8; SHA384_HEX_HASH_SIZE] {
     fn from(value: Sha384State) -> Self {
         let a = value.0 .0.to_be_bytes();
         let b = value.0 .1.to_be_bytes();

@@ -63,7 +63,7 @@ impl Sha384Hasher {
         let left = SHA384_U8_WORDS_COUNT as u8 - len_w;
         let bytes_len = bytes.len() as u8;
 
-        return if bytes_len < left { bytes_len } else { left };
+        if bytes_len < left { bytes_len } else { left }
     }
 }
 
@@ -77,9 +77,9 @@ impl Default for Sha384Hasher {
     }
 }
 
-impl From<Sha384Hasher> for [u8; SHA384_HEX_HASH_SIZE as usize] {
+impl From<Sha384Hasher> for [u8; SHA384_HEX_HASH_SIZE] {
     fn from(value: Sha384Hasher) -> Self {
-        Into::<[u8; SHA384_HEX_HASH_SIZE as usize]>::into(value.state)
+        Into::<[u8; SHA384_HEX_HASH_SIZE]>::into(value.state)
     }
 }
 
@@ -114,7 +114,7 @@ impl Hasher for Sha384Hasher {
             bytes = &bytes[left as usize..];
         }
 
-        while bytes.len() >= SHA384_U8_WORDS_COUNT as usize {
+        while bytes.len() >= SHA384_U8_WORDS_COUNT {
             self.padding.clone_from_slice(&bytes[..SHA384_U8_WORDS_COUNT]);
             self.hash_block();
             bytes = &bytes[SHA384_U8_WORDS_COUNT..];
@@ -131,7 +131,7 @@ impl HasherContext for Sha384Hasher {
 
     fn finish(&mut self) -> Self::State {
         let zero_padding_len = self.zero_padding_length();
-        let mut offset_pad = [0u8; SHA384_U8_WORDS_COUNT as usize];
+        let mut offset_pad = [0u8; SHA384_U8_WORDS_COUNT];
         offset_pad[0] = 0x80;
 
         let len = self.size * 8;

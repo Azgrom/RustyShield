@@ -5,11 +5,13 @@ use core::{
 };
 use hash_ctx_lib::Hasher32BitState;
 use internal_state::Sha160BitsState;
-use n_bit_words_lib::U32Word;
+use n_bit_words_lib::NBitWord;
 use crate::{
     Sha1Hasher,
     sha1padding::Sha1Padding
 };
+
+type U32Word = NBitWord<u32>;
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;
@@ -74,11 +76,11 @@ impl BuildHasher for Sha1State {
 
 impl From<Sha1State> for [u8; 20] {
     fn from(value: Sha1State) -> Self {
-        let x = value.0 .0.to_be_bytes();
-        let y = value.0 .1.to_be_bytes();
-        let z = value.0 .2.to_be_bytes();
-        let w = value.0 .3.to_be_bytes();
-        let t = value.0 .4.to_be_bytes();
+        let x = u32::to_be_bytes(value.0 .0.into());
+        let y = u32::to_be_bytes(value.0 .1.into());
+        let z = u32::to_be_bytes(value.0 .2.into());
+        let w = u32::to_be_bytes(value.0 .3.into());
+        let t = u32::to_be_bytes(value.0 .4.into());
 
         [
             x[0], x[1], x[2], x[3], y[0], y[1], y[2], y[3], z[0], z[1], z[2], z[3], w[0], w[1], w[2], w[3], t[0], t[1],

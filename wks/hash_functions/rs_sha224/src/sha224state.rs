@@ -5,11 +5,13 @@ use core::{
 };
 use hash_ctx_lib::Hasher32BitState;
 use internal_state::Sha256BitsState;
-use n_bit_words_lib::U32Word;
+use n_bit_words_lib::NBitWord;
 use crate::{
     Sha224Hasher,
     sha224padding::Sha224Padding
 };
+
+type U32Word = NBitWord<u32>;
 
 const H0: u32 = 0xC1059ED8;
 const H1: u32 = 0x367CD507;
@@ -79,13 +81,13 @@ impl Default for Sha224State {
 
 impl From<Sha224State> for [u8; 28] {
     fn from(value: Sha224State) -> Self {
-        let a = value.0 .0.to_be_bytes();
-        let b = value.0 .1.to_be_bytes();
-        let c = value.0 .2.to_be_bytes();
-        let d = value.0 .3.to_be_bytes();
-        let e = value.0 .4.to_be_bytes();
-        let f = value.0 .5.to_be_bytes();
-        let g = value.0 .6.to_be_bytes();
+        let a = u32::to_be_bytes(value.0 .0.into());
+        let b = u32::to_be_bytes(value.0 .1.into());
+        let c = u32::to_be_bytes(value.0 .2.into());
+        let d = u32::to_be_bytes(value.0 .3.into());
+        let e = u32::to_be_bytes(value.0 .4.into());
+        let f = u32::to_be_bytes(value.0 .5.into());
+        let g = u32::to_be_bytes(value.0 .6.into());
 
         [
             a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3], c[0], c[1], c[2], c[3], d[0], d[1], d[2], d[3], e[0], e[1],

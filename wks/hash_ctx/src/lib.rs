@@ -3,7 +3,9 @@
 use core::fmt::{LowerHex, UpperHex};
 use core::hash::{BuildHasher, Hash, Hasher};
 use core::ops::{AddAssign, Index, IndexMut, Range, RangeTo};
-use n_bit_words_lib::U32Word;
+use n_bit_words_lib::NBitWord;
+
+type U32Word = NBitWord<u32>;
 
 /// Overloads the finish Hasher method for a version that mutates itself
 pub trait HasherContext: Hasher {
@@ -81,7 +83,7 @@ pub trait InternalHasherContext: Hasher + HasherContext {
         let left = Self::U8_PADDING_COUNT as u8 - lw;
         let bytes_len = bytes.len() as u8;
 
-        return if bytes_len < left { bytes_len } else { left };
+        if bytes_len < left { bytes_len } else { left }
     }
 
     fn zeros_pad_length(size: usize) -> usize {

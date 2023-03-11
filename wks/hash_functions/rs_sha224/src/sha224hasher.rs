@@ -58,7 +58,7 @@ impl Hasher for Sha224Hasher {
             bytes = &bytes[(left as usize)..];
         }
 
-        while bytes.len() >= Self::U8_PADDING_COUNT as usize {
+        while bytes.len() >= Self::U8_PADDING_COUNT {
             self.padding.clone_from_slice(&bytes[..Self::U8_PADDING_COUNT]);
             Self::hash_block(&self.padding, &mut self.state);
             bytes = &bytes[Self::U8_PADDING_COUNT..];
@@ -75,7 +75,7 @@ impl HasherContext for Sha224Hasher {
 
     fn finish(&mut self) -> Self::State {
         let zero_padding_length = Self::zeros_pad_length(self.size as usize);
-        let mut offset_pad: [u8; Self::U8_PADDING_COUNT as usize] = [0u8; Self::U8_PADDING_COUNT as usize];
+        let mut offset_pad: [u8; Self::U8_PADDING_COUNT] = [0u8; Self::U8_PADDING_COUNT];
         offset_pad[0] = 0x80;
 
         let len = self.size * 8;

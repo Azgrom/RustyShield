@@ -3,7 +3,9 @@ use core::{
     ops::{Index, IndexMut, Range, RangeTo},
 };
 use hash_ctx_lib::{Hasher32BitsPadding};
-use n_bit_words_lib::U32Word;
+use n_bit_words_lib::NBitWord;
+
+type U32Word = NBitWord<u32>;
 
 #[derive(Clone, Debug)]
 pub(crate) struct Sha256Padding {
@@ -32,7 +34,7 @@ impl Hasher32BitsPadding for Sha256Padding {
     }
 
     fn to_be_word(&self, i: usize) -> U32Word {
-        U32Word::from_be_bytes([self[(i * 4)], self[(i * 4) + 1], self[(i * 4) + 2], self[(i * 4) + 3]])
+        u32::from_be_bytes([self[(i * 4)], self[(i * 4) + 1], self[(i * 4) + 2], self[(i * 4) + 3]]).into()
     }
 }
 
