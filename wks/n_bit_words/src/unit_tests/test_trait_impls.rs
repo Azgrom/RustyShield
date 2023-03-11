@@ -1,5 +1,7 @@
-use crate::U32Word;
 use core::any::TypeId;
+use crate::{NBitWord, TSize};
+
+type U32Word = NBitWord<u32>;
 
 #[test]
 fn instantiate_u32_word_with_from_trait() {

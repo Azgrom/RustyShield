@@ -1,4 +1,6 @@
-use n_bit_words_lib::U32Word;
+use n_bit_words_lib::NBitWord;
+
+type U32Word = NBitWord<u32>;
 
 #[test]
 fn lower_hex_format() {

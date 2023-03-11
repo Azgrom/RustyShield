@@ -3,39 +3,37 @@ use core::{
     hash::Hash,
     ops::{Index, IndexMut, Range, RangeTo},
 };
-use hash_ctx_lib::Hasher32BitsPadding;
-use n_bit_words_lib::NBitWord;
+use hash_ctx_lib::HasherWords;
 
-type U32Word = NBitWord<u32>;
-
+const U8_PADDING_COUNT: usize = 64;
 #[derive(Clone)]
 pub(crate) struct Sha224Padding {
-    data: [u8; Self::U8_PADDING_COUNT],
+    data: [u8; U8_PADDING_COUNT],
+}
+
+impl Sha224Padding {
+    pub(crate) fn clone_from_slice(&mut self, src: &[u8]) {
+        self.data.clone_from_slice(src)
+    }
 }
 
 impl Default for Sha224Padding {
     fn default() -> Self {
         Self {
-            data: [u8::MIN; Self::U8_PADDING_COUNT],
+            data: [u8::MIN; U8_PADDING_COUNT],
         }
+    }
+}
+
+impl From<&Sha224Padding> for HasherWords<u32> {
+    fn from(value: &Sha224Padding) -> Self {
+        HasherWords::from(value.data)
     }
 }
 
 impl Hash for Sha224Padding {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.data.hash(state)
-    }
-}
-
-impl Hasher32BitsPadding for Sha224Padding {
-    const U8_PADDING_COUNT: usize = 64;
-
-    fn clone_from_slice(&mut self, src: &[u8]) {
-        self.data.clone_from_slice(src)
-    }
-
-    fn to_be_word(&self, i: usize) -> U32Word {
-        u32::from_be_bytes([self[(i * 4)], self[(i * 4) + 1], self[(i * 4) + 2], self[(i * 4) + 3]]).into()
     }
 }
 

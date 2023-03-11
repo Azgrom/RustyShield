@@ -12,6 +12,7 @@ pub trait TSize<T>
         u32: Sub<Self, Output = Self>,
 {
     const BITS: u32;
+    const SIZE: usize;
 
     #[inline(always)]
     fn ch(x: Self, y: Self, z: Self) -> Self {

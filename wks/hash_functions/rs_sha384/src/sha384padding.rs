@@ -3,29 +3,17 @@ use core::{
     hash::{Hash, Hasher},
     ops::{Index, IndexMut, Range, RangeTo},
 };
-use n_bit_words_lib::U64Word;
+use hash_ctx_lib::HasherWords;
 
+const U8_PADDING_COUNT: usize = 128;
 #[derive(Clone, Debug)]
 pub(crate) struct Sha384Padding {
-    data: [u8; SHA384_U8_WORDS_COUNT],
+    data: [u8; U8_PADDING_COUNT],
 }
 
 impl Sha384Padding {
-    pub(crate) fn to_be_u64(&self, i: usize) -> U64Word {
-        U64Word::from_be_bytes([
-            self[i * 8],
-            self[(i * 8) + 1],
-            self[(i * 8) + 2],
-            self[(i * 8) + 3],
-            self[(i * 8) + 4],
-            self[(i * 8) + 5],
-            self[(i * 8) + 6],
-            self[(i * 8) + 7],
-        ])
-    }
-
     pub(crate) fn clone_from_slice(&mut self, src: &[u8]) {
-        self.data.clone_from_slice(src);
+        self.data.clone_from_slice(src)
     }
 }
 
@@ -34,6 +22,18 @@ impl Default for Sha384Padding {
         Self {
             data: [u8::MIN; SHA384_U8_WORDS_COUNT],
         }
+    }
+}
+
+impl From<[u8; U8_PADDING_COUNT]> for Sha384Padding {
+    fn from(value: [u8; U8_PADDING_COUNT]) -> Self {
+        Self { data: value }
+    }
+}
+
+impl From<&Sha384Padding> for HasherWords<u64> {
+    fn from(value: &Sha384Padding) -> Self {
+        HasherWords::from(value.data)
     }
 }
 

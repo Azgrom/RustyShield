@@ -6,7 +6,6 @@ use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shl, Shr, Sub}
 };
-pub use u64_words::U64Word;
 pub use crate::t_size::TSize;
 
 mod t_size;
@@ -20,6 +19,7 @@ pub struct NBitWord<T>(Wrapping<T>);
 
 impl TSize<u32> for NBitWord<u32> {
     const BITS: u32 = u32::BITS;
+    const SIZE: usize = 4;
 
     fn gamma0(self) -> Self {
         self.rotate_right(Self(Wrapping(7))) ^ self.rotate_right(Self(Wrapping(18))) ^ (self >> Self(Wrapping(3)))
@@ -44,6 +44,7 @@ impl TSize<u32> for NBitWord<u32> {
 
 impl TSize<u64> for NBitWord<u64> {
     const BITS: u32 = u64::BITS;
+    const SIZE: usize = 8;
 
     fn gamma0(self) -> Self {
         self.rotate_right(Self(Wrapping(1))) ^ self.rotate_right(Self(Wrapping(8))) ^ (self >> Self(Wrapping(7)))
@@ -67,20 +68,36 @@ impl TSize<u64> for NBitWord<u64> {
 }
 
 impl<T> Add for NBitWord<T>
-where T: Add<Output = T>
+where Wrapping<T>: Add<Output = Wrapping<T>>
 {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        Self(Wrapping(self.0.0 + rhs.0.0))
+        Self(self.0 + rhs.0)
+    }
+}
+
+impl Add<u32> for NBitWord<u32> {
+    type Output = Self;
+
+    fn add(self, rhs: u32) -> Self::Output {
+        self + Self(Wrapping(rhs))
+    }
+}
+
+impl Add<NBitWord<u32>> for u32 {
+    type Output = NBitWord<u32>;
+
+    fn add(self, rhs: NBitWord<u32>) -> Self::Output {
+        NBitWord(Wrapping(self)) + rhs
     }
 }
 
 impl<T> AddAssign for NBitWord<T>
-where T: AddAssign
+where Wrapping<T>: AddAssign
 {
     fn add_assign(&mut self, rhs: Self) {
-        self.0.0 += rhs.0.0
+        self.0 += rhs.0
     }
 }
 
@@ -126,9 +143,41 @@ impl From<NBitWord<u32>> for u32 {
     }
 }
 
+impl From<[u8; 4]> for NBitWord<u32> {
+    fn from(value: [u8; 4]) -> Self {
+        u32::from_be_bytes([
+            value[0],
+            value[1],
+            value[2],
+            value[3],
+        ]).into()
+    }
+}
+
 impl From<NBitWord<u32>> for u64 {
     fn from(value: NBitWord<u32>) -> Self {
         value.0.0 as u64
+    }
+}
+
+impl From<NBitWord<u64>> for u64 {
+    fn from(value: NBitWord<u64>) -> Self {
+        value.0.0
+    }
+}
+
+impl From<[u8; 8]> for NBitWord<u64> {
+    fn from(value: [u8; 8]) -> Self {
+        u64::from_be_bytes([
+            value[0],
+            value[1],
+            value[2],
+            value[3],
+            value[4],
+            value[5],
+            value[6],
+            value[7],
+        ]).into()
     }
 }
 
@@ -145,6 +194,12 @@ where T: LowerHex
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         LowerHex::fmt(&self.0.0, f)
+    }
+}
+
+impl PartialEq<u32> for NBitWord<u32> {
+    fn eq(&self, other: &u32) -> bool {
+        self.0.0 == *other
     }
 }
 

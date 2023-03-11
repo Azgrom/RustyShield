@@ -41,7 +41,7 @@ fn main(){
 
 > Default SHA1 hasher u64 hex result: 2fd4e1c67a2d28fc
 
-As [Rust's Hash trait implementation for the `str`](https://doc.rust-lang.org/core/hash/trait.Hash.html#prefix-collisions) primitive tries to ensure prefix collisions resiliency for any  type that implements the [Hasher trait](https://doc.rust-lang.org/core/hash/trait.Hasher.html), it should be noted that unless you pass a reference of `[u8]` instead of `str` or `String` it will pass an extra `0xFF` byte to the `Hasher` so that the [resulting STATE of `["ab", "c"]` be completely different from `["a", "bc"]`](https://doc.rust-lang.org/core/hash/trait.Hash.html#prefix-collisions).
+As [Rust's Hash trait implementation for the `str`](https://doc.rust-lang.org/core/hash/trait.Hash.html#prefix-collisions) primitive tries to ensure prefix collisions resiliency for any type that implements the [Hasher trait](https://doc.rust-lang.org/core/hash/trait.Hasher.html), it should be noted that unless you pass a reference of `[u8]` instead of `str` or `String` it will pass an extra `0xFF` byte to the `Hasher` so that the [resulting state of `["ab", "c"]` be completely different from `["a", "bc"]`](https://doc.rust-lang.org/core/hash/trait.Hash.html#prefix-collisions).
 
 Because of that, the `.as_ref()` from the example above conveniently casts the `quick_brown_fox` string to a byte array.
 
@@ -82,7 +82,7 @@ It is not a second-system syndrome. The point is:
 - Even though an OpenSSL FFI call serves pretty well it still is an external dependency that would mostly not be directly compiled and optimized but used the one already present on the OS. This could compromise some niche and important optimization, reliability on other platforms and potentially ship some dead weight to the final application;
 - Although the current implementations are not the fastest, there is considerable room for improvement.  I believe we might see a competitive performance boost once the [SIMD module](https://doc.rust-lang.org/core/simd/index.html) stabilizes;
 
-So I hope this project may contribute to the Rust ecosystem maturity by facilitating further development with Rust as a platform-agnostic, [self-sufficient](https://doc.rust-lang.org/stable/embedded-book/intro/no-std.html), consistent, lean, reliable and performatic language.
+So I hope this project may contribute to establish Rust ecosystem as a mature platform-agnostic, [self-sufficient](https://doc.rust-lang.org/stable/embedded-book/intro/no-std.html), lean, reliable and performatic language.
 
 ### Hash functions
 

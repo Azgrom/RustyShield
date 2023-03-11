@@ -1,5 +1,5 @@
 use core::hash::{Hash, Hasher};
-use hash_ctx_lib::{Hasher32BitsPadding, HasherContext, InternalHasherContext};
+use hash_ctx_lib::{BlockHasher, HasherContext, HasherWords};
 use crate::sha224padding::Sha224Padding;
 use crate::Sha224State;
 
@@ -8,6 +8,15 @@ pub struct Sha224Hasher {
     pub(crate) size: u64,
     pub(crate) state: Sha224State,
     pub(crate) padding: Sha224Padding,
+}
+
+impl BlockHasher<u32> for Sha224Hasher {
+    const U8_PADDING_COUNT: usize = 64;
+    const U8_PAD_LAST_INDEX: usize = Self::U8_PADDING_COUNT - 1;
+
+    fn zeros_pad_length(size: usize) -> usize {
+        1 + (Self::U8_PAD_LAST_INDEX & (55usize.wrapping_sub(size & Self::U8_PAD_LAST_INDEX)))
+    }
 }
 
 impl Default for Sha224Hasher {
@@ -54,13 +63,13 @@ impl Hasher for Sha224Hasher {
                 return;
             }
 
-            Self::hash_block(&self.padding, &mut self.state);
+            Self::hash_block(HasherWords::from(&self.padding), &mut self.state);
             bytes = &bytes[(left as usize)..];
         }
 
         while bytes.len() >= Self::U8_PADDING_COUNT {
             self.padding.clone_from_slice(&bytes[..Self::U8_PADDING_COUNT]);
-            Self::hash_block(&self.padding, &mut self.state);
+            Self::hash_block(HasherWords::from(&self.padding), &mut self.state);
             bytes = &bytes[Self::U8_PADDING_COUNT..];
         }
 
@@ -84,9 +93,4 @@ impl HasherContext for Sha224Hasher {
 
         self.state.clone()
     }
-}
-
-impl InternalHasherContext for Sha224Hasher {
-    const U8_PADDING_COUNT: usize = 64;
-    const U8_PAD_LAST_INDEX: usize = Self::U8_PADDING_COUNT - 1;
 }

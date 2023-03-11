@@ -6,7 +6,9 @@ use core::{
     hash::{BuildHasher, Hash},
 };
 use internal_state::Sha160BitsState;
-use n_bit_words_lib::U32Word;
+use n_bit_words_lib::NBitWord;
+
+type U32Word = NBitWord<u32>;
 
 #[test]
 fn build_default_sha1_state_hasher() {

@@ -3,15 +3,12 @@ use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::AddAssign
 };
-use hash_ctx_lib::Hasher32BitState;
+use hash_ctx_lib::{GenericStateHasher, HasherWords};
 use internal_state::Sha256BitsState;
-use n_bit_words_lib::NBitWord;
 use crate::{
     Sha224Hasher,
     sha224padding::Sha224Padding
 };
-
-type U32Word = NBitWord<u32>;
 
 const H0: u32 = 0xC1059ED8;
 const H1: u32 = 0x367CD507;
@@ -25,25 +22,25 @@ const H7: u32 = 0xBEFA4FA4;
 #[derive(Clone)]
 pub struct Sha224State(pub(crate) Sha256BitsState);
 
-impl Hasher32BitState for Sha224State {
-    fn block_00_15(&mut self, w: &[U32Word; 16]) {
+impl GenericStateHasher<u32> for Sha224State {
+    fn block_00_15(&mut self, w: &HasherWords<u32>) {
         self.0.block_00_15(w)
     }
 
-    fn block_16_31(&mut self, w: &mut [U32Word; 16]) {
+    fn block_16_31(&mut self, w: &mut HasherWords<u32>) {
         self.0.block_16_31(w)
     }
 
-    fn block_32_47(&mut self, w: &mut [U32Word; 16]) {
+    fn block_32_47(&mut self, w: &mut HasherWords<u32>) {
         self.0.block_32_47(w)
     }
 
-    fn block_48_63(&mut self, w: &mut [U32Word; 16]) {
+    fn block_48_63(&mut self, w: &mut HasherWords<u32>) {
         self.0.block_48_63(w)
     }
 
     /// Unused abstraction for SHA-224
-    fn block_64_79(&mut self, _w: &mut [U32Word; 16]) {}
+    fn block_64_79(&mut self, _w: &mut HasherWords<u32>) {}
 }
 
 impl AddAssign for Sha224State {

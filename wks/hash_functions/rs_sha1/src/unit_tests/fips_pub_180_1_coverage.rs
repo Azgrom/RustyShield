@@ -1,18 +1,17 @@
+use alloc::vec;
 use crate::{
     sha1hasher::Sha1Hasher,
     sha1state::{H0, H1, H2, H3, H4},
 };
-use hash_ctx_lib::{Hasher32BitsPadding, Hasher32BitState, InternalHasherContext};
-use alloc::vec;
 use core::hash::Hasher;
-use internal_state::Sha160Rotor as Sha160;
-use n_bit_words_lib::U32Word;
+use internal_state::{Sha160BitsState, Sha160Rotor as Sha160};
 
 #[cfg(feature = "nightly")]
 use core::{
     arch::x86_64::{_mm_sha1msg1_epu32, _mm_sha1msg2_epu32, _mm_sha1nexte_epu32, _mm_sha1rnds4_epu32},
     simd::Simd,
 };
+use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
 
 const MESSAGE: &str = "abc";
 
@@ -86,7 +85,7 @@ fn start_processing_rounds_integrity() {
 #[test]
 fn assert_hash_values_integrity_for_each_step_00_to_15() {
     let mut hasher = instantiate_and_preprocess_abc_message();
-    let words: [U32Word; 16] = hasher.padding.load_words();
+    let words = HasherWords::from(&hasher.padding);
     completed_words(&mut hasher);
 
     let mut state = hasher.state.clone();
@@ -324,28 +323,13 @@ fn assert_hash_values_integrity_for_each_step_00_to_15() {
 #[test]
 fn assert_hash_values_integrity_for_each_step_16_to_19() {
     let mut hasher = instantiate_and_preprocess_abc_message();
-    let mut words: [U32Word; 16] = hasher.padding.load_words();
+    let mut words = HasherWords::from(&hasher.padding);
     completed_words(&mut hasher);
 
     let mut state = hasher.state.clone();
     state.block_00_15(&mut words);
 
-    words[0] = (words[0] ^ words[2] ^ words[8] ^ words[13]).rotate_left(1);
-    words[1] = (words[1] ^ words[3] ^ words[9] ^ words[14]).rotate_left(1);
-    words[2] = (words[2] ^ words[4] ^ words[10] ^ words[15]).rotate_left(1);
-    words[3] = (words[3] ^ words[5] ^ words[11] ^ words[0]).rotate_left(1);
-    words[4] = (words[4] ^ words[6] ^ words[12] ^ words[1]).rotate_left(1);
-    words[5] = (words[5] ^ words[7] ^ words[13] ^ words[2]).rotate_left(1);
-    words[6] = (words[6] ^ words[8] ^ words[14] ^ words[3]).rotate_left(1);
-    words[7] = (words[7] ^ words[9] ^ words[15] ^ words[4]).rotate_left(1);
-    words[8] = (words[8] ^ words[10] ^ words[0] ^ words[5]).rotate_left(1);
-    words[9] = (words[9] ^ words[11] ^ words[1] ^ words[6]).rotate_left(1);
-    words[10] = (words[10] ^ words[12] ^ words[2] ^ words[7]).rotate_left(1);
-    words[11] = (words[11] ^ words[13] ^ words[3] ^ words[8]).rotate_left(1);
-    words[12] = (words[12] ^ words[14] ^ words[4] ^ words[9]).rotate_left(1);
-    words[13] = (words[13] ^ words[15] ^ words[5] ^ words[10]).rotate_left(1);
-    words[14] = (words[14] ^ words[0] ^ words[6] ^ words[11]).rotate_left(1);
-    words[15] = (words[15] ^ words[1] ^ words[7] ^ words[12]).rotate_left(1);
+    Sha160BitsState::next_words(&mut words);
 
     Sha160(
         state.0 .4,

@@ -5,8 +5,8 @@ use core::{
     hash::{Hash, Hasher},
     ops::AddAssign,
 };
+use hash_ctx_lib::{GenericStateHasher, HasherWords};
 use internal_state::Sha512BitsState;
-use n_bit_words_lib::U64Word;
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;
 const H1: u64 = 0x629A292A367CD507;
@@ -19,28 +19,6 @@ const H7: u64 = 0x47B5481DBEFA4FA4;
 
 #[derive(Clone)]
 pub struct Sha384State(pub(crate) Sha512BitsState);
-
-impl Sha384State {
-    pub(crate) fn block_00_15(&mut self, w: &[U64Word; 16]) {
-        self.0.block_00_15(w)
-    }
-
-    pub(crate) fn block_16_31(&mut self, w: &mut [U64Word; 16]) {
-        self.0.block_16_31(w)
-    }
-
-    pub(crate) fn block_32_47(&mut self, w: &mut [U64Word; 16]) {
-        self.0.block_32_47(w)
-    }
-
-    pub(crate) fn block_48_63(&mut self, w: &mut [U64Word; 16]) {
-        self.0.block_48_63(w)
-    }
-
-    pub(crate) fn block_64_79(&mut self, w: &mut [U64Word; 16]) {
-        self.0.block_64_79(w)
-    }
-}
 
 impl AddAssign for Sha384State {
     fn add_assign(&mut self, rhs: Self) {
@@ -77,18 +55,40 @@ impl Default for Sha384State {
 
 impl From<Sha384State> for [u8; SHA384_HEX_HASH_SIZE] {
     fn from(value: Sha384State) -> Self {
-        let a = value.0 .0.to_be_bytes();
-        let b = value.0 .1.to_be_bytes();
-        let c = value.0 .2.to_be_bytes();
-        let d = value.0 .3.to_be_bytes();
-        let e = value.0 .4.to_be_bytes();
-        let f = value.0 .5.to_be_bytes();
+        let a = u64::to_be_bytes(value.0 .0.into());
+        let b = u64::to_be_bytes(value.0 .0.into());
+        let c = u64::to_be_bytes(value.0 .0.into());
+        let d = u64::to_be_bytes(value.0 .0.into());
+        let e = u64::to_be_bytes(value.0 .0.into());
+        let f = u64::to_be_bytes(value.0 .0.into());
 
         [
             a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], c[0], c[1],
             c[2], c[3], c[4], c[5], c[6], c[7], d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[5], e[0], e[1], e[2], e[3],
             e[4], e[5], e[6], e[7], f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7],
         ]
+    }
+}
+
+impl GenericStateHasher<u64> for Sha384State {
+    fn block_00_15(&mut self, w: &HasherWords<u64>) {
+        self.0.block_00_15(w)
+    }
+
+    fn block_16_31(&mut self, w: &mut HasherWords<u64>) {
+        self.0.block_16_31(w)
+    }
+
+    fn block_32_47(&mut self, w: &mut HasherWords<u64>) {
+        self.0.block_32_47(w)
+    }
+
+    fn block_48_63(&mut self, w: &mut HasherWords<u64>) {
+        self.0.block_48_63(w)
+    }
+
+    fn block_64_79(&mut self, w: &mut HasherWords<u64>) {
+        self.0.block_64_79(w)
     }
 }
 

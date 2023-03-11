@@ -3,15 +3,12 @@ use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::AddAssign
 };
-use hash_ctx_lib::Hasher32BitState;
+use hash_ctx_lib::{GenericStateHasher, HasherWords};
 use internal_state::Sha160BitsState;
-use n_bit_words_lib::NBitWord;
 use crate::{
     Sha1Hasher,
     sha1padding::Sha1Padding
 };
-
-type U32Word = NBitWord<u32>;
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;
@@ -22,24 +19,24 @@ pub(crate) const H4: u32 = 0xC3D2E1F0;
 #[derive(Clone, Debug)]
 pub struct Sha1State(pub(crate) Sha160BitsState);
 
-impl Hasher32BitState for Sha1State {
-    fn block_00_15(&mut self, words: &[U32Word; 16]) {
+impl GenericStateHasher<u32> for Sha1State {
+    fn block_00_15(&mut self, words: &HasherWords<u32>) {
         self.0.block_00_15(words)
     }
 
-    fn block_16_31(&mut self, words: &mut [U32Word; 16]) {
+    fn block_16_31(&mut self, words: &mut HasherWords<u32>) {
         self.0.block_16_31(words)
     }
 
-    fn block_32_47(&mut self, words: &mut [U32Word; 16]) {
+    fn block_32_47(&mut self, words: &mut HasherWords<u32>) {
         self.0.block_32_47(words)
     }
 
-    fn block_48_63(&mut self, words: &mut [U32Word; 16]) {
+    fn block_48_63(&mut self, words: &mut HasherWords<u32>) {
         self.0.block_48_63(words)
     }
 
-    fn block_64_79(&mut self, words: &mut [U32Word; 16]) {
+    fn block_64_79(&mut self, words: &mut HasherWords<u32>) {
         self.0.block_64_79(words)
     }
 }

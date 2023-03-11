@@ -3,15 +3,20 @@ use core::{
     hash::{Hash, Hasher},
     ops::AddAssign,
 };
+use hash_ctx_lib::HasherWords;
 use n_bit_words_lib::{NBitWord, TSize};
 
-type U32Word = NBitWord<u32>;
-
 #[derive(Clone, Debug)]
-pub struct Sha160BitsState(pub U32Word, pub U32Word, pub U32Word, pub U32Word, pub U32Word);
+pub struct Sha160BitsState(
+    pub NBitWord<u32>,
+    pub NBitWord<u32>,
+    pub NBitWord<u32>,
+    pub NBitWord<u32>,
+    pub NBitWord<u32>,
+);
 
 impl Sha160BitsState {
-    fn next_words(words: &mut [U32Word; 16]){
+    pub fn next_words(words: &mut HasherWords<u32>) {
         words[0] = (words[0] ^ words[2] ^ words[8] ^ words[13]).rotate_left(1.into());
         words[1] = (words[1] ^ words[3] ^ words[9] ^ words[14]).rotate_left(1.into());
         words[2] = (words[2] ^ words[4] ^ words[10] ^ words[15]).rotate_left(1.into());
@@ -30,7 +35,7 @@ impl Sha160BitsState {
         words[15] = (words[15] ^ words[1] ^ words[7] ^ words[12]).rotate_left(1.into());
     }
 
-    pub fn block_00_15(&mut self, words: &[U32Word; 16]) {
+    pub fn block_00_15(&mut self, words: &HasherWords<u32>) {
         Rotor(self.0, &mut self.1, self.2, self.3, &mut self.4, words[0]).rounds_00_19();
         Rotor(self.4, &mut self.0, self.1, self.2, &mut self.3, words[1]).rounds_00_19();
         Rotor(self.3, &mut self.4, self.0, self.1, &mut self.2, words[2]).rounds_00_19();
@@ -49,7 +54,7 @@ impl Sha160BitsState {
         Rotor(self.0, &mut self.1, self.2, self.3, &mut self.4, words[15]).rounds_00_19();
     }
 
-    pub fn block_16_31(&mut self, words: &mut [U32Word; 16]) {
+    pub fn block_16_31(&mut self, words: &mut HasherWords<u32>) {
         Self::next_words(words);
 
         Rotor(self.4, &mut self.0, self.1, self.2, &mut self.3, words[0]).rounds_00_19();
@@ -70,7 +75,7 @@ impl Sha160BitsState {
         Rotor(self.4, &mut self.0, self.1, self.2, &mut self.3, words[15]).rounds_20_39();
     }
 
-    pub fn block_32_47(&mut self, words: &mut [U32Word; 16]) {
+    pub fn block_32_47(&mut self, words: &mut HasherWords<u32>) {
         Self::next_words(words);
 
         Rotor(self.3, &mut self.4, self.0, self.1, &mut self.2, words[0]).rounds_20_39();
@@ -91,7 +96,7 @@ impl Sha160BitsState {
         Rotor(self.3, &mut self.4, self.0, self.1, &mut self.2, words[15]).rounds_40_59();
     }
 
-    pub fn block_48_63(&mut self, words: &mut [U32Word; 16]) {
+    pub fn block_48_63(&mut self, words: &mut HasherWords<u32>) {
         Self::next_words(words);
 
         Rotor(self.2, &mut self.3, self.4, self.0, &mut self.1, words[0]).rounds_40_59();
@@ -112,7 +117,7 @@ impl Sha160BitsState {
         Rotor(self.2, &mut self.3, self.4, self.0, &mut self.1, words[15]).rounds_60_79();
     }
 
-    pub fn block_64_79(&mut self, words: &mut [U32Word; 16]) {
+    pub fn block_64_79(&mut self, words: &mut HasherWords<u32>) {
         Self::next_words(words);
 
         Rotor(self.1, &mut self.2, self.3, self.4, &mut self.0, words[0]).rounds_60_79();

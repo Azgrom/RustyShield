@@ -1,4 +1,6 @@
 #![no_std]
+extern crate alloc;
+
 pub use crate::{sha384hasher::Sha384Hasher, sha384state::Sha384State};
 
 mod sha384hasher;

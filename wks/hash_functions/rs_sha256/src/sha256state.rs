@@ -3,15 +3,12 @@ use core::{
     hash::{BuildHasher, Hash, Hasher},
     ops::AddAssign
 };
-use hash_ctx_lib::Hasher32BitState;
+use hash_ctx_lib::{GenericStateHasher, HasherWords};
 use internal_state::Sha256BitsState;
-use n_bit_words_lib::NBitWord;
 use crate::{
     Sha256Hasher,
     sha256padding::Sha256Padding
 };
-
-type U32Word = NBitWord<u32>;
 
 const H0: u32 = 0x6A09E667;
 const H1: u32 = 0xBB67AE85;
@@ -24,26 +21,6 @@ const H7: u32 = 0x5BE0CD19;
 
 #[derive(Clone, Debug)]
 pub struct Sha256State(pub(crate) Sha256BitsState);
-
-impl Hasher32BitState for Sha256State {
-    fn block_00_15(&mut self, w: &[U32Word; 16]) {
-        self.0.block_00_15(w)
-    }
-
-    fn block_16_31(&mut self, w: &mut [U32Word; 16]) {
-        self.0.block_16_31(w)
-    }
-
-    fn block_32_47(&mut self, w: &mut [U32Word; 16]) {
-        self.0.block_32_47(w)
-    }
-
-    fn block_48_63(&mut self, w: &mut [U32Word; 16]) {
-        self.0.block_48_63(w)
-    }
-
-    fn block_64_79(&mut self, _w: &mut [U32Word; 16]) {}
-}
 
 impl AddAssign for Sha256State {
     fn add_assign(&mut self, rhs: Self) {
@@ -94,6 +71,26 @@ impl From<Sha256State> for [u8; 32] {
             e[2], e[3], f[0], f[1], f[2], f[3], g[0], g[1], g[2], g[3], h[0], h[1], h[2], h[3],
         ]
     }
+}
+
+impl GenericStateHasher<u32> for Sha256State {
+    fn block_00_15(&mut self, w: &HasherWords<u32>) {
+        self.0.block_00_15(w)
+    }
+
+    fn block_16_31(&mut self, w: &mut HasherWords<u32>) {
+        self.0.block_16_31(w)
+    }
+
+    fn block_32_47(&mut self, w: &mut HasherWords<u32>) {
+        self.0.block_32_47(w)
+    }
+
+    fn block_48_63(&mut self, w: &mut HasherWords<u32>) {
+        self.0.block_48_63(w)
+    }
+
+    fn block_64_79(&mut self, _w: &mut HasherWords<u32>) {}
 }
 
 impl Hash for Sha256State {
