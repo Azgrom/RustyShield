@@ -9,7 +9,6 @@ use core::{
 pub use crate::t_size::TSize;
 
 mod t_size;
-mod u64_words;
 
 #[cfg(test)]
 mod unit_tests;
@@ -77,19 +76,13 @@ where Wrapping<T>: Add<Output = Wrapping<T>>
     }
 }
 
-impl Add<u32> for NBitWord<u32> {
+impl<T> Add<T> for NBitWord<T>
+where Wrapping<T>: Add<Output = Wrapping<T>>
+{
     type Output = Self;
 
-    fn add(self, rhs: u32) -> Self::Output {
-        self + Self(Wrapping(rhs))
-    }
-}
-
-impl Add<NBitWord<u32>> for u32 {
-    type Output = NBitWord<u32>;
-
-    fn add(self, rhs: NBitWord<u32>) -> Self::Output {
-        NBitWord(Wrapping(self)) + rhs
+    fn add(self, rhs: T) -> Self::Output {
+        Self(self.0 + Wrapping(rhs))
     }
 }
 
