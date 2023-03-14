@@ -1,5 +1,5 @@
-use core::any::TypeId;
 use crate::{NBitWord, TSize};
+use core::any::TypeId;
 
 type U32Word = NBitWord<u32>;
 

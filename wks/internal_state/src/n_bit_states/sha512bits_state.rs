@@ -19,7 +19,7 @@ pub struct Sha512BitsState(
 );
 
 impl Sha512BitsState {
-    fn next_words(w: &mut HasherWords<u64>){
+    fn next_words(w: &mut HasherWords<u64>) {
         w[0] = w[0] + w[1].gamma0() + w[9] + w[14].gamma1();
         w[1] = w[1] + w[2].gamma0() + w[10] + w[15].gamma1();
         w[2] = w[2] + w[3].gamma0() + w[11] + w[0].gamma1();
@@ -1022,7 +1022,7 @@ impl Sha512BitsState {
     }
 }
 
-impl Sha512BitsState{
+impl Sha512BitsState {
     // SHA-384, SHA-512, SHA-512/224, SHA-512/256 constants
     pub const K00: u64 = 0x428A2F98D728AE22;
     pub const K01: u64 = 0x7137449123EF65CD;

@@ -1,14 +1,11 @@
+use crate::Sha224Hasher;
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::{BuildHasher, Hash, Hasher},
-    ops::AddAssign
+    ops::AddAssign,
 };
-use hash_ctx_lib::{GenericStateHasher, HasherWords};
+use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
 use internal_state::Sha256BitsState;
-use crate::{
-    Sha224Hasher,
-    sha224padding::Sha224Padding
-};
 
 const H0: u32 = 0xC1059ED8;
 const H1: u32 = 0x367CD507;
@@ -56,7 +53,7 @@ impl BuildHasher for Sha224State {
         Sha224Hasher {
             size: u64::MIN,
             state: self.clone(),
-            padding: Sha224Padding::default(),
+            padding: [0u8; Sha224Hasher::U8_PADDING_COUNT],
         }
     }
 }

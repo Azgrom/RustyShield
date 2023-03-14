@@ -1,8 +1,8 @@
-use alloc::vec;
 use crate::{
     sha1hasher::Sha1Hasher,
     sha1state::{H0, H1, H2, H3, H4},
 };
+use alloc::vec;
 use core::hash::Hasher;
 use internal_state::{Sha160BitsState, Sha160Rotor as Sha160};
 
@@ -24,7 +24,7 @@ fn instantiate_and_preprocess_abc_message() -> Sha1Hasher {
     offset_pad[0] = 0x80;
 
     Hasher::write(&mut hasher, &offset_pad[..zero_padding_length]);
-    hasher.padding[56u8..].clone_from_slice(&pad_len);
+    hasher.padding[56..].clone_from_slice(&pad_len);
 
     hasher
 }
@@ -34,14 +34,14 @@ fn completed_words(hasher: &mut Sha1Hasher) {
     let mut offset_pad: [u8; Sha1Hasher::U8_PADDING_COUNT as usize] = [0u8; Sha1Hasher::U8_PADDING_COUNT as usize];
     offset_pad[0] = 0x80;
 
-    let mut len_w = (hasher.size & Sha1Hasher::U8_PAD_LAST_INDEX as u64) as u8;
-    let mut left = Sha1Hasher::U8_PADDING_COUNT as u8 - len_w;
-    hasher.padding[len_w..(len_w + left)].clone_from_slice(&offset_pad[..left as usize]);
+    let mut len_w = hasher.size as usize & Sha1Hasher::U8_PAD_LAST_INDEX;
+    let mut left = Sha1Hasher::U8_PADDING_COUNT - len_w;
+    hasher.padding[len_w..len_w + left].clone_from_slice(&offset_pad[..left]);
     hasher.size += zero_padding_len as u64;
 
     let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
-    len_w = (hasher.size & Sha1Hasher::U8_PAD_LAST_INDEX as u64) as u8;
-    left = Sha1Hasher::U8_PADDING_COUNT as u8 - len_w;
+    len_w = hasher.size as usize & Sha1Hasher::U8_PAD_LAST_INDEX;
+    left = Sha1Hasher::U8_PADDING_COUNT - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&pad_len);
     hasher.size += zero_padding_len as u64;
 }
@@ -51,10 +51,11 @@ fn start_processing_rounds_integrity() {
     let mut hasher = Sha1Hasher::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
 
-    let expected_rounds_of_words_1: [u8; Sha1Hasher::U8_PADDING_COUNT as usize] = [vec![0x61, 0x62, 0x63, 0x00], vec![0u8; 60]]
-        .concat()
-        .try_into()
-        .unwrap();
+    let expected_rounds_of_words_1: [u8; Sha1Hasher::U8_PADDING_COUNT as usize] =
+        [vec![0x61, 0x62, 0x63, 0x00], vec![0u8; 60]]
+            .concat()
+            .try_into()
+            .unwrap();
     assert_eq!(hasher.padding, expected_rounds_of_words_1);
 
     completed_words(&mut hasher);

@@ -1,8 +1,8 @@
 #![no_std]
 
-pub use core::hash::Hasher;
 pub use crate::hasher_stating::GenericStateHasher;
 pub use crate::hasher_words::HasherWords;
+pub use core::hash::Hasher;
 
 mod hasher_stating;
 mod hasher_words;
@@ -18,7 +18,7 @@ pub trait BlockHasher<T>: Hasher + HasherContext {
     const U8_PADDING_COUNT: usize;
     const U8_PAD_LAST_INDEX: usize;
 
-    fn hash_block(mut words: HasherWords<T>, st: &mut impl GenericStateHasher<T>){
+    fn hash_block(mut words: HasherWords<T>, st: &mut impl GenericStateHasher<T>) {
         let mut state = st.clone();
 
         state.block_00_15(&words);
@@ -30,15 +30,19 @@ pub trait BlockHasher<T>: Hasher + HasherContext {
         *st += state;
     }
 
-    fn incomplete_padding(len_w: u8, left: u8) -> bool {
-        (len_w + left) & Self::U8_PAD_LAST_INDEX as u8 != 0
+    fn incomplete_padding(len_w: usize, left: usize) -> bool {
+        (len_w + left) & Self::U8_PAD_LAST_INDEX != 0
     }
 
-    fn remaining_pad(lw: u8, bytes: &&[u8]) -> u8 {
-        let left = Self::U8_PADDING_COUNT as u8 - lw;
-        let bytes_len = bytes.len() as u8;
+    fn remaining_pad(lw: usize, bytes: &&[u8]) -> usize {
+        let left = Self::U8_PADDING_COUNT - lw;
+        let bytes_len = bytes.len();
 
-        if bytes_len < left { bytes_len } else { left }
+        if bytes_len < left {
+            bytes_len
+        } else {
+            left
+        }
     }
 
     fn zeros_pad_length(size: usize) -> usize;

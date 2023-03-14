@@ -2,6 +2,7 @@ use n_bit_words_lib::{NBitWord, TSize};
 
 type U64Word = NBitWord<u64>;
 
+/// Process hashing steps of SHA-384, SHA-512, SHA-512/224 and SHA-512/256
 pub struct Sha512Rotor<'a, 'b>(
     pub U64Word,
     pub U64Word,

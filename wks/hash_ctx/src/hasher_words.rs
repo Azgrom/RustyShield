@@ -6,8 +6,8 @@ pub struct HasherWords<T>([NBitWord<T>; 16]);
 type U32W = NBitWord<u32>;
 type U64W = NBitWord<u64>;
 
-impl From<[u8; 64]> for HasherWords<u32> {
-    fn from(value: [u8; 64]) -> Self {
+impl From<&[u8; 64]> for HasherWords<u32> {
+    fn from(value: &[u8; 64]) -> Self {
         Self([
             U32W::from([value[0], value[1], value[2], value[3]]),
             U32W::from([value[4], value[5], value[6], value[7]]),
@@ -29,8 +29,8 @@ impl From<[u8; 64]> for HasherWords<u32> {
     }
 }
 
-impl From<[u8; 128]> for HasherWords<u64> {
-    fn from(value: [u8; 128]) -> Self {
+impl From<&[u8; 128]> for HasherWords<u64> {
+    fn from(value: &[u8; 128]) -> Self {
         Self([
             U64W::from([
                 value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7],

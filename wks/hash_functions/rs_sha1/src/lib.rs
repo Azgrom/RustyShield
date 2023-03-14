@@ -9,7 +9,6 @@ extern crate alloc;
 pub use crate::{sha1hasher::Sha1Hasher, sha1state::Sha1State};
 
 mod sha1hasher;
-mod sha1padding;
 mod sha1state;
 
 #[cfg(test)]

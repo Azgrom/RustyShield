@@ -1,4 +1,4 @@
-use crate::{sha384padding::Sha384Padding, sha384state::Sha384State};
+use crate::sha384state::Sha384State;
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::{BlockHasher, HasherContext, HasherWords};
 
@@ -6,17 +6,16 @@ use hash_ctx_lib::{BlockHasher, HasherContext, HasherWords};
 pub struct Sha384Hasher {
     pub(crate) size: u128,
     pub(crate) state: Sha384State,
-    pub(crate) padding: Sha384Padding,
+    pub(crate) padding: [u8; Self::U8_PADDING_COUNT],
 }
 
 impl BlockHasher<u64> for Sha384Hasher {
     const U8_PADDING_COUNT: usize = 128;
-    const U8_PAD_LAST_INDEX: usize = 127;
+    const U8_PAD_LAST_INDEX: usize = Self::U8_PADDING_COUNT - 1;
 
-    fn zeros_pad_length(size: usize) -> usize
-        {
-            1 + (Self::U8_PAD_LAST_INDEX & (111usize.wrapping_sub(size & Self::U8_PAD_LAST_INDEX)))
-        }
+    fn zeros_pad_length(size: usize) -> usize {
+        1 + (Self::U8_PAD_LAST_INDEX & (111usize.wrapping_sub(size & Self::U8_PAD_LAST_INDEX)))
+    }
 }
 
 impl Default for Sha384Hasher {
@@ -24,7 +23,7 @@ impl Default for Sha384Hasher {
         Self {
             size: u128::MIN,
             state: Sha384State::default(),
-            padding: Sha384Padding::default(),
+            padding: [0u8; Self::U8_PADDING_COUNT],
         }
     }
 }
@@ -44,25 +43,25 @@ impl Hasher for Sha384Hasher {
     }
 
     fn write(&mut self, mut bytes: &[u8]) {
-        let len_w = (self.size & Self::U8_PAD_LAST_INDEX as u128) as u8;
+        let len_w = (self.size & Self::U8_PAD_LAST_INDEX as u128) as usize;
         self.size += bytes.len() as u128;
 
         if len_w != 0 {
             let left = Self::remaining_pad(len_w, &bytes);
 
-            self.padding[(len_w as usize)..((len_w + left) as usize)].clone_from_slice(&bytes[..(left as usize)]);
+            self.padding[len_w..len_w + left].clone_from_slice(&bytes[..left]);
 
             if Self::incomplete_padding(len_w, left) {
                 return;
             }
 
-            Self::hash_block(HasherWords::from(&self.padding), &mut self.state);
-            bytes = &bytes[(left as usize)..];
+            Self::hash_block(HasherWords::<u64>::from(&self.padding), &mut self.state);
+            bytes = &bytes[left..];
         }
 
         while bytes.len() >= Self::U8_PADDING_COUNT {
             self.padding.clone_from_slice(&bytes[..Self::U8_PADDING_COUNT]);
-            Self::hash_block(HasherWords::from(&self.padding), &mut self.state);
+            Self::hash_block(HasherWords::<u64>::from(&self.padding), &mut self.state);
             bytes = &bytes[Self::U8_PADDING_COUNT..];
         }
 

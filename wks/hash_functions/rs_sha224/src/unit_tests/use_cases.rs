@@ -1,5 +1,5 @@
-use alloc::format;
 use crate::sha224state::Sha224State;
+use alloc::format;
 use core::hash::{BuildHasher, Hash, Hasher};
 use hash_ctx_lib::HasherContext;
 

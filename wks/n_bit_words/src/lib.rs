@@ -1,12 +1,12 @@
 #![no_std]
 
-use core::{
-    num::Wrapping,
-    hash::{Hash, Hasher},
-    fmt::{Formatter, LowerHex, UpperHex},
-    ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shl, Shr, Sub}
-};
 pub use crate::t_size::TSize;
+use core::{
+    fmt::{Formatter, LowerHex, UpperHex},
+    hash::{Hash, Hasher},
+    num::Wrapping,
+    ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shl, Shr, Sub},
+};
 
 mod t_size;
 
@@ -67,7 +67,8 @@ impl TSize<u64> for NBitWord<u64> {
 }
 
 impl<T> Add for NBitWord<T>
-where Wrapping<T>: Add<Output = Wrapping<T>>
+where
+    Wrapping<T>: Add<Output = Wrapping<T>>,
 {
     type Output = Self;
 
@@ -77,7 +78,8 @@ where Wrapping<T>: Add<Output = Wrapping<T>>
 }
 
 impl<T> Add<T> for NBitWord<T>
-where Wrapping<T>: Add<Output = Wrapping<T>>
+where
+    Wrapping<T>: Add<Output = Wrapping<T>>,
 {
     type Output = Self;
 
@@ -86,8 +88,20 @@ where Wrapping<T>: Add<Output = Wrapping<T>>
     }
 }
 
+impl Add<NBitWord<u32>> for u32
+where
+    Wrapping<u32>: Add<Output = Wrapping<u32>>,
+{
+    type Output = NBitWord<u32>;
+
+    fn add(self, rhs: NBitWord<u32>) -> Self::Output {
+        NBitWord(Wrapping(self) + rhs.0)
+    }
+}
+
 impl<T> AddAssign for NBitWord<T>
-where Wrapping<T>: AddAssign
+where
+    Wrapping<T>: AddAssign,
 {
     fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0
@@ -95,32 +109,35 @@ where Wrapping<T>: AddAssign
 }
 
 impl<T> BitAnd for NBitWord<T>
-where T: BitAnd<Output = T>
+where
+    T: BitAnd<Output = T>,
 {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        Self(Wrapping(self.0.0 & rhs.0.0))
+        Self(Wrapping(self.0 .0 & rhs.0 .0))
     }
 }
 
 impl<T> BitOr for NBitWord<T>
-where T: BitOr<Output = T>
+where
+    T: BitOr<Output = T>,
 {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
-        Self(Wrapping(self.0.0 | rhs.0.0))
+        Self(Wrapping(self.0 .0 | rhs.0 .0))
     }
 }
 
 impl<T> BitXor for NBitWord<T>
-where T: BitXor<Output = T>
+where
+    T: BitXor<Output = T>,
 {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
-        Self(Wrapping(self.0.0 ^ rhs.0.0))
+        Self(Wrapping(self.0 .0 ^ rhs.0 .0))
     }
 }
 
@@ -132,96 +149,88 @@ impl<T> From<T> for NBitWord<T> {
 
 impl From<NBitWord<u32>> for u32 {
     fn from(value: NBitWord<u32>) -> Self {
-        value.0.0
+        value.0 .0
     }
 }
 
 impl From<[u8; 4]> for NBitWord<u32> {
     fn from(value: [u8; 4]) -> Self {
-        u32::from_be_bytes([
-            value[0],
-            value[1],
-            value[2],
-            value[3],
-        ]).into()
+        u32::from_be_bytes([value[0], value[1], value[2], value[3]]).into()
     }
 }
 
 impl From<NBitWord<u32>> for u64 {
     fn from(value: NBitWord<u32>) -> Self {
-        value.0.0 as u64
+        value.0 .0 as u64
     }
 }
 
 impl From<NBitWord<u64>> for u64 {
     fn from(value: NBitWord<u64>) -> Self {
-        value.0.0
+        value.0 .0
     }
 }
 
 impl From<[u8; 8]> for NBitWord<u64> {
     fn from(value: [u8; 8]) -> Self {
         u64::from_be_bytes([
-            value[0],
-            value[1],
-            value[2],
-            value[3],
-            value[4],
-            value[5],
-            value[6],
-            value[7],
-        ]).into()
+            value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7],
+        ])
+        .into()
     }
 }
 
 impl<T> Hash for NBitWord<T>
-where T: Hash
+where
+    T: Hash,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.0.0.hash(state)
+        self.0 .0.hash(state)
     }
 }
 
 impl<T> LowerHex for NBitWord<T>
-where T: LowerHex
+where
+    T: LowerHex,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        LowerHex::fmt(&self.0.0, f)
+        LowerHex::fmt(&self.0 .0, f)
     }
 }
 
 impl PartialEq<u32> for NBitWord<u32> {
     fn eq(&self, other: &u32) -> bool {
-        self.0.0 == *other
+        self.0 .0 == *other
     }
 }
 
 impl<T> Shl for NBitWord<T>
-where T: Shl<Output = T>
+where
+    T: Shl<Output = T>,
 {
     type Output = Self;
 
     fn shl(self, rhs: Self) -> Self::Output {
-        Self(Wrapping(self.0.0 << rhs.0.0))
+        Self(Wrapping(self.0 .0 << rhs.0 .0))
     }
 }
 
 impl<T> Shr for NBitWord<T>
-where T: Shr<Output = T>
+where
+    T: Shr<Output = T>,
 {
     type Output = Self;
 
     fn shr(self, rhs: Self) -> Self::Output {
-        Self(Wrapping(self.0.0 >> rhs.0.0))
+        Self(Wrapping(self.0 .0 >> rhs.0 .0))
     }
 }
 
-impl Sub<NBitWord<u32>> for u32
-{
+impl Sub<NBitWord<u32>> for u32 {
     type Output = NBitWord<u32>;
 
     fn sub(self, rhs: NBitWord<u32>) -> Self::Output {
-        NBitWord(Wrapping(self - rhs.0.0))
+        NBitWord(Wrapping(self - rhs.0 .0))
     }
 }
 
@@ -229,14 +238,15 @@ impl Sub<NBitWord<u64>> for u32 {
     type Output = NBitWord<u64>;
 
     fn sub(self, rhs: NBitWord<u64>) -> Self::Output {
-        NBitWord(Wrapping(self as u64 - rhs.0.0))
+        NBitWord(Wrapping(self as u64 - rhs.0 .0))
     }
 }
 
 impl<T> UpperHex for NBitWord<T>
-where T: UpperHex
+where
+    T: UpperHex,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        UpperHex::fmt(&self.0.0, f)
+        UpperHex::fmt(&self.0 .0, f)
     }
 }

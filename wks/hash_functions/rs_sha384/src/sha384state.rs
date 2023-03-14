@@ -1,11 +1,11 @@
-use crate::{sha384hasher::Sha384Hasher, sha384padding::Sha384Padding, SHA384_HEX_HASH_SIZE};
+use crate::sha384hasher::Sha384Hasher;
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::BuildHasher,
     hash::{Hash, Hasher},
     ops::AddAssign,
 };
-use hash_ctx_lib::{GenericStateHasher, HasherWords};
+use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
 use internal_state::Sha512BitsState;
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;
@@ -33,7 +33,7 @@ impl BuildHasher for Sha384State {
         Sha384Hasher {
             size: u128::MIN,
             state: self.clone(),
-            padding: Sha384Padding::default(),
+            padding: [0u8; Sha384Hasher::U8_PADDING_COUNT],
         }
     }
 }
@@ -53,7 +53,7 @@ impl Default for Sha384State {
     }
 }
 
-impl From<Sha384State> for [u8; SHA384_HEX_HASH_SIZE] {
+impl From<Sha384State> for [u8; 48] {
     fn from(value: Sha384State) -> Self {
         let a = u64::to_be_bytes(value.0 .0.into());
         let b = u64::to_be_bytes(value.0 .0.into());

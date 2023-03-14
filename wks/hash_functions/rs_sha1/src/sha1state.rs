@@ -1,14 +1,11 @@
+use crate::Sha1Hasher;
 use core::{
     fmt::{Error, Formatter, LowerHex, UpperHex},
     hash::{BuildHasher, Hash, Hasher},
-    ops::AddAssign
+    ops::AddAssign,
 };
-use hash_ctx_lib::{GenericStateHasher, HasherWords};
+use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
 use internal_state::Sha160BitsState;
-use crate::{
-    Sha1Hasher,
-    sha1padding::Sha1Padding
-};
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;
@@ -66,7 +63,7 @@ impl BuildHasher for Sha1State {
         Sha1Hasher {
             size: u64::default(),
             state: self.clone(),
-            padding: Sha1Padding::default(),
+            padding: [0u8; Sha1Hasher::U8_PADDING_COUNT],
         }
     }
 }
