@@ -5,7 +5,7 @@ use core::{
     ops::AddAssign,
 };
 use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
-use internal_state::Sha256BitsState;
+use internal_state::{LOWER_HEX_ERR, Sha256BitsState, UPPER_HEX_ERR};
 
 const H0: u32 = 0xC1059ED8;
 const H1: u32 = 0x367CD507;
@@ -96,7 +96,6 @@ impl Hash for Sha224State {
     }
 }
 
-const LOWER_HEX_ERR: &str = "Error trying to format lower hex string";
 impl LowerHex for Sha224State {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         LowerHex::fmt(&self.0 .0, f).expect(LOWER_HEX_ERR);
@@ -109,7 +108,6 @@ impl LowerHex for Sha224State {
     }
 }
 
-const UPPER_HEX_ERR: &str = "Error trying to format upper hex string";
 impl UpperHex for Sha224State {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         UpperHex::fmt(&self.0 .0, f).expect(UPPER_HEX_ERR);

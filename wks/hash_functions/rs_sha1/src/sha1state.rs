@@ -5,7 +5,7 @@ use core::{
     ops::AddAssign,
 };
 use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
-use internal_state::Sha160BitsState;
+use internal_state::{LOWER_HEX_ERR, Sha160BitsState, UPPER_HEX_ERR};
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;
@@ -83,7 +83,6 @@ impl From<Sha1State> for [u8; 20] {
     }
 }
 
-const LOWER_HEX_ERR: &str = "Error trying to format lower hex string";
 impl LowerHex for Sha1State {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         LowerHex::fmt(&self.0 .0, f).expect(LOWER_HEX_ERR);
@@ -100,7 +99,6 @@ impl PartialEq for Sha1State {
     }
 }
 
-const UPPER_HEX_ERR: &str = "Error trying to format upper hex string";
 impl UpperHex for Sha1State {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         UpperHex::fmt(&self.0 .0, f).expect(UPPER_HEX_ERR);

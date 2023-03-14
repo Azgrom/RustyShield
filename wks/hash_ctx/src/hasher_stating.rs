@@ -1,9 +1,7 @@
 use crate::HasherWords;
-use core::fmt::{LowerHex, UpperHex};
-use core::hash::{BuildHasher, Hash};
-use core::ops::AddAssign;
+use core::{hash::Hash, ops::AddAssign};
 
-pub trait GenericStateHasher<T>: AddAssign + BuildHasher + Clone + Default + Hash + LowerHex + UpperHex {
+pub trait GenericStateHasher<T>: AddAssign + Clone + Hash {
     fn block_00_15(&mut self, w: &HasherWords<T>);
     fn block_16_31(&mut self, w: &mut HasherWords<T>);
     fn block_32_47(&mut self, w: &mut HasherWords<T>);

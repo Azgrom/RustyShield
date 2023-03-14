@@ -5,8 +5,8 @@ use core::{
     hash::{Hash, Hasher},
     ops::AddAssign,
 };
-use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
-use internal_state::Sha512BitsState;
+use hash_ctx_lib::BlockHasher;
+use internal_state::{sha512child_traits, Sha512BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;
 const H1: u64 = 0x629A292A367CD507;
@@ -17,41 +17,9 @@ const H5: u64 = 0x8EB44A8768581511;
 const H6: u64 = 0xDB0C2E0D64F98FA7;
 const H7: u64 = 0x47B5481DBEFA4FA4;
 
-#[derive(Clone)]
-pub struct Sha384State(pub(crate) Sha512BitsState);
+const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
-impl AddAssign for Sha384State {
-    fn add_assign(&mut self, rhs: Self) {
-        self.0 += rhs.0
-    }
-}
-
-impl BuildHasher for Sha384State {
-    type Hasher = Sha384Hasher;
-
-    fn build_hasher(&self) -> Self::Hasher {
-        Sha384Hasher {
-            size: u128::MIN,
-            state: self.clone(),
-            padding: [0u8; Sha384Hasher::U8_PAD_SIZE],
-        }
-    }
-}
-
-impl Default for Sha384State {
-    fn default() -> Self {
-        Self(Sha512BitsState(
-            H0.into(),
-            H1.into(),
-            H2.into(),
-            H3.into(),
-            H4.into(),
-            H5.into(),
-            H6.into(),
-            H7.into(),
-        ))
-    }
-}
+sha512child_traits!(Sha384State, Sha384Hasher, u64);
 
 impl From<Sha384State> for [u8; 48] {
     fn from(value: Sha384State) -> Self {
@@ -70,35 +38,6 @@ impl From<Sha384State> for [u8; 48] {
     }
 }
 
-impl GenericStateHasher<u64> for Sha384State {
-    fn block_00_15(&mut self, w: &HasherWords<u64>) {
-        self.0.block_00_15(w)
-    }
-
-    fn block_16_31(&mut self, w: &mut HasherWords<u64>) {
-        self.0.block_16_31(w)
-    }
-
-    fn block_32_47(&mut self, w: &mut HasherWords<u64>) {
-        self.0.block_32_47(w)
-    }
-
-    fn block_48_63(&mut self, w: &mut HasherWords<u64>) {
-        self.0.block_48_63(w)
-    }
-
-    fn block_64_79(&mut self, w: &mut HasherWords<u64>) {
-        self.0.block_64_79(w)
-    }
-}
-
-impl Hash for Sha384State {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.0.hash(state);
-    }
-}
-
-const LOWER_HEX_ERR: &str = "Error trying to format lower hex string";
 impl LowerHex for Sha384State {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         LowerHex::fmt(&self.0 .0, f).expect(LOWER_HEX_ERR);
@@ -109,9 +48,6 @@ impl LowerHex for Sha384State {
         LowerHex::fmt(&self.0 .5, f)
     }
 }
-
-const UPPER_HEX_ERR: &str = "Error trying to format upper hex string";
-
 impl UpperHex for Sha384State {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         UpperHex::fmt(&self.0 .0, f).expect(UPPER_HEX_ERR);
