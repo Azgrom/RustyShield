@@ -15,7 +15,7 @@ pub trait HasherContext: Hasher {
 }
 
 pub trait BlockHasher<T>: Hasher + HasherContext {
-    const U8_PADDING_COUNT: usize;
+    const U8_PAD_SIZE: usize;
     const U8_PAD_LAST_INDEX: usize;
 
     fn hash_block(mut words: HasherWords<T>, st: &mut impl GenericStateHasher<T>) {
@@ -35,7 +35,7 @@ pub trait BlockHasher<T>: Hasher + HasherContext {
     }
 
     fn remaining_pad(lw: usize, bytes: &&[u8]) -> usize {
-        let left = Self::U8_PADDING_COUNT - lw;
+        let left = Self::U8_PAD_SIZE - lw;
         let bytes_len = bytes.len();
 
         if bytes_len < left {

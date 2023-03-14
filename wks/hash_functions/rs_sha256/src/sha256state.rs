@@ -32,7 +32,7 @@ impl BuildHasher for Sha256State {
         Sha256Hasher {
             size: u64::MIN,
             state: self.clone(),
-            padding: [0u8; Sha256Hasher::U8_PADDING_COUNT],
+            padding: [0u8; Sha256Hasher::U8_PAD_SIZE],
         }
     }
 }

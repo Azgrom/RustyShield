@@ -63,7 +63,7 @@ impl BuildHasher for Sha1State {
         Sha1Hasher {
             size: u64::default(),
             state: self.clone(),
-            padding: [0u8; Sha1Hasher::U8_PADDING_COUNT],
+            padding: [0u8; Sha1Hasher::U8_PAD_SIZE],
         }
     }
 }

@@ -20,7 +20,7 @@ fn instantiate_and_preprocess_abc_message() -> Sha1Hasher {
     Hasher::write(&mut hasher, MESSAGE.as_ref());
     let zero_padding_length = Sha1Hasher::zeros_pad_length(hasher.size as usize);
     let pad_len: [u8; 8] = (hasher.size * 8).to_be_bytes();
-    let mut offset_pad: [u8; Sha1Hasher::U8_PADDING_COUNT as usize] = [0u8; Sha1Hasher::U8_PADDING_COUNT as usize];
+    let mut offset_pad: [u8; Sha1Hasher::U8_PAD_SIZE as usize] = [0u8; Sha1Hasher::U8_PAD_SIZE as usize];
     offset_pad[0] = 0x80;
 
     Hasher::write(&mut hasher, &offset_pad[..zero_padding_length]);
@@ -31,17 +31,17 @@ fn instantiate_and_preprocess_abc_message() -> Sha1Hasher {
 
 fn completed_words(hasher: &mut Sha1Hasher) {
     let zero_padding_len = Sha1Hasher::zeros_pad_length(hasher.size as usize);
-    let mut offset_pad: [u8; Sha1Hasher::U8_PADDING_COUNT as usize] = [0u8; Sha1Hasher::U8_PADDING_COUNT as usize];
+    let mut offset_pad: [u8; Sha1Hasher::U8_PAD_SIZE as usize] = [0u8; Sha1Hasher::U8_PAD_SIZE as usize];
     offset_pad[0] = 0x80;
 
     let mut len_w = hasher.size as usize & Sha1Hasher::U8_PAD_LAST_INDEX;
-    let mut left = Sha1Hasher::U8_PADDING_COUNT - len_w;
+    let mut left = Sha1Hasher::U8_PAD_SIZE - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&offset_pad[..left]);
     hasher.size += zero_padding_len as u64;
 
     let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
     len_w = hasher.size as usize & Sha1Hasher::U8_PAD_LAST_INDEX;
-    left = Sha1Hasher::U8_PADDING_COUNT - len_w;
+    left = Sha1Hasher::U8_PAD_SIZE - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&pad_len);
     hasher.size += zero_padding_len as u64;
 }
@@ -51,7 +51,7 @@ fn start_processing_rounds_integrity() {
     let mut hasher = Sha1Hasher::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
 
-    let expected_rounds_of_words_1: [u8; Sha1Hasher::U8_PADDING_COUNT as usize] =
+    let expected_rounds_of_words_1: [u8; Sha1Hasher::U8_PAD_SIZE as usize] =
         [vec![0x61, 0x62, 0x63, 0x00], vec![0u8; 60]]
             .concat()
             .try_into()
@@ -60,7 +60,7 @@ fn start_processing_rounds_integrity() {
 
     completed_words(&mut hasher);
 
-    let expected_rounds_of_words_2: [u8; Sha1Hasher::U8_PADDING_COUNT as usize] =
+    let expected_rounds_of_words_2: [u8; Sha1Hasher::U8_PAD_SIZE as usize] =
         [vec![0x61, 0x62, 0x63, 0x80], vec![0u8; 59], vec![0x18]]
             .concat()
             .try_into()

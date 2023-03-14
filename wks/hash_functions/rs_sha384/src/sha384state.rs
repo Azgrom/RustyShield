@@ -33,7 +33,7 @@ impl BuildHasher for Sha384State {
         Sha384Hasher {
             size: u128::MIN,
             state: self.clone(),
-            padding: [0u8; Sha384Hasher::U8_PADDING_COUNT],
+            padding: [0u8; Sha384Hasher::U8_PAD_SIZE],
         }
     }
 }

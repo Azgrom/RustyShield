@@ -53,7 +53,7 @@ impl BuildHasher for Sha224State {
         Sha224Hasher {
             size: u64::MIN,
             state: self.clone(),
-            padding: [0u8; Sha224Hasher::U8_PADDING_COUNT],
+            padding: [0u8; Sha224Hasher::U8_PAD_SIZE],
         }
     }
 }
