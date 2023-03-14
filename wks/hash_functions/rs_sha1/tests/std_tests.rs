@@ -1,4 +1,4 @@
-use rs_sha1_lib::Sha1State;
+use rs_sha1::Sha1State;
 use std::{
     collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},

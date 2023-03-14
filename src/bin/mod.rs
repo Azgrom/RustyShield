@@ -1,4 +1,4 @@
-use rs_sha1_lib::Sha1State;
+use rs_sha1::Sha1State;
 
 fn main() {
     Sha1State::default();

@@ -8,7 +8,7 @@ license.workspace = true
 
 [lib]
 # Custom name definition because of multiple rmeta candidates error E0465
-name = "rs_sha224_lib"
+name = "rs_sha224"
 path = "src/lib.rs"
 
 [dependencies]

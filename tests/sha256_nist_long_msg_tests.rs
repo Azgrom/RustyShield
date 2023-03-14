@@ -1,5 +1,5 @@
 use cavs_long_msg::CAVSLongMsg;
-use rs_sha256_lib::Sha256State;
+use rs_sha256::Sha256State;
 use rs_ssl::HasherContext;
 use std::hash::{BuildHasher, Hasher};
 
