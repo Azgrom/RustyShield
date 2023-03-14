@@ -1,3 +1,4 @@
+extern crate alloc;
 use crate::sha1state::{H0, H1, H2, H3, H4};
 use crate::{Sha1Hasher, Sha1State};
 use alloc::{format, string::String};

@@ -1,3 +1,4 @@
+extern crate alloc;
 use crate::{
     sha1hasher::Sha1Hasher,
     sha1state::{H0, H1, H2, H3, H4},

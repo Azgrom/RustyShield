@@ -1,3 +1,4 @@
+extern crate alloc;
 use crate::sha384state::Sha384State;
 use alloc::format;
 use core::hash::{BuildHasher, Hash, Hasher};
