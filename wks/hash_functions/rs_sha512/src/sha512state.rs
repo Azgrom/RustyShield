@@ -1,4 +1,5 @@
-use internal_state::{sha512child_traits, Sha512BitsState};
+use crate::Sha512Hasher;
+use internal_state::{define_sha_state, Sha512BitsState};
 
 const H0: u64 = 0x6A09E667F3BCC908;
 const H1: u64 = 0xBB67AE8584CAA73B;
@@ -11,4 +12,4 @@ const H7: u64 = 0x5BE0CD19137E2179;
 
 const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
-sha512child_traits!(Sha512State);
+define_sha_state!(Sha512State, Sha512Hasher, Sha512BitsState);
