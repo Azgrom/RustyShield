@@ -3,7 +3,7 @@ use core::{
     hash::{Hash, Hasher},
     ops::AddAssign,
 };
-use hash_ctx_lib::HasherWords;
+use hash_ctx_lib::{GenericStateHasher, HasherWords};
 use n_bit_words_lib::{NBitWord, TSize};
 
 #[derive(Clone, Debug)]
@@ -37,8 +37,10 @@ impl Sha256BitsState {
         w[14] = w[14] + w[15].gamma0() + w[7] + w[12].gamma1();
         w[15] = w[15] + w[0].gamma0() + w[8] + w[13].gamma1();
     }
+}
 
-    pub fn block_00_15(&mut self, w: &HasherWords<u32>) {
+impl GenericStateHasher<u32> for Sha256BitsState {
+    fn block_00_15(&mut self, w: &HasherWords<u32>) {
         Rotor(
             self.0,
             self.1,
@@ -233,7 +235,7 @@ impl Sha256BitsState {
         .rnd(Self::K15);
     }
 
-    pub fn block_16_31(&mut self, w: &mut HasherWords<u32>) {
+    fn block_16_31(&mut self, w: &mut HasherWords<u32>) {
         Self::next_words(w);
 
         Rotor(
@@ -430,7 +432,7 @@ impl Sha256BitsState {
         .rnd(Self::K31);
     }
 
-    pub fn block_32_47(&mut self, w: &mut HasherWords<u32>) {
+    fn block_32_47(&mut self, w: &mut HasherWords<u32>) {
         Self::next_words(w);
 
         Rotor(
@@ -627,7 +629,7 @@ impl Sha256BitsState {
         .rnd(Self::K47);
     }
 
-    pub fn block_48_63(&mut self, w: &mut HasherWords<u32>) {
+    fn block_48_63(&mut self, w: &mut HasherWords<u32>) {
         Self::next_words(w);
 
         Rotor(
@@ -823,6 +825,8 @@ impl Sha256BitsState {
         )
         .rnd(Self::K63);
     }
+
+    fn block_64_79(&mut self, _w: &mut HasherWords<u32>) {}
 }
 
 impl Sha256BitsState {
@@ -902,6 +906,21 @@ impl AddAssign for Sha256BitsState {
         self.5 += rhs.5;
         self.6 += rhs.6;
         self.7 += rhs.7;
+    }
+}
+
+impl From<[u32; 8]> for Sha256BitsState {
+    fn from(v: [u32; 8]) -> Self {
+        Self(
+            v[0].into(),
+            v[1].into(),
+            v[2].into(),
+            v[3].into(),
+            v[4].into(),
+            v[5].into(),
+            v[6].into(),
+            v[7].into(),
+        )
     }
 }
 

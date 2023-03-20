@@ -5,7 +5,7 @@ use core::{
     ops::AddAssign,
 };
 use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
-use internal_state::{Sha160BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{Sha160BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR, define_sha_state};
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;
@@ -13,60 +13,9 @@ pub(crate) const H2: u32 = 0x98BADCFE;
 pub(crate) const H3: u32 = 0x10325476;
 pub(crate) const H4: u32 = 0xC3D2E1F0;
 
-#[derive(Clone, Debug)]
-pub struct Sha1State(pub(crate) Sha160BitsState);
+const HX: [u32; 5] = [H0, H1, H2, H3, H4];
 
-impl GenericStateHasher<u32> for Sha1State {
-    fn block_00_15(&mut self, words: &HasherWords<u32>) {
-        self.0.block_00_15(words)
-    }
-
-    fn block_16_31(&mut self, words: &mut HasherWords<u32>) {
-        self.0.block_16_31(words)
-    }
-
-    fn block_32_47(&mut self, words: &mut HasherWords<u32>) {
-        self.0.block_32_47(words)
-    }
-
-    fn block_48_63(&mut self, words: &mut HasherWords<u32>) {
-        self.0.block_48_63(words)
-    }
-
-    fn block_64_79(&mut self, words: &mut HasherWords<u32>) {
-        self.0.block_64_79(words)
-    }
-}
-
-impl AddAssign for Sha1State {
-    fn add_assign(&mut self, rhs: Self) {
-        self.0 += rhs.0;
-    }
-}
-
-impl Hash for Sha1State {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.0.hash(state)
-    }
-}
-
-impl Default for Sha1State {
-    fn default() -> Self {
-        Self(Sha160BitsState(H0.into(), H1.into(), H2.into(), H3.into(), H4.into()))
-    }
-}
-
-impl BuildHasher for Sha1State {
-    type Hasher = Sha1Hasher;
-
-    fn build_hasher(&self) -> Self::Hasher {
-        Sha1Hasher {
-            size: u64::default(),
-            state: self.clone(),
-            padding: [0u8; Sha1Hasher::U8_PAD_SIZE as usize],
-        }
-    }
-}
+define_sha_state!(Sha1State, Sha1Hasher, Sha160BitsState);
 
 impl From<Sha1State> for [u8; 20] {
     fn from(value: Sha1State) -> Self {

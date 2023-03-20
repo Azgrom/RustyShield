@@ -149,6 +149,18 @@ impl AddAssign for Sha160BitsState {
     }
 }
 
+impl From<[u32; 5] > for Sha160BitsState {
+    fn from(value: [u32; 5]) -> Self {
+        Self(
+            value[0].into(),
+            value[1].into(),
+            value[2].into(),
+            value[3].into(),
+            value[4].into()
+        )
+    }
+}
+
 impl Hash for Sha160BitsState {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash(state);

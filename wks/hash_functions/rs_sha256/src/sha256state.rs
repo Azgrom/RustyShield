@@ -5,7 +5,7 @@ use core::{
     ops::AddAssign,
 };
 use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
-use internal_state::{Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR, define_sha_state};
 
 const H0: u32 = 0x6A09E667;
 const H1: u32 = 0xBB67AE85;
@@ -16,41 +16,9 @@ const H5: u32 = 0x9B05688C;
 const H6: u32 = 0x1F83D9AB;
 const H7: u32 = 0x5BE0CD19;
 
-#[derive(Clone, Debug)]
-pub struct Sha256State(pub(crate) Sha256BitsState);
+const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
-impl AddAssign for Sha256State {
-    fn add_assign(&mut self, rhs: Self) {
-        self.0 += rhs.0
-    }
-}
-
-impl BuildHasher for Sha256State {
-    type Hasher = Sha256Hasher;
-
-    fn build_hasher(&self) -> Self::Hasher {
-        Sha256Hasher {
-            size: u64::MIN,
-            state: self.clone(),
-            padding: [0u8; Sha256Hasher::U8_PAD_SIZE as usize],
-        }
-    }
-}
-
-impl Default for Sha256State {
-    fn default() -> Self {
-        Self(Sha256BitsState(
-            H0.into(),
-            H1.into(),
-            H2.into(),
-            H3.into(),
-            H4.into(),
-            H5.into(),
-            H6.into(),
-            H7.into(),
-        ))
-    }
-}
+define_sha_state!(Sha256State, Sha256Hasher, Sha256BitsState);
 
 impl From<Sha256State> for [u8; 32] {
     fn from(value: Sha256State) -> Self {
@@ -67,32 +35,6 @@ impl From<Sha256State> for [u8; 32] {
             a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3], c[0], c[1], c[2], c[3], d[0], d[1], d[2], d[3], e[0], e[1],
             e[2], e[3], f[0], f[1], f[2], f[3], g[0], g[1], g[2], g[3], h[0], h[1], h[2], h[3],
         ]
-    }
-}
-
-impl GenericStateHasher<u32> for Sha256State {
-    fn block_00_15(&mut self, w: &HasherWords<u32>) {
-        self.0.block_00_15(w)
-    }
-
-    fn block_16_31(&mut self, w: &mut HasherWords<u32>) {
-        self.0.block_16_31(w)
-    }
-
-    fn block_32_47(&mut self, w: &mut HasherWords<u32>) {
-        self.0.block_32_47(w)
-    }
-
-    fn block_48_63(&mut self, w: &mut HasherWords<u32>) {
-        self.0.block_48_63(w)
-    }
-
-    fn block_64_79(&mut self, _w: &mut HasherWords<u32>) {}
-}
-
-impl Hash for Sha256State {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.0.hash(state)
     }
 }
 
