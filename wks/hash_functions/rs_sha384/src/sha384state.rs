@@ -6,6 +6,8 @@ use core::{
     ops::AddAssign,
 };
 use hash_ctx_lib::BlockHasher;
+use hash_ctx_lib::HasherWords;
+use hash_ctx_lib::GenericStateHasher;
 use internal_state::{sha512child_traits, Sha512BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;
@@ -20,6 +22,28 @@ const H7: u64 = 0x47B5481DBEFA4FA4;
 const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
 sha512child_traits!(Sha384State, Sha384Hasher, u64);
+
+impl GenericStateHasher<u64> for Sha384State {
+    fn block_00_15(&mut self, w: &HasherWords<u64>) {
+        self.0.block_00_15(w)
+    }
+
+    fn block_16_31(&mut self, w: &mut HasherWords<u64>) {
+        self.0.block_16_31(w)
+    }
+
+    fn block_32_47(&mut self, w: &mut HasherWords<u64>) {
+        self.0.block_32_47(w)
+    }
+
+    fn block_48_63(&mut self, w: &mut HasherWords<u64>) {
+        self.0.block_48_63(w)
+    }
+
+    fn block_64_79(&mut self, w: &mut HasherWords<u64>) {
+        self.0.block_64_79(w)
+    }
+}
 
 impl From<Sha384State> for [u8; 48] {
     fn from(value: Sha384State) -> Self {

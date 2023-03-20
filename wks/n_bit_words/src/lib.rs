@@ -13,6 +13,14 @@ mod t_size;
 #[cfg(test)]
 mod unit_tests;
 
+/// Intel documentation provides that
+/// `S0(a) = (a >>> 2) ^ (a >>> 13) ^ (a >>> 22)`
+/// and `S1(e) = (e >>> 6) ^ (e >>> 11) ^ (e >>> 25)`
+/// involves a number of register copy operations due to ror instructions
+/// being destructive. And that number of register copies can be minimized
+/// writing `S0` and `S1` as
+/// `S0(a) = ((( a >>> 9) ^ a) >>> 11) ^ a) >>> 2`
+/// and `S1(e) = (((e >>> 14) ^ e) >>> 5) ^ e) >>> 6`
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct NBitWord<T>(Wrapping<T>);
 
@@ -29,16 +37,26 @@ impl TSize<u32> for NBitWord<u32> {
     }
 
     fn sigma0(self) -> Self {
-        self.rotate_right(Self(Wrapping(2)))
-            ^ self.rotate_right(Self(Wrapping(13)))
-            ^ self.rotate_right(Self(Wrapping(22)))
+        (((self.rotate_right(Self(Wrapping(9)))) ^ self).rotate_right(Self(Wrapping(11))) ^ self)
+            .rotate_right(Self(Wrapping(2)))
     }
 
     fn sigma1(self) -> Self {
-        self.rotate_right(Self(Wrapping(6)))
-            ^ self.rotate_right(Self(Wrapping(11)))
-            ^ self.rotate_right(Self(Wrapping(25)))
+        (((self.rotate_right(Self(Wrapping(14))) ^ self).rotate_right(Self(Wrapping(5)))) ^ self)
+            .rotate_right(Self(Wrapping(6)))
     }
+
+    // fn sigma0(self) -> Self {
+    //     self.rotate_right(Self(Wrapping(2)))
+    //         ^ self.rotate_right(Self(Wrapping(13)))
+    //         ^ self.rotate_right(Self(Wrapping(22)))
+    // }
+    //
+    // fn sigma1(self) -> Self {
+    //     self.rotate_right(Self(Wrapping(6)))
+    //         ^ self.rotate_right(Self(Wrapping(11)))
+    //         ^ self.rotate_right(Self(Wrapping(25)))
+    // }
 }
 
 impl TSize<u64> for NBitWord<u64> {

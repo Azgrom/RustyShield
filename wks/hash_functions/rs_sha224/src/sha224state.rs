@@ -5,7 +5,7 @@ use core::{
     ops::AddAssign,
 };
 use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
-use internal_state::{LOWER_HEX_ERR, Sha256BitsState, UPPER_HEX_ERR};
+use internal_state::{Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 
 const H0: u32 = 0xC1059ED8;
 const H1: u32 = 0x367CD507;
@@ -53,7 +53,7 @@ impl BuildHasher for Sha224State {
         Sha224Hasher {
             size: u64::MIN,
             state: self.clone(),
-            padding: [0u8; Sha224Hasher::U8_PAD_SIZE],
+            padding: [0u8; Sha224Hasher::U8_PAD_SIZE as usize],
         }
     }
 }

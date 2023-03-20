@@ -19,7 +19,7 @@ const MESSAGE: &str = "abc";
 fn instantiate_and_preprocess_abc_message() -> Sha1Hasher {
     let mut hasher = Sha1Hasher::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
-    let zero_padding_length = Sha1Hasher::zeros_pad_length(hasher.size as usize);
+    let zero_padding_length = Sha1Hasher::zeros_pad_length(&hasher) as usize;
     let pad_len: [u8; 8] = (hasher.size * 8).to_be_bytes();
     let mut offset_pad: [u8; Sha1Hasher::U8_PAD_SIZE as usize] = [0u8; Sha1Hasher::U8_PAD_SIZE as usize];
     offset_pad[0] = 0x80;
@@ -31,18 +31,18 @@ fn instantiate_and_preprocess_abc_message() -> Sha1Hasher {
 }
 
 fn completed_words(hasher: &mut Sha1Hasher) {
-    let zero_padding_len = Sha1Hasher::zeros_pad_length(hasher.size as usize);
+    let zero_padding_len = Sha1Hasher::zeros_pad_length(hasher) as usize;
     let mut offset_pad: [u8; Sha1Hasher::U8_PAD_SIZE as usize] = [0u8; Sha1Hasher::U8_PAD_SIZE as usize];
     offset_pad[0] = 0x80;
 
-    let mut len_w = hasher.size as usize & Sha1Hasher::U8_PAD_LAST_INDEX;
-    let mut left = Sha1Hasher::U8_PAD_SIZE - len_w;
+    let mut len_w = hasher.size as usize & Sha1Hasher::U8_PAD_LAST_INDEX as usize;
+    let mut left = Sha1Hasher::U8_PAD_SIZE as usize - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&offset_pad[..left]);
     hasher.size += zero_padding_len as u64;
 
     let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
-    len_w = hasher.size as usize & Sha1Hasher::U8_PAD_LAST_INDEX;
-    left = Sha1Hasher::U8_PAD_SIZE - len_w;
+    len_w = hasher.size as usize & Sha1Hasher::U8_PAD_LAST_INDEX as usize;
+    left = Sha1Hasher::U8_PAD_SIZE as usize - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&pad_len);
     hasher.size += zero_padding_len as u64;
 }

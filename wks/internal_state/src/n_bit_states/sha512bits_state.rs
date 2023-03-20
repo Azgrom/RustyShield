@@ -3,7 +3,7 @@ use core::{
     hash::{Hash, Hasher},
     ops::AddAssign,
 };
-use hash_ctx_lib::HasherWords;
+use hash_ctx_lib::{GenericStateHasher, HasherWords};
 use n_bit_words_lib::{NBitWord, TSize};
 
 #[derive(Clone)]
@@ -37,8 +37,122 @@ impl Sha512BitsState {
         w[14] = w[14] + w[15].gamma0() + w[7] + w[12].gamma1();
         w[15] = w[15] + w[0].gamma0() + w[8] + w[13].gamma1();
     }
+}
 
-    pub fn block_00_15(&mut self, w: &HasherWords<u64>) {
+impl Sha512BitsState {
+    // SHA-384, SHA-512, SHA-512/224, SHA-512/256 constants
+    pub const K00: u64 = 0x428A2F98D728AE22;
+    pub const K01: u64 = 0x7137449123EF65CD;
+    pub const K02: u64 = 0xB5C0FBCFEC4D3B2F;
+    pub const K03: u64 = 0xE9B5DBA58189DBBC;
+    pub const K04: u64 = 0x3956C25BF348B538;
+    pub const K05: u64 = 0x59F111F1B605D019;
+    pub const K06: u64 = 0x923F82A4AF194F9B;
+    pub const K07: u64 = 0xAB1C5ED5DA6D8118;
+    pub const K08: u64 = 0xD807AA98A3030242;
+    pub const K09: u64 = 0x12835B0145706FBE;
+    pub const K10: u64 = 0x243185BE4EE4B28C;
+    pub const K11: u64 = 0x550C7DC3D5FFB4E2;
+    pub const K12: u64 = 0x72BE5D74F27B896F;
+    pub const K13: u64 = 0x80DEB1FE3B1696B1;
+    pub const K14: u64 = 0x9BDC06A725C71235;
+    pub const K15: u64 = 0xC19BF174CF692694;
+    pub const K16: u64 = 0xE49B69C19EF14AD2;
+    pub const K17: u64 = 0xEFBE4786384F25E3;
+    pub const K18: u64 = 0x0FC19DC68B8CD5B5;
+    pub const K19: u64 = 0x240CA1CC77AC9C65;
+    pub const K20: u64 = 0x2DE92C6F592B0275;
+    pub const K21: u64 = 0x4A7484AA6EA6E483;
+    pub const K22: u64 = 0x5CB0A9DCBD41FBD4;
+    pub const K23: u64 = 0x76F988DA831153B5;
+    pub const K24: u64 = 0x983E5152EE66DFAB;
+    pub const K25: u64 = 0xA831C66D2DB43210;
+    pub const K26: u64 = 0xB00327C898FB213F;
+    pub const K27: u64 = 0xBF597FC7BEEF0EE4;
+    pub const K28: u64 = 0xC6E00BF33DA88FC2;
+    pub const K29: u64 = 0xD5A79147930AA725;
+    pub const K30: u64 = 0x06CA6351E003826F;
+    pub const K31: u64 = 0x142929670A0E6E70;
+    pub const K32: u64 = 0x27B70A8546D22FFC;
+    pub const K33: u64 = 0x2E1B21385C26C926;
+    pub const K34: u64 = 0x4D2C6DFC5AC42AED;
+    pub const K35: u64 = 0x53380D139D95B3DF;
+    pub const K36: u64 = 0x650A73548BAF63DE;
+    pub const K37: u64 = 0x766A0ABB3C77B2A8;
+    pub const K38: u64 = 0x81C2C92E47EDAEE6;
+    pub const K39: u64 = 0x92722C851482353B;
+    pub const K40: u64 = 0xA2BFE8A14CF10364;
+    pub const K41: u64 = 0xA81A664BBC423001;
+    pub const K42: u64 = 0xC24B8B70D0F89791;
+    pub const K43: u64 = 0xC76C51A30654BE30;
+    pub const K44: u64 = 0xD192E819D6EF5218;
+    pub const K45: u64 = 0xD69906245565A910;
+    pub const K46: u64 = 0xF40E35855771202A;
+    pub const K47: u64 = 0x106AA07032BBD1B8;
+    pub const K48: u64 = 0x19A4C116B8D2D0C8;
+    pub const K49: u64 = 0x1E376C085141AB53;
+    pub const K50: u64 = 0x2748774CDF8EEB99;
+    pub const K51: u64 = 0x34B0BCB5E19B48A8;
+    pub const K52: u64 = 0x391C0CB3C5C95A63;
+    pub const K53: u64 = 0x4ED8AA4AE3418ACB;
+    pub const K54: u64 = 0x5B9CCA4F7763E373;
+    pub const K55: u64 = 0x682E6FF3D6B2B8A3;
+    pub const K56: u64 = 0x748F82EE5DEFB2FC;
+    pub const K57: u64 = 0x78A5636F43172F60;
+    pub const K58: u64 = 0x84C87814A1F0AB72;
+    pub const K59: u64 = 0x8CC702081A6439EC;
+    pub const K60: u64 = 0x90BEFFFA23631E28;
+    pub const K61: u64 = 0xA4506CEBDE82BDE9;
+    pub const K62: u64 = 0xBEF9A3F7B2C67915;
+    pub const K63: u64 = 0xC67178F2E372532B;
+    pub const K64: u64 = 0xCA273ECEEA26619C;
+    pub const K65: u64 = 0xD186B8C721C0C207;
+    pub const K66: u64 = 0xEADA7DD6CDE0EB1E;
+    pub const K67: u64 = 0xF57D4F7FEE6ED178;
+    pub const K68: u64 = 0x06F067AA72176FBA;
+    pub const K69: u64 = 0x0A637DC5A2C898A6;
+    pub const K70: u64 = 0x113F9804BEF90DAE;
+    pub const K71: u64 = 0x1B710B35131C471B;
+    pub const K72: u64 = 0x28DB77F523047D84;
+    pub const K73: u64 = 0x32CAAB7B40C72493;
+    pub const K74: u64 = 0x3C9EBE0A15C9BEBC;
+    pub const K75: u64 = 0x431D67C49C100D4C;
+    pub const K76: u64 = 0x4CC5D4BECB3E42B6;
+    pub const K77: u64 = 0x597F299CFC657E2A;
+    pub const K78: u64 = 0x5FCB6FAB3AD6FAEC;
+    pub const K79: u64 = 0x6C44198C4A475817;
+}
+
+impl AddAssign for Sha512BitsState {
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0;
+        self.1 += rhs.1;
+        self.2 += rhs.2;
+        self.3 += rhs.3;
+        self.4 += rhs.4;
+        self.5 += rhs.5;
+        self.6 += rhs.6;
+        self.7 += rhs.7;
+    }
+}
+
+impl From<[u64; 8]> for Sha512BitsState {
+    fn from(v: [u64; 8]) -> Self {
+        Self(
+            v[0].into(),
+            v[1].into(),
+            v[2].into(),
+            v[3].into(),
+            v[4].into(),
+            v[5].into(),
+            v[6].into(),
+            v[7].into(),
+        )
+    }
+}
+
+impl GenericStateHasher<u64> for Sha512BitsState {
+    fn block_00_15(&mut self, w: &HasherWords<u64>) {
         Rotor(
             self.0,
             self.1,
@@ -233,7 +347,7 @@ impl Sha512BitsState {
         .rnd(Self::K15);
     }
 
-    pub fn block_16_31(&mut self, w: &mut HasherWords<u64>) {
+    fn block_16_31(&mut self, w: &mut HasherWords<u64>) {
         Self::next_words(w);
 
         Rotor(
@@ -430,7 +544,7 @@ impl Sha512BitsState {
         .rnd(Self::K31);
     }
 
-    pub fn block_32_47(&mut self, w: &mut HasherWords<u64>) {
+    fn block_32_47(&mut self, w: &mut HasherWords<u64>) {
         Self::next_words(w);
 
         Rotor(
@@ -627,7 +741,7 @@ impl Sha512BitsState {
         .rnd(Self::K47);
     }
 
-    pub fn block_48_63(&mut self, w: &mut HasherWords<u64>) {
+    fn block_48_63(&mut self, w: &mut HasherWords<u64>) {
         Self::next_words(w);
 
         Rotor(
@@ -824,7 +938,7 @@ impl Sha512BitsState {
         .rnd(Self::K63);
     }
 
-    pub fn block_64_79(&mut self, w: &mut HasherWords<u64>) {
+    fn block_64_79(&mut self, w: &mut HasherWords<u64>) {
         Self::next_words(w);
 
         Rotor(
@@ -1022,103 +1136,6 @@ impl Sha512BitsState {
     }
 }
 
-impl Sha512BitsState {
-    // SHA-384, SHA-512, SHA-512/224, SHA-512/256 constants
-    pub const K00: u64 = 0x428A2F98D728AE22;
-    pub const K01: u64 = 0x7137449123EF65CD;
-    pub const K02: u64 = 0xB5C0FBCFEC4D3B2F;
-    pub const K03: u64 = 0xE9B5DBA58189DBBC;
-    pub const K04: u64 = 0x3956C25BF348B538;
-    pub const K05: u64 = 0x59F111F1B605D019;
-    pub const K06: u64 = 0x923F82A4AF194F9B;
-    pub const K07: u64 = 0xAB1C5ED5DA6D8118;
-    pub const K08: u64 = 0xD807AA98A3030242;
-    pub const K09: u64 = 0x12835B0145706FBE;
-    pub const K10: u64 = 0x243185BE4EE4B28C;
-    pub const K11: u64 = 0x550C7DC3D5FFB4E2;
-    pub const K12: u64 = 0x72BE5D74F27B896F;
-    pub const K13: u64 = 0x80DEB1FE3B1696B1;
-    pub const K14: u64 = 0x9BDC06A725C71235;
-    pub const K15: u64 = 0xC19BF174CF692694;
-    pub const K16: u64 = 0xE49B69C19EF14AD2;
-    pub const K17: u64 = 0xEFBE4786384F25E3;
-    pub const K18: u64 = 0x0FC19DC68B8CD5B5;
-    pub const K19: u64 = 0x240CA1CC77AC9C65;
-    pub const K20: u64 = 0x2DE92C6F592B0275;
-    pub const K21: u64 = 0x4A7484AA6EA6E483;
-    pub const K22: u64 = 0x5CB0A9DCBD41FBD4;
-    pub const K23: u64 = 0x76F988DA831153B5;
-    pub const K24: u64 = 0x983E5152EE66DFAB;
-    pub const K25: u64 = 0xA831C66D2DB43210;
-    pub const K26: u64 = 0xB00327C898FB213F;
-    pub const K27: u64 = 0xBF597FC7BEEF0EE4;
-    pub const K28: u64 = 0xC6E00BF33DA88FC2;
-    pub const K29: u64 = 0xD5A79147930AA725;
-    pub const K30: u64 = 0x06CA6351E003826F;
-    pub const K31: u64 = 0x142929670A0E6E70;
-    pub const K32: u64 = 0x27B70A8546D22FFC;
-    pub const K33: u64 = 0x2E1B21385C26C926;
-    pub const K34: u64 = 0x4D2C6DFC5AC42AED;
-    pub const K35: u64 = 0x53380D139D95B3DF;
-    pub const K36: u64 = 0x650A73548BAF63DE;
-    pub const K37: u64 = 0x766A0ABB3C77B2A8;
-    pub const K38: u64 = 0x81C2C92E47EDAEE6;
-    pub const K39: u64 = 0x92722C851482353B;
-    pub const K40: u64 = 0xA2BFE8A14CF10364;
-    pub const K41: u64 = 0xA81A664BBC423001;
-    pub const K42: u64 = 0xC24B8B70D0F89791;
-    pub const K43: u64 = 0xC76C51A30654BE30;
-    pub const K44: u64 = 0xD192E819D6EF5218;
-    pub const K45: u64 = 0xD69906245565A910;
-    pub const K46: u64 = 0xF40E35855771202A;
-    pub const K47: u64 = 0x106AA07032BBD1B8;
-    pub const K48: u64 = 0x19A4C116B8D2D0C8;
-    pub const K49: u64 = 0x1E376C085141AB53;
-    pub const K50: u64 = 0x2748774CDF8EEB99;
-    pub const K51: u64 = 0x34B0BCB5E19B48A8;
-    pub const K52: u64 = 0x391C0CB3C5C95A63;
-    pub const K53: u64 = 0x4ED8AA4AE3418ACB;
-    pub const K54: u64 = 0x5B9CCA4F7763E373;
-    pub const K55: u64 = 0x682E6FF3D6B2B8A3;
-    pub const K56: u64 = 0x748F82EE5DEFB2FC;
-    pub const K57: u64 = 0x78A5636F43172F60;
-    pub const K58: u64 = 0x84C87814A1F0AB72;
-    pub const K59: u64 = 0x8CC702081A6439EC;
-    pub const K60: u64 = 0x90BEFFFA23631E28;
-    pub const K61: u64 = 0xA4506CEBDE82BDE9;
-    pub const K62: u64 = 0xBEF9A3F7B2C67915;
-    pub const K63: u64 = 0xC67178F2E372532B;
-    pub const K64: u64 = 0xCA273ECEEA26619C;
-    pub const K65: u64 = 0xD186B8C721C0C207;
-    pub const K66: u64 = 0xEADA7DD6CDE0EB1E;
-    pub const K67: u64 = 0xF57D4F7FEE6ED178;
-    pub const K68: u64 = 0x06F067AA72176FBA;
-    pub const K69: u64 = 0x0A637DC5A2C898A6;
-    pub const K70: u64 = 0x113F9804BEF90DAE;
-    pub const K71: u64 = 0x1B710B35131C471B;
-    pub const K72: u64 = 0x28DB77F523047D84;
-    pub const K73: u64 = 0x32CAAB7B40C72493;
-    pub const K74: u64 = 0x3C9EBE0A15C9BEBC;
-    pub const K75: u64 = 0x431D67C49C100D4C;
-    pub const K76: u64 = 0x4CC5D4BECB3E42B6;
-    pub const K77: u64 = 0x597F299CFC657E2A;
-    pub const K78: u64 = 0x5FCB6FAB3AD6FAEC;
-    pub const K79: u64 = 0x6C44198C4A475817;
-}
-
-impl AddAssign for Sha512BitsState {
-    fn add_assign(&mut self, rhs: Self) {
-        self.0 += rhs.0;
-        self.1 += rhs.1;
-        self.2 += rhs.2;
-        self.3 += rhs.3;
-        self.4 += rhs.4;
-        self.5 += rhs.5;
-        self.6 += rhs.6;
-        self.7 += rhs.7;
-    }
-}
-
 impl Hash for Sha512BitsState {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash(state);
@@ -1130,4 +1147,48 @@ impl Hash for Sha512BitsState {
         self.6.hash(state);
         self.7.hash(state);
     }
+}
+
+#[macro_export]
+macro_rules! sha512child_traits {
+    ($TState:tt, $THasher:tt, u64) => {
+        #[derive(Clone)]
+        pub struct $TState(pub(crate) Sha512BitsState);
+
+        impl AddAssign for $TState {
+            fn add_assign(&mut self, rhs: Self) {
+                self.0 += rhs.0
+            }
+        }
+
+        impl BuildHasher for $TState {
+            type Hasher = $THasher;
+
+            fn build_hasher(&self) -> Self::Hasher {
+                $THasher {
+                    size: u128::MIN,
+                    state: self.clone(),
+                    padding: [0u8; $THasher::U8_PAD_SIZE as usize],
+                }
+            }
+        }
+
+        impl Default for $TState {
+            fn default() -> Self {
+                Self::from(HX)
+            }
+        }
+
+        impl From<[u64; 8]> for $TState {
+            fn from(v: [u64; 8]) -> Self {
+                Self(Sha512BitsState::from(v))
+            }
+        }
+
+        impl Hash for $TState {
+            fn hash<H: Hasher>(&self, state: &mut H) {
+                self.0.hash(state);
+            }
+        }
+    };
 }
