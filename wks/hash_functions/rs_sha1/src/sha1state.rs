@@ -1,11 +1,6 @@
 use crate::Sha1Hasher;
-use core::{
-    fmt::{Error, Formatter, LowerHex, UpperHex},
-    hash::{BuildHasher, Hash, Hasher},
-    ops::AddAssign,
-};
-use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
-use internal_state::{Sha160BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR, define_sha_state};
+use core::fmt::{Error, Formatter, LowerHex, UpperHex};
+use internal_state::{define_sha_state, Sha160BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;

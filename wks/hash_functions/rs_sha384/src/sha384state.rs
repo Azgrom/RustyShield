@@ -1,13 +1,5 @@
+use core::fmt::{Formatter, LowerHex, UpperHex};
 use crate::sha384hasher::Sha384Hasher;
-use core::{
-    fmt::{Formatter, LowerHex, UpperHex},
-    hash::BuildHasher,
-    hash::{Hash, Hasher},
-    ops::AddAssign,
-};
-use hash_ctx_lib::BlockHasher;
-use hash_ctx_lib::HasherWords;
-use hash_ctx_lib::GenericStateHasher;
 use internal_state::{define_sha_state, Sha512BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;

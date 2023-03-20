@@ -1,10 +1,5 @@
+use core::fmt::{Formatter, LowerHex, UpperHex};
 use crate::Sha224Hasher;
-use core::{
-    fmt::{Formatter, LowerHex, UpperHex},
-    hash::{BuildHasher, Hash, Hasher},
-    ops::AddAssign,
-};
-use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
 use internal_state::{Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR, define_sha_state};
 
 const H0: u32 = 0xC1059ED8;
@@ -46,6 +41,12 @@ impl LowerHex for Sha224State {
         LowerHex::fmt(&self.0 .4, f).expect(LOWER_HEX_ERR);
         LowerHex::fmt(&self.0 .5, f).expect(LOWER_HEX_ERR);
         LowerHex::fmt(&self.0 .6, f)
+    }
+}
+
+impl PartialEq for Sha224State {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
     }
 }
 
