@@ -1,11 +1,9 @@
-use core::{
-    hash::Hasher,
-    ops::BitAnd
-};
 use crate::{GenericStateHasher, HasherWords};
+use core::{hash::Hasher, ops::BitAnd};
 
 pub trait BlockHasher<T, S>: Hasher
-    where S: BitAnd + From<u32> + From<u64>,
+where
+    S: BitAnd + From<u32> + From<u64>,
 {
     const U8_PAD_SIZE: u32;
     const U8_PAD_LAST_INDEX: u32;
@@ -13,8 +11,8 @@ pub trait BlockHasher<T, S>: Hasher
     type State;
 
     fn hash_block(&mut self)
-        where
-            Self::State: GenericStateHasher<T>,
+    where
+        Self::State: GenericStateHasher<T>,
     {
         let mut state = self.clone_state();
         let mut words = self.get_dw();
@@ -44,8 +42,8 @@ pub trait BlockHasher<T, S>: Hasher
     }
 
     fn write(&mut self, mut bytes: &[u8])
-        where
-            Self::State: GenericStateHasher<T>,
+    where
+        Self::State: GenericStateHasher<T>,
     {
         let len_w = self.get_lw();
         self.add_assign_size(bytes.len());
@@ -74,12 +72,8 @@ pub trait BlockHasher<T, S>: Hasher
         }
     }
 
-    fn zeros_pad_length(&self) -> usize
-    {
-        1
-            + (Self::U8_PAD_LAST_INDEX
-            & (Self::U8_PAD_OFFSET
-            .wrapping_sub(self.get_modulo_pad_size()))) as usize
+    fn zeros_pad_length(&self) -> usize {
+        1 + (Self::U8_PAD_LAST_INDEX & (Self::U8_PAD_OFFSET.wrapping_sub(self.get_modulo_pad_size()))) as usize
     }
 
     fn add_assign_size(&mut self, len: usize);

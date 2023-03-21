@@ -3,10 +3,6 @@ name = "rs_sha512"
 version = "0.1.0"
 edition = "2021"
 
-[name]
-name = "rs_sha512"
-path = "src/lib.rs"
-
 [dependencies]
 n_bit_words = { path = "../../n_bit_words" }
 internal_state = { path = "../../internal_state" }

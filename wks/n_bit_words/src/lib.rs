@@ -171,6 +171,12 @@ impl From<NBitWord<u32>> for u32 {
     }
 }
 
+impl From<NBitWord<u64>> for u32 {
+    fn from(value: NBitWord<u64>) -> Self {
+        (value.0 .0 >> 32) as u32
+    }
+}
+
 impl From<[u8; 4]> for NBitWord<u32> {
     fn from(value: [u8; 4]) -> Self {
         u32::from_be_bytes([value[0], value[1], value[2], value[3]]).into()

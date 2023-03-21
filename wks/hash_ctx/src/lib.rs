@@ -1,17 +1,10 @@
 #![no_std]
 
-pub use crate::{
-    hasher_stating::GenericStateHasher,
-    block_hasher::BlockHasher,
-    hasher_words::HasherWords
-};
-use core::{
-    hash::Hasher,
-    ops::BitAnd
-};
+pub use crate::{block_hasher::BlockHasher, hasher_stating::GenericStateHasher, hasher_words::HasherWords};
+use core::{hash::Hasher, ops::BitAnd};
 
-mod hasher_macro_definition;
 mod block_hasher;
+mod hasher_macro_definition;
 mod hasher_stating;
 mod hasher_words;
 

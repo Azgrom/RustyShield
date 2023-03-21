@@ -41,23 +41,8 @@ rs_sha256 = { path = "wks/hash_functions/rs_sha256" }
 rs_sha384 = { path = "wks/hash_functions/rs_sha384" }
 rs_sha512 = { path = "wks/hash_functions/rs_sha512" }
 rs_sha512_224 = { path = "wks/hash_functions/rs_sha512_224" }
+rs_sha512_256 = { path = "wks/hash_functions/rs_sha512_256" }
 hash_ctx = { path = "wks/hash_ctx" }
-
-criterion = { version = "0.4.0", optional = true }
-criterion-table = { version = "0.4.2", optional = true }
-openssl = { version = "0.10.45", optional = true }
-hashes_sha1 = { version = "0.10.5", package = "sha1", optional = true }
-sha1_smol = { version = "1.0.0", optional = true }
-const-sha1 = { version = "0.2.0", optional = true }
-
-[features]
-criterion = ["dep:criterion"]
-comparator_build = ["dep:criterion",
-    "dep:criterion-table",
-    "dep:openssl",
-    "dep:hashes_sha1",
-    "dep:sha1_smol",
-    "dep:const-sha1"]
 
 [[bench]]
 name = "benches"

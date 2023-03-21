@@ -1,5 +1,5 @@
 [package]
-name = "rs_sha512_224"
+name = "rs_sha512_256"
 version = "0.1.0"
 edition = "2021"
 

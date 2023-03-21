@@ -3,11 +3,6 @@ name = "rs_sha384"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-# Custom name definition because of multiple rmeta candidates error E0465
-name = "rs_sha384"
-path = "src/lib.rs"
-
 [dependencies]
 n_bit_words = { path = "../../n_bit_words" }
 internal_state = { path = "../../internal_state" }

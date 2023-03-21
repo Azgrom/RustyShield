@@ -1,6 +1,6 @@
-use core::fmt::{Formatter, LowerHex, UpperHex};
 use crate::Sha224Hasher;
-use internal_state::{Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR, define_sha_state};
+use core::fmt::{Formatter, LowerHex, UpperHex};
+use internal_state::{define_sha_state, Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 
 const H0: u32 = 0xC1059ED8;
 const H1: u32 = 0x367CD507;

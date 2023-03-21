@@ -1,6 +1,5 @@
 use crate::cavs_long_msg::CAVSLongMsg;
-use rs_sha384::Sha384State;
-use rs_ssl::HasherContext;
+use rs_ssl::{HasherContext, Sha384State};
 use std::hash::{BuildHasher, Hasher};
 
 mod cavs_long_msg;
