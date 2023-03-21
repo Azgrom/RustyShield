@@ -35,10 +35,7 @@ fn sha1_abc_string_prefix_collision_resiliency() {
     let mut abc_sha1_ctx = Sha1Hasher::default();
     abc_sha1_ctx.write(abc.as_ref());
 
-    assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut abc_sha1_ctx)),
-        "a9993e364706816aba3e25717850c26c9cd0d89d"
-    );
+    assert_eq!(format!("{:08x}", HasherContext::finish(&mut abc_sha1_ctx)), "a9993e364706816aba3e25717850c26c9cd0d89d");
 }
 
 #[test]

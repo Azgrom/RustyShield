@@ -14,9 +14,6 @@ fn compare_long_messages_provided_by_sha384_validation_system() {
 
         sha384hasher.write(long_msg.message.as_ref());
 
-        assert_eq!(
-            format!("{:016x}", HasherContext::finish(&mut sha384hasher)),
-            long_msg.message_digest
-        );
+        assert_eq!(format!("{:016x}", HasherContext::finish(&mut sha384hasher)), long_msg.message_digest);
     }
 }

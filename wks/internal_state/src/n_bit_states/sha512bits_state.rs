@@ -138,1001 +138,112 @@ impl AddAssign for Sha512BitsState {
 
 impl From<[u64; 8]> for Sha512BitsState {
     fn from(v: [u64; 8]) -> Self {
-        Self(
-            v[0].into(),
-            v[1].into(),
-            v[2].into(),
-            v[3].into(),
-            v[4].into(),
-            v[5].into(),
-            v[6].into(),
-            v[7].into(),
-        )
+        Self(v[0].into(), v[1].into(), v[2].into(), v[3].into(), v[4].into(), v[5].into(), v[6].into(), v[7].into())
     }
 }
 
 impl GenericStateHasher<u64> for Sha512BitsState {
     fn block_00_15(&mut self, w: &HasherWords<u64>) {
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[0],
-        )
-        .rnd(Self::K00);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[1],
-        )
-        .rnd(Self::K01);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[2],
-        )
-        .rnd(Self::K02);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[3],
-        )
-        .rnd(Self::K03);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[4],
-        )
-        .rnd(Self::K04);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[5],
-        )
-        .rnd(Self::K05);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[6],
-        )
-        .rnd(Self::K06);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[7],
-        )
-        .rnd(Self::K07);
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[8],
-        )
-        .rnd(Self::K08);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[9],
-        )
-        .rnd(Self::K09);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[10],
-        )
-        .rnd(Self::K10);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[11],
-        )
-        .rnd(Self::K11);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[12],
-        )
-        .rnd(Self::K12);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[13],
-        )
-        .rnd(Self::K13);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[14],
-        )
-        .rnd(Self::K14);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[15],
-        )
-        .rnd(Self::K15);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K00);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[1]).rnd(Self::K01);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[2]).rnd(Self::K02);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[3]).rnd(Self::K03);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[4]).rnd(Self::K04);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[5]).rnd(Self::K05);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[6]).rnd(Self::K06);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[7]).rnd(Self::K07);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[8]).rnd(Self::K08);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[9]).rnd(Self::K09);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[10]).rnd(Self::K10);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[11]).rnd(Self::K11);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[12]).rnd(Self::K12);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[13]).rnd(Self::K13);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[14]).rnd(Self::K14);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[15]).rnd(Self::K15);
     }
 
     fn block_16_31(&mut self, w: &mut HasherWords<u64>) {
         Self::next_words(w);
 
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[0],
-        )
-        .rnd(Self::K16);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[1],
-        )
-        .rnd(Self::K17);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[2],
-        )
-        .rnd(Self::K18);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[3],
-        )
-        .rnd(Self::K19);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[4],
-        )
-        .rnd(Self::K20);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[5],
-        )
-        .rnd(Self::K21);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[6],
-        )
-        .rnd(Self::K22);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[7],
-        )
-        .rnd(Self::K23);
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[8],
-        )
-        .rnd(Self::K24);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[9],
-        )
-        .rnd(Self::K25);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[10],
-        )
-        .rnd(Self::K26);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[11],
-        )
-        .rnd(Self::K27);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[12],
-        )
-        .rnd(Self::K28);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[13],
-        )
-        .rnd(Self::K29);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[14],
-        )
-        .rnd(Self::K30);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[15],
-        )
-        .rnd(Self::K31);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K16);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[1]).rnd(Self::K17);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[2]).rnd(Self::K18);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[3]).rnd(Self::K19);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[4]).rnd(Self::K20);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[5]).rnd(Self::K21);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[6]).rnd(Self::K22);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[7]).rnd(Self::K23);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[8]).rnd(Self::K24);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[9]).rnd(Self::K25);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[10]).rnd(Self::K26);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[11]).rnd(Self::K27);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[12]).rnd(Self::K28);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[13]).rnd(Self::K29);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[14]).rnd(Self::K30);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[15]).rnd(Self::K31);
     }
 
     fn block_32_47(&mut self, w: &mut HasherWords<u64>) {
         Self::next_words(w);
 
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[0],
-        )
-        .rnd(Self::K32);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[1],
-        )
-        .rnd(Self::K33);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[2],
-        )
-        .rnd(Self::K34);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[3],
-        )
-        .rnd(Self::K35);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[4],
-        )
-        .rnd(Self::K36);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[5],
-        )
-        .rnd(Self::K37);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[6],
-        )
-        .rnd(Self::K38);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[7],
-        )
-        .rnd(Self::K39);
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[8],
-        )
-        .rnd(Self::K40);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[9],
-        )
-        .rnd(Self::K41);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[10],
-        )
-        .rnd(Self::K42);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[11],
-        )
-        .rnd(Self::K43);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[12],
-        )
-        .rnd(Self::K44);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[13],
-        )
-        .rnd(Self::K45);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[14],
-        )
-        .rnd(Self::K46);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[15],
-        )
-        .rnd(Self::K47);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K32);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[1]).rnd(Self::K33);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[2]).rnd(Self::K34);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[3]).rnd(Self::K35);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[4]).rnd(Self::K36);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[5]).rnd(Self::K37);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[6]).rnd(Self::K38);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[7]).rnd(Self::K39);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[8]).rnd(Self::K40);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[9]).rnd(Self::K41);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[10]).rnd(Self::K42);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[11]).rnd(Self::K43);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[12]).rnd(Self::K44);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[13]).rnd(Self::K45);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[14]).rnd(Self::K46);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[15]).rnd(Self::K47);
     }
 
     fn block_48_63(&mut self, w: &mut HasherWords<u64>) {
         Self::next_words(w);
 
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[0],
-        )
-        .rnd(Self::K48);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[1],
-        )
-        .rnd(Self::K49);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[2],
-        )
-        .rnd(Self::K50);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[3],
-        )
-        .rnd(Self::K51);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[4],
-        )
-        .rnd(Self::K52);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[5],
-        )
-        .rnd(Self::K53);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[6],
-        )
-        .rnd(Self::K54);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[7],
-        )
-        .rnd(Self::K55);
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[8],
-        )
-        .rnd(Self::K56);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[9],
-        )
-        .rnd(Self::K57);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[10],
-        )
-        .rnd(Self::K58);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[11],
-        )
-        .rnd(Self::K59);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[12],
-        )
-        .rnd(Self::K60);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[13],
-        )
-        .rnd(Self::K61);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[14],
-        )
-        .rnd(Self::K62);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[15],
-        )
-        .rnd(Self::K63);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K48);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[1]).rnd(Self::K49);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[2]).rnd(Self::K50);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[3]).rnd(Self::K51);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[4]).rnd(Self::K52);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[5]).rnd(Self::K53);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[6]).rnd(Self::K54);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[7]).rnd(Self::K55);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[8]).rnd(Self::K56);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[9]).rnd(Self::K57);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[10]).rnd(Self::K58);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[11]).rnd(Self::K59);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[12]).rnd(Self::K60);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[13]).rnd(Self::K61);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[14]).rnd(Self::K62);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[15]).rnd(Self::K63);
     }
 
     fn block_64_79(&mut self, w: &mut HasherWords<u64>) {
         Self::next_words(w);
 
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[0],
-        )
-        .rnd(Self::K64);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[1],
-        )
-        .rnd(Self::K65);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[2],
-        )
-        .rnd(Self::K66);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[3],
-        )
-        .rnd(Self::K67);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[4],
-        )
-        .rnd(Self::K68);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[5],
-        )
-        .rnd(Self::K69);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[6],
-        )
-        .rnd(Self::K70);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[7],
-        )
-        .rnd(Self::K71);
-        Rotor(
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            w[8],
-        )
-        .rnd(Self::K72);
-        Rotor(
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            w[9],
-        )
-        .rnd(Self::K73);
-        Rotor(
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            w[10],
-        )
-        .rnd(Self::K74);
-        Rotor(
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            w[11],
-        )
-        .rnd(Self::K75);
-        Rotor(
-            self.4,
-            self.5,
-            self.6,
-            &mut self.7,
-            self.0,
-            self.1,
-            self.2,
-            &mut self.3,
-            w[12],
-        )
-        .rnd(Self::K76);
-        Rotor(
-            self.3,
-            self.4,
-            self.5,
-            &mut self.6,
-            self.7,
-            self.0,
-            self.1,
-            &mut self.2,
-            w[13],
-        )
-        .rnd(Self::K77);
-        Rotor(
-            self.2,
-            self.3,
-            self.4,
-            &mut self.5,
-            self.6,
-            self.7,
-            self.0,
-            &mut self.1,
-            w[14],
-        )
-        .rnd(Self::K78);
-        Rotor(
-            self.1,
-            self.2,
-            self.3,
-            &mut self.4,
-            self.5,
-            self.6,
-            self.7,
-            &mut self.0,
-            w[15],
-        )
-        .rnd(Self::K79);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K64);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[1]).rnd(Self::K65);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[2]).rnd(Self::K66);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[3]).rnd(Self::K67);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[4]).rnd(Self::K68);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[5]).rnd(Self::K69);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[6]).rnd(Self::K70);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[7]).rnd(Self::K71);
+        Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[8]).rnd(Self::K72);
+        Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[9]).rnd(Self::K73);
+        Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[10]).rnd(Self::K74);
+        Rotor(self.5, self.6, self.7, &mut self.0, self.1, self.2, self.3, &mut self.4, w[11]).rnd(Self::K75);
+        Rotor(self.4, self.5, self.6, &mut self.7, self.0, self.1, self.2, &mut self.3, w[12]).rnd(Self::K76);
+        Rotor(self.3, self.4, self.5, &mut self.6, self.7, self.0, self.1, &mut self.2, w[13]).rnd(Self::K77);
+        Rotor(self.2, self.3, self.4, &mut self.5, self.6, self.7, self.0, &mut self.1, w[14]).rnd(Self::K78);
+        Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[15]).rnd(Self::K79);
     }
 }
 

@@ -197,10 +197,7 @@ impl From<NBitWord<u64>> for u64 {
 
 impl From<[u8; 8]> for NBitWord<u64> {
     fn from(value: [u8; 8]) -> Self {
-        u64::from_be_bytes([
-            value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7],
-        ])
-        .into()
+        u64::from_be_bytes([value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7]]).into()
     }
 }
 

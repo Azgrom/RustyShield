@@ -169,25 +169,13 @@ fn convert_big_endian_bytes_to_u32() {
     let std_computed_complete_u8_to_u32_hex_str = format!("{:x}", std_computed_complete_u8_pack_to_u32);
 
     assert_eq!(std_computed_single_u8_to_u32, manually_computed_single_u8_to_u32);
-    assert_eq!(
-        std_computed_single_u8_to_u32_hex_str,
-        manually_computed_single_u8_to_u32_hex_str
-    );
+    assert_eq!(std_computed_single_u8_to_u32_hex_str, manually_computed_single_u8_to_u32_hex_str);
     assert_eq!(std_computed_two_u8_to_u32, manually_computed_two_u8_to_u32);
-    assert_eq!(
-        std_computed_two_u8_to_u32_hex_str,
-        manually_computed_two_u8_to_u32_hex_str
-    );
+    assert_eq!(std_computed_two_u8_to_u32_hex_str, manually_computed_two_u8_to_u32_hex_str);
     assert_eq!(std_computed_three_u8_to_u32, manually_computed_three_u8_to_u32);
-    assert_eq!(
-        std_computed_three_u8_to_u32_hex_str,
-        manually_computed_three_u8_to_u32_hex_str
-    );
+    assert_eq!(std_computed_three_u8_to_u32_hex_str, manually_computed_three_u8_to_u32_hex_str);
     assert_eq!(std_computed_complete_u8_pack_to_u32, manually_computed_complete_u32);
-    assert_eq!(
-        std_computed_complete_u8_to_u32_hex_str,
-        manually_computed_complete_u32_hex_str
-    );
+    assert_eq!(std_computed_complete_u8_to_u32_hex_str, manually_computed_complete_u32_hex_str);
 }
 
 #[test]
@@ -205,25 +193,14 @@ fn bit_shift_method_vs_explicit_operation() {
     assert_eq!(unsigned_integer << 0, unsigned_integer.shl(0));
 
     let max_u32_unsigned_integer: u32 = u32::MAX;
-    assert_eq!(
-        max_u32_unsigned_integer.shr(8),
-        16_777_215u32,
-        "Assert equality for u24::MAX"
-    );
-    assert_eq!(
-        max_u32_unsigned_integer.shr(16),
-        65_535u32,
-        "Assert equality for u16::MAX"
-    );
+    assert_eq!(max_u32_unsigned_integer.shr(8), 16_777_215u32, "Assert equality for u24::MAX");
+    assert_eq!(max_u32_unsigned_integer.shr(16), 65_535u32, "Assert equality for u16::MAX");
     assert_eq!(max_u32_unsigned_integer.shr(24), 255_u32, "Assert equality for u8::MAX");
 
     // Assert cast has logic for pointing the least significant bits, by the amount of the new
     // type size. It seems to make use of Copy, because it looses original information in case a
     // cast backwards to original size is immediately made
-    assert_eq!(
-        max_u32_unsigned_integer as u8,
-        (max_u32_unsigned_integer.shl(24) as u32).shr(24) as u8
-    );
+    assert_eq!(max_u32_unsigned_integer as u8, (max_u32_unsigned_integer.shl(24) as u32).shr(24) as u8);
     assert_eq!(max_u32_unsigned_integer as u8, u8::MAX);
     assert_eq!(max_u32_unsigned_integer.shr(0), u32::MAX);
     assert_eq!((max_u32_unsigned_integer as u8) as u32, u8::MAX as u32);
