@@ -16,6 +16,7 @@ pub struct Sha512Rotor<'a, 'b>(
 );
 
 impl Sha512Rotor<'_, '_> {
+    #[inline(always)]
     pub(crate) fn rnd(&mut self, k: u64) {
         let t0 = self.4.sigma1() + U64Word::ch(self.4, self.5, self.6) + *self.7 + self.8 + k;
         *self.3 += t0;

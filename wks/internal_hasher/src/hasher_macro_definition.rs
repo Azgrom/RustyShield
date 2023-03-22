@@ -8,7 +8,7 @@ macro_rules! define_sha_hasher {
             pub(crate) padding: [u8; Self::U8_PAD_SIZE as usize],
         }
 
-        use hash_ctx_lib::{BlockHasher, HasherWords};
+        use internal_hasher::{BlockHasher, HasherWords};
         impl BlockHasher<u32, u64> for $THasher {
             const U8_PAD_SIZE: u32 = 64;
             const U8_PAD_LAST_INDEX: u32 = Self::U8_PAD_SIZE - 1;
@@ -108,7 +108,7 @@ macro_rules! define_sha_hasher {
             pub(crate) padding: [u8; Self::U8_PAD_SIZE as usize],
         }
 
-        use hash_ctx_lib::{BlockHasher, HasherWords};
+        use internal_hasher::{BlockHasher, HasherWords};
         impl BlockHasher<u64, u128> for $THasher {
             const U8_PAD_SIZE: u32 = 128;
             const U8_PAD_LAST_INDEX: u32 = Self::U8_PAD_SIZE - 1;

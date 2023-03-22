@@ -3,7 +3,7 @@ use core::{
     hash::{Hash, Hasher},
     ops::AddAssign,
 };
-use hash_ctx_lib::HasherWords;
+use internal_hasher::HasherWords;
 use n_bit_words_lib::{NBitWord, TSize};
 
 #[derive(Clone, Debug)]

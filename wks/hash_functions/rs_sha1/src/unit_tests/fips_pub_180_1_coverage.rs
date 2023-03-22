@@ -5,14 +5,8 @@ use crate::{
 };
 use alloc::vec;
 use core::hash::Hasher;
+use internal_hasher::{BlockHasher, GenericStateHasher, HasherWords};
 use internal_state::{Sha160BitsState, Sha160Rotor as Sha160};
-
-#[cfg(feature = "nightly")]
-use core::{
-    arch::x86_64::{_mm_sha1msg1_epu32, _mm_sha1msg2_epu32, _mm_sha1nexte_epu32, _mm_sha1rnds4_epu32},
-    simd::Simd,
-};
-use hash_ctx_lib::{BlockHasher, GenericStateHasher, HasherWords};
 
 const MESSAGE: &str = "abc";
 

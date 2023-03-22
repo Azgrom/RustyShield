@@ -1,6 +1,0 @@
-version: "3"
-
-services:
-  benchmark_build:
-    build:
-      dockerfile: Benchmark.Dockerfile

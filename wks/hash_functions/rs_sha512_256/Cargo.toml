@@ -1,9 +1,11 @@
 [package]
 name = "rs_sha512_256"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
+license.workspace = true
 
 [dependencies]
-n_bit_words = { path = "../../n_bit_words" }
-internal_state = { path = "../../internal_state" }
 hash_ctx = { path = "../../hash_ctx" }
+internal_state = { path = "../../internal_state" }
+internal_hasher = { path = "../../internal_hasher" }
+n_bit_words = { path = "../../n_bit_words" }

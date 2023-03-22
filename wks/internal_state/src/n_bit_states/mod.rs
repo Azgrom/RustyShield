@@ -23,7 +23,7 @@ macro_rules! define_sha_state {
             type Hasher = $THasher;
 
             fn build_hasher(&self) -> Self::Hasher {
-                use hash_ctx_lib::BlockHasher;
+                use internal_hasher::BlockHasher;
                 $THasher {
                     size: u64::MIN,
                     state: self.clone(),
@@ -44,7 +44,7 @@ macro_rules! define_sha_state {
             }
         }
 
-        use hash_ctx_lib::{GenericStateHasher, HasherWords};
+        use internal_hasher::{GenericStateHasher, HasherWords};
         impl GenericStateHasher<u32> for $TState {
             fn block_00_15(&mut self, w: &HasherWords<u32>) {
                 self.0.block_00_15(w)
@@ -91,7 +91,7 @@ macro_rules! define_sha_state {
             type Hasher = $THasher;
 
             fn build_hasher(&self) -> Self::Hasher {
-                use hash_ctx_lib::BlockHasher;
+                use internal_hasher::BlockHasher;
                 $THasher {
                     size: u64::MIN,
                     state: self.clone(),
@@ -112,7 +112,7 @@ macro_rules! define_sha_state {
             }
         }
 
-        use hash_ctx_lib::{GenericStateHasher, HasherWords};
+        use internal_hasher::{GenericStateHasher, HasherWords};
         impl GenericStateHasher<u32> for $TState {
             fn block_00_15(&mut self, w: &HasherWords<u32>) {
                 self.0.block_00_15(w)
@@ -159,7 +159,7 @@ macro_rules! define_sha_state {
             type Hasher = $THasher;
 
             fn build_hasher(&self) -> Self::Hasher {
-                use hash_ctx_lib::BlockHasher;
+                use internal_hasher::BlockHasher;
                 $THasher {
                     size: u128::MIN,
                     state: self.clone(),
@@ -180,7 +180,7 @@ macro_rules! define_sha_state {
             }
         }
 
-        use hash_ctx_lib::{GenericStateHasher, HasherWords};
+        use internal_hasher::{GenericStateHasher, HasherWords};
         impl GenericStateHasher<u64> for $TState {
             fn block_00_15(&mut self, w: &HasherWords<u64>) {
                 self.0.block_00_15(w)

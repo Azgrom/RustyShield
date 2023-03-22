@@ -8,4 +8,4 @@ license.workspace = true
 name = "hash_ctx_lib"
 
 [dependencies]
-n_bit_words = { path = "../n_bit_words" }
+internal_hasher = { path = "../internal_hasher" }

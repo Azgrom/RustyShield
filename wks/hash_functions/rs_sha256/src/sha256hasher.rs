@@ -1,5 +1,5 @@
 use crate::Sha256State;
-use hash_ctx_lib::define_sha_hasher;
+use internal_hasher::define_sha_hasher;
 
 define_sha_hasher!(Sha256Hasher, Sha256State, u64);
 
