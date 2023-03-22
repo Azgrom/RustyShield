@@ -20,7 +20,7 @@
 
 ## Vision
 
-This project objective is to expand [Rust's core library](https://doc.rust-lang.org/stable/core/index.html) by providing a platform-agnostic set of cryptographic APIs while also complying to the proposed design patterns found in [libcore generic hashing support](https://doc.rust-lang.org/core/hash/index.html) primitive traits coupling.
+This project objective is to expand [*Rust's core library*](https://doc.rust-lang.org/stable/core/index.html) (libcore) by providing a platform-agnostic set of cryptographic APIs while also complying to the proposed design patterns found in [libcore generic hashing support](https://doc.rust-lang.org/core/hash/index.html) primitive traits coupling.
 
 ## How to use
 
@@ -72,9 +72,8 @@ At this moment the objective is to provide all OpenSSL's current set of algorith
 
 It is not a second-system syndrome. The point is:
 
-- Until now there were no standardized Rust implementations following a common underlying abstraction;
-- The Rust core library already provides all the necessary building blocks to develop hashing algorithms;
-- A set of `#![no_std]` hashing function implementations would not only to compile relatively fast, but would also be considerably easy to:
+- Until now there were no standardized Rust implementations following a common underlying abstraction, and the Rust libcore already provides all the necessary building blocks to develop hashing algorithms;
+- A set of `#![no_std]` and libcore-only hash function implementations would not only to compile relatively fast, but would also be considerably easy to:
   - Port on any platform; 
   - Switch algorithms between themselves;
   - And abstract away the cross-platform reliability assurance to the libcore;
@@ -83,6 +82,15 @@ It is not a second-system syndrome. The point is:
 - Although the current implementations are not the fastest, there is considerable room for improvement.  I believe we might see a competitive performance boost once the [SIMD module](https://doc.rust-lang.org/core/simd/index.html) stabilizes;
 
 So I hope this project may contribute to establish Rust ecosystem as a mature platform-agnostic, [self-sufficient](https://doc.rust-lang.org/stable/embedded-book/intro/no-std.html), lean, reliable and performatic language.
+
+## Philosophy
+
+Taking inspiration from the Unix philosophy as a standard of highly effective precepts, but adapting to the purpose of this project:
+
+1. Each implementation should do only one thing, and do it well. As a basis for responsibility segregation, if a implementation has a slightly different responsibility create a new crate just for it;
+2. Every program that uses this project should not have its dependencies broken if it eventually switches between implementations from the same category. Avoid creating traits that must be imported in order for a client be able to use. But if it happens, that must benefit all implementations on this project;
+3. Each implementation must be able to be self-supported by Rust's libcore. That is, it must be able to be used by its very building blocks;
+4. Choose clarity over efficiency.
 
 ### Hash functions
 
