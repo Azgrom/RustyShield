@@ -5,10 +5,12 @@
 //!
 #![no_std]
 
-pub use crate::{sha1hasher::Sha1Hasher, sha1state::Sha1State};
+use hash_ctx_lib::GenericHasher;
+pub use crate::sha1state::Sha1State;
 
-mod sha1hasher;
 mod sha1state;
 
 #[cfg(test)]
 mod unit_tests;
+
+pub type Sha1Hasher = GenericHasher<Sha1State>;

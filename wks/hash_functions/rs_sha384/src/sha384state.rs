@@ -1,6 +1,6 @@
 use crate::sha384hasher::Sha384Hasher;
 use core::fmt::{Formatter, LowerHex, UpperHex};
-use internal_state::{define_sha_state, Sha512BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{DWords, GenericStateHasher, LOWER_HEX_ERR, Sha512BitsState, UPPER_HEX_ERR};
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;
 const H1: u64 = 0x629A292A367CD507;
@@ -13,7 +13,65 @@ const H7: u64 = 0x47B5481DBEFA4FA4;
 
 const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
-define_sha_state!(Sha384State, Sha384Hasher, Sha512BitsState);
+#[derive(Clone, Debug)]
+pub struct Sha384State(pub(crate) Sha512BitsState);
+use core::ops::AddAssign;
+impl AddAssign for Sha384State {
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0
+    }
+}
+use core::hash::BuildHasher;
+impl BuildHasher for Sha384State {
+    type Hasher = Sha384Hasher;
+
+    fn build_hasher(&self) -> Self::Hasher {
+        use internal_hasher::BlockHasher;
+        Sha384Hasher {
+            size: u128::MIN,
+            state: self.clone(),
+            padding: [0u8; Sha384Hasher::U8_PAD_SIZE as usize],
+        }
+    }
+}
+impl Default for Sha384State {
+    fn default() -> Self {
+        Self::from(HX)
+    }
+}
+impl From<[u64; 8]> for Sha384State {
+    fn from(v: [u64; 8]) -> Self {
+        Self(Sha512BitsState::from(v))
+    }
+}
+impl GenericStateHasher<u64> for Sha384State {
+    fn block_00_15(&mut self, w: &DWords<u64>) {
+        self.0.block_00_15(w)
+    }
+
+    fn block_16_31(&mut self, w: &mut DWords<u64>) {
+        self.0.block_16_31(w)
+    }
+
+    fn block_32_47(&mut self, w: &mut DWords<u64>) {
+        self.0.block_32_47(w)
+    }
+
+    fn block_48_63(&mut self, w: &mut DWords<u64>) {
+        self.0.block_48_63(w)
+    }
+
+    fn block_64_79(&mut self, w: &mut DWords<u64>) {
+        self.0.block_64_79(w)
+    }
+}
+use core::hash::{Hash, Hasher};
+
+impl Hash for Sha384State {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.hash(state);
+    }
+}
 
 impl From<Sha384State> for [u8; 48] {
     fn from(value: Sha384State) -> Self {

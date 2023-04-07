@@ -3,8 +3,9 @@ use core::{
     hash::{Hash, Hasher},
     ops::AddAssign,
 };
-use internal_hasher::{GenericStateHasher, HasherWords};
 use n_bit_words_lib::{NBitWord, TSize};
+use crate::DWords;
+use crate::n_bit_states::GenericStateHasher;
 
 #[derive(Clone, Debug)]
 pub struct Sha512BitsState(
@@ -19,7 +20,7 @@ pub struct Sha512BitsState(
 );
 
 impl Sha512BitsState {
-    fn next_words(w: &mut HasherWords<u64>) {
+    fn next_words(w: &mut DWords<u64>) {
         w[0] = w[0] + w[1].gamma0() + w[9] + w[14].gamma1();
         w[1] = w[1] + w[2].gamma0() + w[10] + w[15].gamma1();
         w[2] = w[2] + w[3].gamma0() + w[11] + w[0].gamma1();
@@ -143,7 +144,7 @@ impl From<[u64; 8]> for Sha512BitsState {
 }
 
 impl GenericStateHasher<u64> for Sha512BitsState {
-    fn block_00_15(&mut self, w: &HasherWords<u64>) {
+    fn block_00_15(&mut self, w: &DWords<u64>) {
         Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K00);
         Rotor(self.7, self.0, self.1, &mut self.2, self.3, self.4, self.5, &mut self.6, w[1]).rnd(Self::K01);
         Rotor(self.6, self.7, self.0, &mut self.1, self.2, self.3, self.4, &mut self.5, w[2]).rnd(Self::K02);
@@ -162,7 +163,7 @@ impl GenericStateHasher<u64> for Sha512BitsState {
         Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[15]).rnd(Self::K15);
     }
 
-    fn block_16_31(&mut self, w: &mut HasherWords<u64>) {
+    fn block_16_31(&mut self, w: &mut DWords<u64>) {
         Self::next_words(w);
 
         Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K16);
@@ -183,7 +184,7 @@ impl GenericStateHasher<u64> for Sha512BitsState {
         Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[15]).rnd(Self::K31);
     }
 
-    fn block_32_47(&mut self, w: &mut HasherWords<u64>) {
+    fn block_32_47(&mut self, w: &mut DWords<u64>) {
         Self::next_words(w);
 
         Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K32);
@@ -204,7 +205,7 @@ impl GenericStateHasher<u64> for Sha512BitsState {
         Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[15]).rnd(Self::K47);
     }
 
-    fn block_48_63(&mut self, w: &mut HasherWords<u64>) {
+    fn block_48_63(&mut self, w: &mut DWords<u64>) {
         Self::next_words(w);
 
         Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K48);
@@ -225,7 +226,7 @@ impl GenericStateHasher<u64> for Sha512BitsState {
         Rotor(self.1, self.2, self.3, &mut self.4, self.5, self.6, self.7, &mut self.0, w[15]).rnd(Self::K63);
     }
 
-    fn block_64_79(&mut self, w: &mut HasherWords<u64>) {
+    fn block_64_79(&mut self, w: &mut DWords<u64>) {
         Self::next_words(w);
 
         Rotor(self.0, self.1, self.2, &mut self.3, self.4, self.5, self.6, &mut self.7, w[0]).rnd(Self::K64);

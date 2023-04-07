@@ -1,6 +1,6 @@
 use crate::Sha224Hasher;
 use core::fmt::{Formatter, LowerHex, UpperHex};
-use internal_state::{define_sha_state, Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{DWords, GenericStateHasher, LOWER_HEX_ERR, Sha256BitsState, UPPER_HEX_ERR};
 
 const H0: u32 = 0xC1059ED8;
 const H1: u32 = 0x367CD507;
@@ -13,7 +13,65 @@ const H7: u32 = 0xBEFA4FA4;
 
 const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
-define_sha_state!(Sha224State, Sha224Hasher, Sha256BitsState);
+#[derive(Clone, Debug)]
+pub struct Sha224State(pub(crate) Sha256BitsState);
+use core::ops::AddAssign;
+impl AddAssign for Sha224State {
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0
+    }
+}
+use core::hash::BuildHasher;
+impl BuildHasher for Sha224State {
+    type Hasher = Sha224Hasher;
+
+    fn build_hasher(&self) -> Self::Hasher {
+        use internal_hasher::BlockHasher;
+        Sha224Hasher {
+            size: u64::MIN,
+            state: self.clone(),
+            padding: [0u8; Sha224Hasher::U8_PAD_SIZE as usize],
+        }
+    }
+}
+impl Default for Sha224State {
+    fn default() -> Self {
+        Self::from(HX)
+    }
+}
+impl From<[u32; 8]> for Sha224State {
+    fn from(v: [u32; 8]) -> Self {
+        Self(Sha256BitsState::from(v))
+    }
+}
+impl GenericStateHasher<u32> for Sha224State {
+    fn block_00_15(&mut self, w: &DWords<u32>) {
+        self.0.block_00_15(w)
+    }
+
+    fn block_16_31(&mut self, w: &mut DWords<u32>) {
+        self.0.block_16_31(w)
+    }
+
+    fn block_32_47(&mut self, w: &mut DWords<u32>) {
+        self.0.block_32_47(w)
+    }
+
+    fn block_48_63(&mut self, w: &mut DWords<u32>) {
+        self.0.block_48_63(w)
+    }
+
+    fn block_64_79(&mut self, w: &mut DWords<u32>) {
+        self.0.block_64_79(w)
+    }
+}
+use core::hash::{Hash, Hasher};
+
+impl Hash for Sha224State {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.hash(state);
+    }
+}
 
 impl From<Sha224State> for [u8; 28] {
     fn from(value: Sha224State) -> Self {

@@ -2,12 +2,13 @@ use core::ops::{Index, IndexMut};
 use n_bit_words_lib::NBitWord;
 
 /// DWORDs struct that can later be expanded with SIMD to store 4 DWORDS in a single XMM register
-pub struct HasherWords<T>([NBitWord<T>; 16]);
+#[derive(Debug, Hash, PartialEq)]
+pub struct DWords<T>([NBitWord<T>; 16]);
 
 type U32W = NBitWord<u32>;
 type U64W = NBitWord<u64>;
 
-impl From<&[u8; 64]> for HasherWords<u32> {
+impl From<&[u8; 64]> for DWords<u32> {
     fn from(value: &[u8; 64]) -> Self {
         Self([
             U32W::from([value[0], value[1], value[2], value[3]]),
@@ -30,7 +31,7 @@ impl From<&[u8; 64]> for HasherWords<u32> {
     }
 }
 
-impl From<&[u8; 128]> for HasherWords<u64> {
+impl From<&[u8; 128]> for DWords<u64> {
     fn from(value: &[u8; 128]) -> Self {
         Self([
             U64W::from([value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7]]),
@@ -59,7 +60,7 @@ impl From<&[u8; 128]> for HasherWords<u64> {
     }
 }
 
-impl<T> Index<usize> for HasherWords<T> {
+impl<T> Index<usize> for DWords<T> {
     type Output = NBitWord<T>;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -67,7 +68,7 @@ impl<T> Index<usize> for HasherWords<T> {
     }
 }
 
-impl<T> IndexMut<usize> for HasherWords<T> {
+impl<T> IndexMut<usize> for DWords<T> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.0[index]
     }

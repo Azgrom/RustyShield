@@ -1,3 +1,7 @@
+use core::ops::AddAssign;
+use core::hash::Hash;
+use crate::DWords;
+
 pub(crate) mod sha160bits_state;
 pub(crate) mod sha256bits_state;
 pub(crate) mod sha512bits_state;
@@ -210,4 +214,21 @@ macro_rules! define_sha_state {
             }
         }
     };
+}
+
+pub trait GenericStateHasher<T>: AddAssign + Clone + Hash {
+    fn block_00_15(&mut self, w: &DWords<T>);
+    fn block_16_31(&mut self, w: &mut DWords<T>);
+    fn block_32_47(&mut self, w: &mut DWords<T>);
+    fn block_48_63(&mut self, w: &mut DWords<T>);
+    fn block_64_79(&mut self, w: &mut DWords<T>);
+}
+
+pub trait NewGenericStateHasher {
+    fn next_words(&mut self);
+    fn block_00_15(&mut self);
+    fn block_16_31(&mut self);
+    fn block_32_47(&mut self);
+    fn block_48_63(&mut self);
+    fn block_64_79(&mut self);
 }

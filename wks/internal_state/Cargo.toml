@@ -8,6 +8,4 @@ license.workspace = true
 name = "internal_state"
 
 [dependencies]
-hash_ctx = { path = "../hash_ctx" }
-internal_hasher = { path = "../internal_hasher" }
 n_bit_words = { path = "../n_bit_words" }

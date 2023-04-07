@@ -1,7 +1,6 @@
-use rs_sha1::Sha1State;
 
 fn main() {
-    Sha1State::default();
+    // Sha1State::default();
 }
 
 // use core::hash::{BuildHasher, Hasher};

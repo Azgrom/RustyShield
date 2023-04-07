@@ -1,5 +1,5 @@
-use crate::{GenericStateHasher, HasherWords};
 use core::{hash::Hasher, ops::BitAnd};
+use internal_state::{DWords, GenericStateHasher};
 
 pub trait BlockHasher<T, S>: Hasher
 where
@@ -84,7 +84,7 @@ where
 
     fn clone_state(&self) -> Self::State;
 
-    fn get_dw(&self) -> HasherWords<T>;
+    fn get_dw(&self) -> DWords<T>;
 
     fn get_lw(&self) -> usize;
 
