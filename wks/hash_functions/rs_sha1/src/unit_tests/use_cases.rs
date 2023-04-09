@@ -1,8 +1,8 @@
 extern crate alloc;
-use crate::{Sha1Hasher, Sha1State};
+use crate::Sha1State;
 use alloc::format;
 use core::hash::{BuildHasher, Hash, Hasher};
-use hash_ctx_lib::HasherContext;
+use hash_ctx_lib::NewHasherContext;
 
 #[test]
 fn sha1_empty_string_prefix_collision_resiliency() {
@@ -20,11 +20,11 @@ fn sha1_empty_string_prefix_collision_resiliency() {
     assert_eq!(first_sha1hasher.finish(), third_sha1hasher.finish());
 
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut first_sha1hasher)),
+        format!("{:08x}", NewHasherContext::finish(&mut first_sha1hasher)),
         "85e53271e14006f0265921d02d4d736cdc580b0b"
     );
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut second_sha1hasher)),
+        format!("{:08x}", NewHasherContext::finish(&mut second_sha1hasher)),
         "da39a3ee5e6b4b0d3255bfef95601890afd80709"
     );
 }
@@ -32,20 +32,22 @@ fn sha1_empty_string_prefix_collision_resiliency() {
 #[test]
 fn sha1_abc_string_prefix_collision_resiliency() {
     let abc = "abc";
-    let mut abc_sha1_ctx = Sha1Hasher::default();
-    abc_sha1_ctx.write(abc.as_ref());
+    let abc_sha1_ctx = Sha1State::default();
+    let mut sha1hasher = abc_sha1_ctx.build_hasher();
+    sha1hasher.write(abc.as_ref());
 
-    assert_eq!(format!("{:08x}", HasherContext::finish(&mut abc_sha1_ctx)), "a9993e364706816aba3e25717850c26c9cd0d89d");
+    assert_eq!(format!("{:08x}", NewHasherContext::finish(&mut sha1hasher)), "a9993e364706816aba3e25717850c26c9cd0d89d");
 }
 
 #[test]
 fn sha1_abcd_string_prefix_collision_resiliency() {
     let abcd = "abcd";
-    let mut abcd_sha1_ctx = Sha1Hasher::default();
-    abcd_sha1_ctx.write(abcd.as_ref());
+    let abcd_sha1_ctx = Sha1State::default();
+    let mut sha1hasher = abcd_sha1_ctx.build_hasher();
+    sha1hasher.write(abcd.as_ref());
 
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut abcd_sha1_ctx)),
+        format!("{:08x}", NewHasherContext::finish(&mut sha1hasher)),
         "81fe8bfe87576c3ecb22426f8e57847382917acf"
     );
 }
@@ -54,11 +56,12 @@ fn sha1_abcd_string_prefix_collision_resiliency() {
 fn sha1_quick_fox_string_prefix_collision_resiliency() {
     let quick_fox = "The quick brown fox jumps over the lazy dog";
 
-    let mut quick_fox_sha1_ctx = Sha1Hasher::default();
-    quick_fox_sha1_ctx.write(quick_fox.as_ref());
+    let quick_fox_sha1_ctx = Sha1State::default();
+    let mut sha1hasher = quick_fox_sha1_ctx.build_hasher();
+    sha1hasher.write(quick_fox.as_ref());
 
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut quick_fox_sha1_ctx)),
+        format!("{:08x}", NewHasherContext::finish(&mut sha1hasher)),
         "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12"
     );
 }
@@ -66,11 +69,12 @@ fn sha1_quick_fox_string_prefix_collision_resiliency() {
 #[test]
 fn sha1_lazy_cog_string_prefix_collision_resiliency() {
     let lazy_cog = "The quick brown fox jumps over the lazy cog";
-    let mut lazy_cog_sha1_ctx = Sha1Hasher::default();
-    lazy_cog_sha1_ctx.write(lazy_cog.as_ref());
+    let lazy_cog_sha1_ctx = Sha1State::default();
+    let mut sha1hasher = lazy_cog_sha1_ctx.build_hasher();
+    sha1hasher.write(lazy_cog.as_ref());
 
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut lazy_cog_sha1_ctx)),
+        format!("{:08x}", NewHasherContext::finish(&mut sha1hasher)),
         "de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3"
     );
 }
@@ -101,19 +105,19 @@ fn sha1_abc_sequence_string_prefix_collision_resiliency() {
     assert_ne!(ab_then_c_then_d_sha1hasher.finish(), abcd_sha1hasher.finish());
 
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut abc_sha1hasher)),
+        format!("{:08x}", NewHasherContext::finish(&mut abc_sha1hasher)),
         "ba0ef8073ef81857932e1e4c81fbd3caade8e550"
     );
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut abcd_sha1hasher)),
+        format!("{:08x}", NewHasherContext::finish(&mut abcd_sha1hasher)),
         "519b619c2a42a52cbecffd23157c8d3b7c9a52b4"
     );
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut ab_then_c_sha1hasher)),
+        format!("{:08x}", NewHasherContext::finish(&mut ab_then_c_sha1hasher)),
         "a7b178c8da94a38f49e55d54f2859b613b964edd"
     );
     assert_eq!(
-        format!("{:08x}", HasherContext::finish(&mut ab_then_c_then_d_sha1hasher)),
+        format!("{:08x}", NewHasherContext::finish(&mut ab_then_c_then_d_sha1hasher)),
         "bb27718131043af8844d754cabbb3fc29b3f017c"
     );
 }
@@ -121,10 +125,11 @@ fn sha1_abc_sequence_string_prefix_collision_resiliency() {
 #[test]
 fn test_phrases_with_their_bytes_sequences() {
     let random_big_string = "";
-    let mut big_str_sha1_ctx = Sha1Hasher::default();
-    big_str_sha1_ctx.write(random_big_string.as_ref());
-    HasherContext::finish(&mut big_str_sha1_ctx);
-    let digest_result = Into::<[u8; 20]>::into(big_str_sha1_ctx);
+    let big_str_sha1_ctx = Sha1State::default();
+    let mut sha1hasher = big_str_sha1_ctx.build_hasher();
+    sha1hasher.write(random_big_string.as_ref());
+    NewHasherContext::finish(&mut sha1hasher);
+    let digest_result = Into::<[u8; 20]>::into(sha1hasher.state);
     assert_eq!(
         digest_result.as_ref(),
         [
