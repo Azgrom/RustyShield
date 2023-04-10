@@ -36,7 +36,7 @@ strip = false
 debug = false
 
 [dependencies]
-#rs_hmac_sha1 = { path = "wks/hash_functions/rs_hmac_sha1" }
+rs_hmac = { path = "wks/hash_functions/rs_hmac" }
 rs_sha1 = { path = "wks/hash_functions/rs_sha1" }
 rs_sha224 = { path = "wks/hash_functions/rs_sha224" }
 rs_sha256 = { path = "wks/hash_functions/rs_sha256" }

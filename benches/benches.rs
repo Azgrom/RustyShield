@@ -2,7 +2,7 @@ use core::hash::{BuildHasher, Hash, Hasher};
 use criterion::{black_box, criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
 
 use rs_ssl::{
-    Sha1State,
+    Sha1Hasher,
     Sha224Hasher,
     Sha256Hasher,
     Sha384Hasher,
@@ -19,9 +19,8 @@ fn compare_sha_impls(c: &mut Criterion) {
 
     b_group.bench_function("SHA-1", |b| {
         b.iter(|| {
-            let sha1hasher = Sha1State::default();
-            let mut hasher = sha1hasher.build_hasher();
-            black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut hasher);
+            let mut sha1hasher = Sha1Hasher::default();
+            black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut sha1hasher);
             sha1hasher.finish();
         })
     });
