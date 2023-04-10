@@ -1,36 +1,42 @@
 #![no_std]
 
 use core::hash::Hasher;
-use core::mem::size_of;
 use hash_ctx_lib::{GenericHasher, NewHasherContext};
 use internal_hasher::{HashAlgorithm, LenPad};
+use internal_state::BytesLen;
+
+const INNER_PAD: u8 = 0x36;
+const OUTER_PAD: u8 = 0x5c;
 
 pub struct Hmac<H: HashAlgorithm> {
     inner_hasher: GenericHasher<H>,
     outer_hasher: GenericHasher<H>,
 }
 
-impl<H> Hmac<H> where H: HashAlgorithm + Default {
+impl<H> Hmac<H>
+where
+    H: BytesLen + Default + HashAlgorithm,
+    <H as HashAlgorithm>::Output: From<H>,
+{
     pub fn new(key: &[u8]) -> Self {
-        let mut inner_key = Self::inner_key();
-        let mut outer_key = Self::outer_key();
+        let mut inner_key = H::Padding::default();
+        let mut outer_key = H::Padding::default();
 
         if key.len() > H::Padding::len() {
             let mut hasher: GenericHasher<H> = GenericHasher::default();
             hasher.write(key);
-            inner_key.as_mut().copy_from_slice(&hasher.finish().to_be_bytes()[..H::Padding::len()]);
+            let bytes_output: H::Output = NewHasherContext::finish(&mut hasher).into();
+
+            inner_key.as_mut()[..H::len()].clone_from_slice(bytes_output.as_ref());
+            outer_key.as_mut()[..H::len()].clone_from_slice(bytes_output.as_ref());
         } else {
-            inner_key.as_mut()[..key.len()].copy_from_slice(key);
+            inner_key.as_mut()[..key.len()].clone_from_slice(key);
+            outer_key.as_mut()[..key.len()].clone_from_slice(key);
         }
 
-        outer_key.as_mut().copy_from_slice(inner_key.as_ref());
-
-        for byte in inner_key.as_mut().iter_mut() {
-            *byte ^= 0x36;
-        }
-
-        for byte in outer_key.as_mut().iter_mut() {
-            *byte ^= 0x5c;
+        for (i, o) in inner_key.as_mut().iter_mut().zip(outer_key.as_mut().iter_mut()) {
+            *i ^= INNER_PAD;
+            *o ^= OUTER_PAD;
         }
 
         let mut inner_hasher = GenericHasher::default();
@@ -45,24 +51,29 @@ impl<H> Hmac<H> where H: HashAlgorithm + Default {
         }
     }
 
-    pub fn write(&mut self, input: &[u8]) {
-        self.inner_hasher.write(input);
-    }
-
-    fn inner_key() -> H::Padding {
-        let mut inner_key = H::Padding::default();
-        inner_key.as_mut().fill(0x36);
-        inner_key
-    }
-
-    fn outer_key() -> H::Padding {
-        let mut outer_key = H::Padding::default();
-        outer_key.as_mut().fill(0x5c);
-        outer_key
+    /// Compute the HMAC of a message with a key.
+    /// ```
+    /// use rs_hmac::Hmac;
+    /// use rs_sha1::Sha1State;
+    ///
+    /// let key = b"key";
+    /// let  msg = b"The quick brown fox jumps over the lazy dog";
+    /// let resulting_sha1state = Hmac::<Sha1State>::digest(key, msg);
+    ///
+    /// assert_eq!(format!("{resulting_sha1state:08x}"), "de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9");
+    /// ```
+    pub fn digest(key: &[u8], msg: &[u8]) -> H {
+        let mut hmac = Self::new(key);
+        hmac.write(msg);
+        NewHasherContext::finish(&mut hmac)
     }
 }
 
-impl<H> Default for Hmac<H> where H: HashAlgorithm + Default {
+impl<H> Default for Hmac<H>
+where
+    H: BytesLen + Default + HashAlgorithm,
+    <H as HashAlgorithm>::Output: From<H>
+{
     fn default() -> Self {
         Self::new(&[])
     }
@@ -78,12 +89,17 @@ impl<H: HashAlgorithm> Hasher for Hmac<H> {
     }
 }
 
-impl<H: HashAlgorithm> NewHasherContext for Hmac<H> {
+impl<H> NewHasherContext for Hmac<H>
+where
+    H: HashAlgorithm,
+    <H as HashAlgorithm>::Output: From<H>,
+{
     type State = H;
 
     fn finish(&mut self) -> Self::State {
-        let inner_result = self.inner_hasher.finish();
-        self.outer_hasher.write(&inner_result.to_be_bytes());
+        let inner_result: H::Output = NewHasherContext::finish(&mut self.inner_hasher).into();
+
+        self.outer_hasher.write(inner_result.as_ref());
         NewHasherContext::finish(&mut self.outer_hasher)
     }
 }

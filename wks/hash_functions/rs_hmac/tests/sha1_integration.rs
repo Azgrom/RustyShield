@@ -1,14 +1,10 @@
 use hash_ctx_lib::NewHasherContext;
 use rs_hmac::Hmac;
-use rs_sha1::{Sha1Hasher, Sha1State};
+use rs_sha1::Sha1State;
 use std::hash::Hasher;
 
 fn hmac_sha1(key: &[u8], msg: &[u8]) -> String {
-    let mut sha1hmac = Hmac::<Sha1State>::new(key);
-    sha1hmac.write(msg);
-    let resulting_state = NewHasherContext::finish(&mut sha1hmac);
-
-    format!("{resulting_state:08x}")
+    format!("{:08x}", Hmac::<Sha1State>::digest(key, msg))
 }
 
 #[test]

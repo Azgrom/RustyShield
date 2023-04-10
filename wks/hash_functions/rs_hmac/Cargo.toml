@@ -7,6 +7,7 @@ license.workspace = true
 [dependencies]
 hash_ctx = { path = "../../hash_ctx" }
 internal_hasher = { path = "../../internal_hasher" }
+internal_state = { path = "../../internal_state" }
 
 [dev-dependencies]
 rs_sha1 = { path = "../rs_sha1" }

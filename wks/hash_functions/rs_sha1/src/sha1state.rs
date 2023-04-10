@@ -5,7 +5,7 @@ use core::{
 };
 use hash_ctx_lib::GenericHasher;
 use internal_hasher::{HashAlgorithm, U32Pad};
-use internal_state::{DWords, LOWER_HEX_ERR, NewGenericStateHasher, Sha160BitsState, UPPER_HEX_ERR};
+use internal_state::{BytesLen, DWords, LOWER_HEX_ERR, NewGenericStateHasher, Sha160BitsState, UPPER_HEX_ERR};
 use n_bit_words_lib::NBitWord;
 
 pub(crate) const H0: u32 = 0x67452301;
@@ -15,6 +15,7 @@ pub(crate) const H3: u32 = 0x10325476;
 pub(crate) const H4: u32 = 0xC3D2E1F0;
 
 const HX: [u32; 5] = [H0, H1, H2, H3, H4];
+const BYTES_LEN: usize = 20;
 
 #[derive(Clone, Debug, Hash, PartialEq)]
 pub struct Sha1State(
@@ -43,6 +44,12 @@ impl BuildHasher for Sha1State {
     }
 }
 
+impl BytesLen for Sha1State {
+    fn len() -> usize {
+        BYTES_LEN
+    }
+}
+
 impl Default for Sha1State {
     fn default() -> Self {
         Self::from(HX)
@@ -61,7 +68,7 @@ impl From<[u32; 5]> for Sha1State {
     }
 }
 
-impl From<Sha1State> for [u8; 20] {
+impl From<Sha1State> for [u8; BYTES_LEN] {
     fn from(value: Sha1State) -> Self {
         let x = u32::to_be_bytes(value.0.into());
         let y = u32::to_be_bytes(value.1.into());
@@ -78,7 +85,7 @@ impl From<Sha1State> for [u8; 20] {
 
 impl HashAlgorithm for Sha1State {
     type Padding = U32Pad;
-    type Output = [u8; 20];
+    type Output = [u8; BYTES_LEN];
 
     fn hash_block(&mut self, bytes: &[u8]) {
         let mut state = Sha160BitsState(
