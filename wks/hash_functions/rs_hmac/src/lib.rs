@@ -8,6 +8,14 @@ use internal_state::BytesLen;
 const INNER_PAD: u8 = 0x36;
 const OUTER_PAD: u8 = 0x5c;
 
+/// HMAC context.
+/// This context can be used to compute a HMAC.
+///
+/// # Example
+/// ```
+/// use rs_hmac::Hmac;
+/// use rs_sha1::Sha1State;
+/// ```
 pub struct Hmac<H: HashAlgorithm> {
     inner_hasher: GenericHasher<H>,
     outer_hasher: GenericHasher<H>,
@@ -18,6 +26,19 @@ where
     H: BytesLen + Default + HashAlgorithm,
     <H as HashAlgorithm>::Output: From<H>,
 {
+    /// Create a new HMAC context with the given key.
+    /// If the key is longer than the block size of the hash algorithm,
+    /// it will be hashed and the hash will be used as the key.
+    /// If the key is shorter than the block size of the hash algorithm,
+    /// it will be padded with zeros.
+    /// The key will be split into two halves, one for the inner hash and one for the outer hash.
+    /// The inner hash will be padded with `0x36` and the outer hash will be padded with `0x5c`.
+    /// Give me a key and I'll give you a HMAC context.
+    ///
+    /// # Example:
+    /// ```
+    /// use rs_hmac::Hmac;
+    /// ```
     pub fn new(key: &[u8]) -> Self {
         let mut inner_key = H::Padding::default();
         let mut outer_key = H::Padding::default();
@@ -52,6 +73,7 @@ where
     }
 
     /// Compute the HMAC of a message with a key.
+    /// # Example:
     /// ```
     /// use rs_hmac::Hmac;
     /// use rs_sha1::Sha1State;

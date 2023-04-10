@@ -1,9 +1,11 @@
 #![no_std]
 
-pub use crate::{sha256hasher::Sha256Hasher, sha256state::Sha256State};
+use hash_ctx_lib::GenericHasher;
+pub use crate::sha256state::Sha256State;
 
-mod sha256hasher;
 mod sha256state;
 
 #[cfg(test)]
 mod unit_tests;
+
+pub type Sha256Hasher = GenericHasher<Sha256State>;
