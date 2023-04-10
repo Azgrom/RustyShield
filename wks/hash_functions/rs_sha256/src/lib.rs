@@ -1,11 +1,14 @@
+//! # rs-sha256 - API Documentation for SHA-256
+//!
+//! 
+
 #![no_std]
 
-use hash_ctx_lib::GenericHasher;
+pub use crate::sha256hasher::Sha256Hasher;
 pub use crate::sha256state::Sha256State;
 
+mod sha256hasher;
 mod sha256state;
 
 #[cfg(test)]
 mod unit_tests;
-
-pub type Sha256Hasher = GenericHasher<Sha256State>;

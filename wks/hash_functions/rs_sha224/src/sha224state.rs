@@ -7,6 +7,7 @@ use hash_ctx_lib::GenericHasher;
 use internal_hasher::{HashAlgorithm, U32Pad};
 use internal_state::{BytesLen, DWords, LOWER_HEX_ERR, NewGenericStateHasher, Sha256BitsState, UPPER_HEX_ERR};
 use n_bit_words_lib::NBitWord;
+use crate::Sha224Hasher;
 
 const H0: u32 = 0xC1059ED8;
 const H1: u32 = 0x367CD507;
@@ -20,7 +21,7 @@ const H7: u32 = 0xBEFA4FA4;
 const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 const BYTES_LEN: usize = 28;
 
-#[derive(Clone, Debug, Hash, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Sha224State(
     pub NBitWord<u32>,
     pub NBitWord<u32>,
@@ -46,7 +47,7 @@ impl AddAssign<Sha256BitsState> for Sha224State {
 }
 
 impl BuildHasher for Sha224State {
-    type Hasher = GenericHasher<Self>;
+    type Hasher = Sha224Hasher;
 
     fn build_hasher(&self) -> Self::Hasher {
         Self::Hasher::default()

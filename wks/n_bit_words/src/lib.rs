@@ -21,7 +21,7 @@ mod unit_tests;
 /// writing `S0` and `S1` as
 /// `S0(a) = ((( a >>> 9) ^ a) >>> 11) ^ a) >>> 2`
 /// and `S1(e) = (((e >>> 14) ^ e) >>> 5) ^ e) >>> 6`
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct NBitWord<T>(Wrapping<T>);
 
 impl TSize<u32> for NBitWord<u32> {

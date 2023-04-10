@@ -7,6 +7,7 @@ use hash_ctx_lib::GenericHasher;
 use internal_hasher::{HashAlgorithm, U32Pad};
 use internal_state::{BytesLen, DWords, LOWER_HEX_ERR, NewGenericStateHasher, Sha160BitsState, UPPER_HEX_ERR};
 use n_bit_words_lib::NBitWord;
+use crate::Sha1Hasher;
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;
@@ -17,7 +18,7 @@ pub(crate) const H4: u32 = 0xC3D2E1F0;
 const HX: [u32; 5] = [H0, H1, H2, H3, H4];
 const BYTES_LEN: usize = 20;
 
-#[derive(Clone, Debug, Hash, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Sha1State(
     pub NBitWord<u32>,
     pub NBitWord<u32>,
@@ -37,7 +38,7 @@ impl AddAssign<Sha160BitsState> for Sha1State {
 }
 
 impl BuildHasher for Sha1State {
-    type Hasher = GenericHasher<Self>;
+    type Hasher = Sha1Hasher;
 
     fn build_hasher(&self) -> Self::Hasher {
         Self::Hasher::default()

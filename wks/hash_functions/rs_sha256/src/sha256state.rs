@@ -5,6 +5,7 @@ use hash_ctx_lib::GenericHasher;
 use internal_hasher::{HashAlgorithm, U32Pad};
 use internal_state::{BytesLen, DWords, LOWER_HEX_ERR, NewGenericStateHasher, Sha256BitsState, UPPER_HEX_ERR};
 use n_bit_words_lib::NBitWord;
+use crate::Sha256Hasher;
 
 const H0: u32 = 0x6A09E667;
 const H1: u32 = 0xBB67AE85;
@@ -18,7 +19,8 @@ const H7: u32 = 0x5BE0CD19;
 const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 const BYTES_LEN: usize = 32;
 
-#[derive(Clone, Debug, Hash, PartialEq)]
+/// The state of the SHA-256 algorithm.
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Sha256State(
     pub NBitWord<u32>,
     pub NBitWord<u32>,
@@ -44,7 +46,7 @@ impl AddAssign<Sha256BitsState> for Sha256State {
 }
 
 impl BuildHasher for Sha256State {
-    type Hasher = GenericHasher<Self>;
+    type Hasher = Sha256Hasher;
 
     fn build_hasher(&self) -> Self::Hasher {
         Self::Hasher::default()
