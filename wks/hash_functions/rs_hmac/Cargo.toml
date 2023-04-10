@@ -11,3 +11,5 @@ internal_state = { path = "../../internal_state" }
 
 [dev-dependencies]
 rs_sha1 = { path = "../rs_sha1" }
+rs_sha224 = { path = "../rs_sha224" }
+rs_sha256 = { path = "../rs_sha256" }

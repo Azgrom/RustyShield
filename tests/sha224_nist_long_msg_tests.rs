@@ -1,6 +1,7 @@
 use cavs_long_msg::CAVSLongMsg;
-use rs_ssl::{HasherContext, Sha224State};
+use rs_ssl::Sha224State;
 use std::hash::{BuildHasher, Hasher};
+use hash_ctx_lib::NewHasherContext;
 
 mod cavs_long_msg;
 
@@ -14,6 +15,6 @@ fn compare_long_messages_provided_by_sha224_validation_system() {
 
         sha224hasher.write(long_msg.message.as_ref());
 
-        assert_eq!(format!("{:08x}", HasherContext::finish(&mut sha224hasher)), long_msg.message_digest);
+        assert_eq!(format!("{:08x}", NewHasherContext::finish(&mut sha224hasher)), long_msg.message_digest);
     }
 }

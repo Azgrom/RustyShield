@@ -37,7 +37,7 @@ impl AddAssign<Sha160BitsState> for Sha1State {
 }
 
 impl BuildHasher for Sha1State {
-    type Hasher = GenericHasher<Sha1State>;
+    type Hasher = GenericHasher<Self>;
 
     fn build_hasher(&self) -> Self::Hasher {
         Self::Hasher::default()

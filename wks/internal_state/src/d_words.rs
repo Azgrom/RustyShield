@@ -2,7 +2,7 @@ use core::ops::{Index, IndexMut};
 use n_bit_words_lib::NBitWord;
 
 /// DWORDs struct that can later be expanded with SIMD to store 4 DWORDS in a single XMM register
-#[derive(Debug, Hash, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq)]
 pub struct DWords<T>([NBitWord<T>; 16]);
 
 type U32W = NBitWord<u32>;
