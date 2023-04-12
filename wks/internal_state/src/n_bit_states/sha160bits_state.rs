@@ -1,5 +1,6 @@
+use crate::n_bit_states::GenericStateHasher;
 use crate::rotors::sha160rotor::Sha160Rotor as Rotor;
-use crate::{DWords, NewGenericStateHasher};
+use crate::DWords;
 use core::hash::Hash;
 use n_bit_words_lib::{NBitWord, TSize};
 
@@ -13,7 +14,7 @@ pub struct Sha160BitsState(
     pub DWords<u32>,
 );
 
-impl NewGenericStateHasher for Sha160BitsState {
+impl GenericStateHasher for Sha160BitsState {
     fn next_words(&mut self) {
         self.5[0] = (self.5[0] ^ self.5[2] ^ self.5[8] ^ self.5[13]).rotate_left(1.into());
         self.5[1] = (self.5[1] ^ self.5[3] ^ self.5[9] ^ self.5[14]).rotate_left(1.into());

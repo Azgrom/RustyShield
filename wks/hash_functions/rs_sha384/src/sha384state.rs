@@ -5,7 +5,7 @@ use core::{
     ops::AddAssign,
 };
 use internal_hasher::{HashAlgorithm, U64Pad};
-use internal_state::{BytesLen, DWords, NewGenericStateHasher, Sha512BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{BytesLen, DWords, GenericStateHasher, Sha512BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 use n_bit_words_lib::NBitWord;
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;

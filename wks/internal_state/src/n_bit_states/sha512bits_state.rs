@@ -1,4 +1,5 @@
-use crate::{rotors::sha512rotor::Sha512Rotor as Rotor, DWords, NewGenericStateHasher};
+use crate::n_bit_states::GenericStateHasher;
+use crate::{rotors::sha512rotor::Sha512Rotor as Rotor, DWords};
 use n_bit_words_lib::{NBitWord, TSize};
 
 #[derive(Clone, Debug, Hash, PartialEq)]
@@ -14,7 +15,7 @@ pub struct Sha512BitsState(
     pub DWords<u64>,
 );
 
-impl NewGenericStateHasher for Sha512BitsState {
+impl GenericStateHasher for Sha512BitsState {
     fn next_words(&mut self) {
         self.8[0] = self.8[0] + self.8[1].gamma0() + self.8[9] + self.8[14].gamma1();
         self.8[1] = self.8[1] + self.8[2].gamma0() + self.8[10] + self.8[15].gamma1();

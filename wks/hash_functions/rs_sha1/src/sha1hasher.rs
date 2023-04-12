@@ -1,6 +1,6 @@
 use crate::Sha1State;
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, NewHasherContext};
+use hash_ctx_lib::{GenericHasher, HasherContext};
 
 /// The SHA-1 Hasher
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -25,10 +25,10 @@ impl Hasher for Sha1Hasher {
     }
 }
 
-impl NewHasherContext for Sha1Hasher {
+impl HasherContext for Sha1Hasher {
     type State = Sha1State;
 
     fn finish(&mut self) -> Self::State {
-        NewHasherContext::finish(&mut self.0)
+        HasherContext::finish(&mut self.0)
     }
 }

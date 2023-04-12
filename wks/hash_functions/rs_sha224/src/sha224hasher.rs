@@ -1,6 +1,6 @@
 use crate::Sha224State;
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, NewHasherContext};
+use hash_ctx_lib::{GenericHasher, HasherContext};
 
 /// The SHA-224 Hasher
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -25,10 +25,10 @@ impl Hasher for Sha224Hasher {
     }
 }
 
-impl NewHasherContext for Sha224Hasher {
+impl HasherContext for Sha224Hasher {
     type State = Sha224State;
 
     fn finish(&mut self) -> Self::State {
-        NewHasherContext::finish(&mut self.0)
+        HasherContext::finish(&mut self.0)
     }
 }

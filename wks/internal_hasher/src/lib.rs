@@ -1,7 +1,6 @@
 #![no_std]
 
 pub use crate::{
-    block_hasher::BlockHasher,
     byte_pad::BytePad,
     constants::{PAD_FOR_U32_WORDS, U8_PAD_FOR_U32_SIZE},
     hash_algorithm::HashAlgorithm,
@@ -11,11 +10,9 @@ pub use crate::{
     u64_pad::U64Pad,
 };
 
-mod block_hasher;
 mod byte_pad;
 mod constants;
 mod hash_algorithm;
-mod hasher_macro_definition;
 mod hasher_pad_ops;
 mod len_pad;
 mod u32_pad;

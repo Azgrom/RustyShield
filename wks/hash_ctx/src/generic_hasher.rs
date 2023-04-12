@@ -1,4 +1,4 @@
-use crate::NewHasherContext;
+use crate::HasherContext;
 use core::hash::Hasher;
 use internal_hasher::{BytePad, HashAlgorithm, HasherPadOps, LenPad};
 
@@ -29,7 +29,7 @@ impl<H: HashAlgorithm + Default> Default for GenericHasher<H> {
     }
 }
 
-impl<H: HashAlgorithm> NewHasherContext for GenericHasher<H> {
+impl<H: HashAlgorithm> HasherContext for GenericHasher<H> {
     type State = H;
 
     fn finish(&mut self) -> Self::State {
@@ -48,7 +48,7 @@ impl<H: HashAlgorithm> NewHasherContext for GenericHasher<H> {
 impl<H: HashAlgorithm> Hasher for GenericHasher<H> {
     fn finish(&self) -> u64 {
         let mut hasher = self.clone();
-        NewHasherContext::finish(&mut hasher).state_to_u64()
+        HasherContext::finish(&mut hasher).state_to_u64()
     }
 
     fn write(&mut self, mut bytes: &[u8]) {

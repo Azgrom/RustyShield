@@ -1,6 +1,6 @@
 use crate::Sha256State;
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, NewHasherContext};
+use hash_ctx_lib::{GenericHasher, HasherContext};
 
 /// The SHA-256 Hasher
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -25,10 +25,10 @@ impl Hasher for Sha256Hasher {
     }
 }
 
-impl NewHasherContext for Sha256Hasher {
+impl HasherContext for Sha256Hasher {
     type State = Sha256State;
 
     fn finish(&mut self) -> Self::State {
-        NewHasherContext::finish(&mut self.0)
+        HasherContext::finish(&mut self.0)
     }
 }

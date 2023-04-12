@@ -1,5 +1,6 @@
+use crate::n_bit_states::GenericStateHasher;
 use crate::rotors::sha256rotor::Sha256Rotor as Rotor;
-use crate::{DWords, NewGenericStateHasher};
+use crate::DWords;
 use core::{hash::Hash, ops::AddAssign};
 use n_bit_words_lib::{NBitWord, TSize};
 
@@ -16,7 +17,7 @@ pub struct Sha256BitsState(
     pub DWords<u32>,
 );
 
-impl NewGenericStateHasher for Sha256BitsState {
+impl GenericStateHasher for Sha256BitsState {
     fn next_words(&mut self) {
         self.8[0] = self.8[0] + self.8[1].gamma0() + self.8[9] + self.8[14].gamma1();
         self.8[1] = self.8[1] + self.8[2].gamma0() + self.8[10] + self.8[15].gamma1();

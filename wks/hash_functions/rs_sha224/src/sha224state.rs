@@ -2,10 +2,10 @@ use crate::Sha224Hasher;
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::BuildHasher,
-    ops::AddAssign
+    ops::AddAssign,
 };
 use internal_hasher::{HashAlgorithm, U32Pad};
-use internal_state::{BytesLen, DWords, NewGenericStateHasher, Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 use n_bit_words_lib::NBitWord;
 
 const H0: u32 = 0xC1059ED8;

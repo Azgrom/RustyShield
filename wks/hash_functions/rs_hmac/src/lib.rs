@@ -1,7 +1,7 @@
 #![no_std]
 
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, NewHasherContext};
+use hash_ctx_lib::{GenericHasher, HasherContext};
 use internal_hasher::{HashAlgorithm, LenPad};
 use internal_state::BytesLen;
 
@@ -46,7 +46,7 @@ where
         if key.len() > H::Padding::len() {
             let mut hasher: GenericHasher<H> = GenericHasher::default();
             hasher.write(key);
-            let bytes_output: H::Output = NewHasherContext::finish(&mut hasher).into();
+            let bytes_output: H::Output = HasherContext::finish(&mut hasher).into();
 
             inner_key.as_mut()[..H::len()].clone_from_slice(bytes_output.as_ref());
             outer_key.as_mut()[..H::len()].clone_from_slice(bytes_output.as_ref());
@@ -87,7 +87,7 @@ where
     pub fn digest(key: &[u8], msg: &[u8]) -> H {
         let mut hmac = Self::new(key);
         hmac.write(msg);
-        NewHasherContext::finish(&mut hmac)
+        HasherContext::finish(&mut hmac)
     }
 }
 
@@ -111,7 +111,7 @@ impl<H: HashAlgorithm> Hasher for Hmac<H> {
     }
 }
 
-impl<H> NewHasherContext for Hmac<H>
+impl<H> HasherContext for Hmac<H>
 where
     H: HashAlgorithm,
     <H as HashAlgorithm>::Output: From<H>,
@@ -119,9 +119,9 @@ where
     type State = H;
 
     fn finish(&mut self) -> Self::State {
-        let inner_result: H::Output = NewHasherContext::finish(&mut self.inner_hasher).into();
+        let inner_result: H::Output = HasherContext::finish(&mut self.inner_hasher).into();
 
         self.outer_hasher.write(inner_result.as_ref());
-        NewHasherContext::finish(&mut self.outer_hasher)
+        HasherContext::finish(&mut self.outer_hasher)
     }
 }

@@ -1,6 +1,6 @@
 use crate::Sha512State;
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, NewHasherContext};
+use hash_ctx_lib::{GenericHasher, HasherContext};
 
 #[derive(Clone, Debug)]
 pub struct Sha512Hasher(GenericHasher<Sha512State>);
@@ -21,10 +21,10 @@ impl Hasher for Sha512Hasher {
     }
 }
 
-impl NewHasherContext for Sha512Hasher {
+impl HasherContext for Sha512Hasher {
     type State = Sha512State;
 
     fn finish(&mut self) -> Self::State {
-        NewHasherContext::finish(&mut self.0)
+        HasherContext::finish(&mut self.0)
     }
 }

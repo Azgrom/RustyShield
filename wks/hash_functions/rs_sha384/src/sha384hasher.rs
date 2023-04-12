@@ -1,6 +1,6 @@
 use crate::Sha384State;
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, NewHasherContext};
+use hash_ctx_lib::{GenericHasher, HasherContext};
 
 #[derive(Clone, Debug)]
 pub struct Sha384Hasher(GenericHasher<Sha384State>);
@@ -21,10 +21,10 @@ impl Hasher for Sha384Hasher {
     }
 }
 
-impl NewHasherContext for Sha384Hasher {
+impl HasherContext for Sha384Hasher {
     type State = Sha384State;
 
     fn finish(&mut self) -> Self::State {
-        NewHasherContext::finish(&mut self.0)
+        HasherContext::finish(&mut self.0)
     }
 }
