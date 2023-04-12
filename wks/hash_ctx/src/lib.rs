@@ -1,9 +1,6 @@
 #![no_std]
 
-use core::{
-    hash::Hasher,
-    ops::BitAnd
-};
+use core::{hash::Hasher, ops::BitAnd};
 
 pub use generic_hasher::GenericHasher;
 use internal_hasher::BlockHasher;

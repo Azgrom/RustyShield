@@ -1,8 +1,8 @@
-use core::ops::{Index, IndexMut, Range, RangeFrom, RangeTo};
 use crate::{BytePad, LenPad, PAD_FOR_U32_WORDS, U8_PAD_FOR_U32_SIZE};
+use core::ops::{Index, IndexMut, Range, RangeFrom, RangeTo};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
-pub struct U32Pad (pub [u8; U8_PAD_FOR_U32_SIZE]);
+pub struct U32Pad(pub [u8; U8_PAD_FOR_U32_SIZE]);
 
 impl AsMut<[u8]> for U32Pad {
     fn as_mut(&mut self) -> &mut [u8] {
@@ -28,7 +28,7 @@ impl BytePad for U32Pad {
 
 impl Default for U32Pad {
     fn default() -> Self {
-        Self (PAD_FOR_U32_WORDS)
+        Self(PAD_FOR_U32_WORDS)
     }
 }
 

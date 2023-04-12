@@ -94,7 +94,7 @@ where
 impl<H> Default for Hmac<H>
 where
     H: BytesLen + Default + HashAlgorithm,
-    <H as HashAlgorithm>::Output: From<H>
+    <H as HashAlgorithm>::Output: From<H>,
 {
     fn default() -> Self {
         Self::new(&[])

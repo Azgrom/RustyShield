@@ -1,8 +1,6 @@
 use crate::rotors::sha160rotor::Sha160Rotor as Rotor;
 use crate::{DWords, NewGenericStateHasher};
-use core::{
-    hash::Hash,
-};
+use core::hash::Hash;
 use n_bit_words_lib::{NBitWord, TSize};
 
 #[derive(Debug, Hash, PartialEq)]

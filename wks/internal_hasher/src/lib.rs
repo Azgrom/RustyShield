@@ -8,15 +8,16 @@ pub use crate::{
     hasher_pad_ops::HasherPadOps,
     len_pad::LenPad,
     u32_pad::U32Pad,
-    u64_pad::U64Pad};
+    u64_pad::U64Pad,
+};
 
 mod block_hasher;
 mod byte_pad;
 mod constants;
-mod len_pad;
 mod hash_algorithm;
-mod hasher_pad_ops;
 mod hasher_macro_definition;
+mod hasher_pad_ops;
+mod len_pad;
 mod u32_pad;
 mod u64_pad;
 

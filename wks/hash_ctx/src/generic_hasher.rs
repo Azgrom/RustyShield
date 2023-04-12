@@ -1,6 +1,6 @@
+use crate::NewHasherContext;
 use core::hash::Hasher;
 use internal_hasher::{BytePad, HashAlgorithm, HasherPadOps, LenPad};
-use crate::NewHasherContext;
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct GenericHasher<H: HashAlgorithm> {
@@ -9,7 +9,7 @@ pub struct GenericHasher<H: HashAlgorithm> {
     pub size: u64,
 }
 
-impl<H: HashAlgorithm> HasherPadOps for GenericHasher<H>{
+impl<H: HashAlgorithm> HasherPadOps for GenericHasher<H> {
     fn size_mod_pad(&self) -> usize {
         (self.size & self.padding.last_index() as u64) as usize
     }
@@ -21,7 +21,7 @@ impl<H: HashAlgorithm> HasherPadOps for GenericHasher<H>{
 
 impl<H: HashAlgorithm + Default> Default for GenericHasher<H> {
     fn default() -> Self {
-        Self{
+        Self {
             padding: H::Padding::default(),
             state: H::default(),
             size: u64::MIN,
@@ -81,3 +81,39 @@ impl<H: HashAlgorithm> Hasher for GenericHasher<H> {
         }
     }
 }
+
+// #[macro_export]
+// macro_rules! define_sha_hasher {
+//     ($THasherName:tt, $TState:tt) => {
+//         #[derive(Clone, Debug, Hash, PartialEq, Eq)]
+//         pub struct $THasherName(GenericHasher<$TState>);
+//
+//         impl Default for $THasherName {
+//             fn default() -> Self {
+//                 Self(GenericHasher::default())
+//             }
+//         }
+//
+//         impl Hasher for $THasherName {
+//             /// Finish the hash and return the hash value as a `u64`.
+//             fn finish(&self) -> u64 {
+//                 self.0.finish()
+//             }
+//
+//             /// Write a byte array to the hasher.
+//             /// This hasher can digest up to `u64::MAX` bytes. If more bytes are written, the hasher will panic.
+//             fn write(&mut self, bytes: &[u8]) {
+//                 self.0.write(bytes)
+//             }
+//         }
+//
+//         impl NewHasherContext for $THasherName {
+//             type State = $TState;
+//
+//             /// Finish the hash and return its resulting state.
+//             fn finish(&mut self) -> Self::State {
+//                 NewHasherContext::finish(&mut self.0)
+//             }
+//         }
+//     }
+// }

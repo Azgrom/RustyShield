@@ -1,4 +1,3 @@
-
 fn main() {
     // Sha1State::default();
 }

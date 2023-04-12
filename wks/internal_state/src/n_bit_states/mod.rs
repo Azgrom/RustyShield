@@ -1,6 +1,6 @@
-use core::ops::AddAssign;
-use core::hash::Hash;
 use crate::DWords;
+use core::hash::Hash;
+use core::ops::AddAssign;
 
 pub(crate) mod sha160bits_state;
 pub(crate) mod sha256bits_state;

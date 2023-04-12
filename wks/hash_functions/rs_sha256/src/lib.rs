@@ -1,6 +1,6 @@
 //! # rs-sha256 - API Documentation for SHA-256
 //!
-//! 
+//!
 
 #![no_std]
 

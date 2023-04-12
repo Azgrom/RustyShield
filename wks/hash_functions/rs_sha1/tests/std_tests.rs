@@ -1,9 +1,9 @@
-use rs_sha1::{Sha1State};
+use rs_sha1::Sha1State;
+use std::hash::BuildHasher;
 use std::{
     collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
 };
-use std::hash::BuildHasher;
 
 #[test]
 fn sha1_state_hash() {

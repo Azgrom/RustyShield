@@ -1,10 +1,7 @@
 use crate::rotors::sha256rotor::Sha256Rotor as Rotor;
-use core::{
-    hash::Hash,
-    ops::AddAssign,
-};
-use n_bit_words_lib::{NBitWord, TSize};
 use crate::{DWords, NewGenericStateHasher};
+use core::{hash::Hash, ops::AddAssign};
+use n_bit_words_lib::{NBitWord, TSize};
 
 #[derive(Clone, Debug, Hash, PartialEq)]
 pub struct Sha256BitsState(
@@ -16,7 +13,7 @@ pub struct Sha256BitsState(
     pub NBitWord<u32>,
     pub NBitWord<u32>,
     pub NBitWord<u32>,
-    pub DWords<u32>
+    pub DWords<u32>,
 );
 
 impl NewGenericStateHasher for Sha256BitsState {

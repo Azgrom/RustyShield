@@ -1,6 +1,12 @@
-use crate::sha384hasher::Sha384Hasher;
-use core::fmt::{Formatter, LowerHex, UpperHex};
-use internal_state::{DWords, GenericStateHasher, LOWER_HEX_ERR, Sha512BitsState, UPPER_HEX_ERR};
+use crate::Sha384Hasher;
+use core::{
+    fmt::{Formatter, LowerHex, UpperHex},
+    hash::BuildHasher,
+    ops::AddAssign,
+};
+use internal_hasher::{HashAlgorithm, U64Pad};
+use internal_state::{BytesLen, DWords, NewGenericStateHasher, Sha512BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use n_bit_words_lib::NBitWord;
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;
 const H1: u64 = 0x629A292A367CD507;
@@ -12,75 +18,76 @@ const H6: u64 = 0xDB0C2E0D64F98FA7;
 const H7: u64 = 0x47B5481DBEFA4FA4;
 
 const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
+const BYTES_LEN: usize = 48;
 
 #[derive(Clone, Debug)]
-pub struct Sha384State(pub(crate) Sha512BitsState);
-use core::ops::AddAssign;
-impl AddAssign for Sha384State {
-    fn add_assign(&mut self, rhs: Self) {
-        self.0 += rhs.0
+pub struct Sha384State(
+    pub NBitWord<u64>,
+    pub NBitWord<u64>,
+    pub NBitWord<u64>,
+    pub NBitWord<u64>,
+    pub NBitWord<u64>,
+    pub NBitWord<u64>,
+    pub NBitWord<u64>,
+    pub NBitWord<u64>,
+);
+
+impl AddAssign<Sha512BitsState> for Sha384State {
+    fn add_assign(&mut self, rhs: Sha512BitsState) {
+        self.0 += rhs.0;
+        self.1 += rhs.1;
+        self.2 += rhs.2;
+        self.3 += rhs.3;
+        self.4 += rhs.4;
+        self.5 += rhs.5;
+        self.6 += rhs.6;
+        self.7 += rhs.7;
     }
 }
-use core::hash::BuildHasher;
+
 impl BuildHasher for Sha384State {
     type Hasher = Sha384Hasher;
 
     fn build_hasher(&self) -> Self::Hasher {
-        use internal_hasher::BlockHasher;
-        Sha384Hasher {
-            size: u128::MIN,
-            state: self.clone(),
-            padding: [0u8; Sha384Hasher::U8_PAD_SIZE as usize],
-        }
+        Self::Hasher::default()
     }
 }
+
+impl BytesLen for Sha384State {
+    fn len() -> usize {
+        BYTES_LEN
+    }
+}
+
 impl Default for Sha384State {
     fn default() -> Self {
         Self::from(HX)
     }
 }
+
 impl From<[u64; 8]> for Sha384State {
     fn from(v: [u64; 8]) -> Self {
-        Self(Sha512BitsState::from(v))
-    }
-}
-impl GenericStateHasher<u64> for Sha384State {
-    fn block_00_15(&mut self, w: &DWords<u64>) {
-        self.0.block_00_15(w)
-    }
-
-    fn block_16_31(&mut self, w: &mut DWords<u64>) {
-        self.0.block_16_31(w)
-    }
-
-    fn block_32_47(&mut self, w: &mut DWords<u64>) {
-        self.0.block_32_47(w)
-    }
-
-    fn block_48_63(&mut self, w: &mut DWords<u64>) {
-        self.0.block_48_63(w)
-    }
-
-    fn block_64_79(&mut self, w: &mut DWords<u64>) {
-        self.0.block_64_79(w)
-    }
-}
-use core::hash::{Hash, Hasher};
-
-impl Hash for Sha384State {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.0.hash(state);
+        Self(
+            NBitWord::from(v[0]),
+            NBitWord::from(v[1]),
+            NBitWord::from(v[2]),
+            NBitWord::from(v[3]),
+            NBitWord::from(v[4]),
+            NBitWord::from(v[5]),
+            NBitWord::from(v[6]),
+            NBitWord::from(v[7]),
+        )
     }
 }
 
-impl From<Sha384State> for [u8; 48] {
+impl From<Sha384State> for [u8; BYTES_LEN] {
     fn from(value: Sha384State) -> Self {
-        let a = u64::to_be_bytes(value.0 .0.into());
-        let b = u64::to_be_bytes(value.0 .0.into());
-        let c = u64::to_be_bytes(value.0 .0.into());
-        let d = u64::to_be_bytes(value.0 .0.into());
-        let e = u64::to_be_bytes(value.0 .0.into());
-        let f = u64::to_be_bytes(value.0 .0.into());
+        let a = u64::to_be_bytes(value.0.into());
+        let b = u64::to_be_bytes(value.1.into());
+        let c = u64::to_be_bytes(value.2.into());
+        let d = u64::to_be_bytes(value.3.into());
+        let e = u64::to_be_bytes(value.4.into());
+        let f = u64::to_be_bytes(value.5.into());
 
         [
             a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], c[0], c[1],
@@ -90,23 +97,55 @@ impl From<Sha384State> for [u8; 48] {
     }
 }
 
-impl LowerHex for Sha384State {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        LowerHex::fmt(&self.0 .0, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.0 .1, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.0 .2, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.0 .3, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.0 .4, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.0 .5, f)
+impl HashAlgorithm for Sha384State {
+    type Padding = U64Pad;
+    type Output = [u8; BYTES_LEN];
+
+    fn hash_block(&mut self, bytes: &[u8]) {
+        let mut state = Sha512BitsState(
+            self.0,
+            self.1,
+            self.2,
+            self.3,
+            self.4,
+            self.5,
+            self.6,
+            self.7,
+            DWords::<u64>::from(<&[u8; 128]>::try_from(bytes).unwrap()),
+        );
+
+        state.block_00_15();
+        state.block_16_31();
+        state.block_32_47();
+        state.block_48_63();
+        state.block_64_79();
+
+        *self += state;
+    }
+
+    fn state_to_u64(&self) -> u64 {
+        Into::<u64>::into(self.0) << 32 | Into::<u64>::into(self.1)
     }
 }
+
+impl LowerHex for Sha384State {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        LowerHex::fmt(&self.0, f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self.1, f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self.2, f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self.3, f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self.4, f).expect(LOWER_HEX_ERR);
+        LowerHex::fmt(&self.5, f)
+    }
+}
+
 impl UpperHex for Sha384State {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        UpperHex::fmt(&self.0 .0, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.0 .1, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.0 .2, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.0 .3, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.0 .4, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.0 .5, f)
+        UpperHex::fmt(&self.0, f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self.1, f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self.2, f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self.3, f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self.4, f).expect(UPPER_HEX_ERR);
+        UpperHex::fmt(&self.5, f)
     }
 }

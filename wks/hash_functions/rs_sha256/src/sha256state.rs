@@ -1,11 +1,12 @@
-use core::fmt::{Formatter, LowerHex, UpperHex};
-use core::hash::BuildHasher;
-use core::ops::AddAssign;
-use hash_ctx_lib::GenericHasher;
-use internal_hasher::{HashAlgorithm, U32Pad};
-use internal_state::{BytesLen, DWords, LOWER_HEX_ERR, NewGenericStateHasher, Sha256BitsState, UPPER_HEX_ERR};
-use n_bit_words_lib::NBitWord;
 use crate::Sha256Hasher;
+use core::{
+    fmt::{Formatter, LowerHex, UpperHex},
+    hash::BuildHasher,
+    ops::AddAssign
+};
+use internal_hasher::{HashAlgorithm, U32Pad};
+use internal_state::{BytesLen, DWords, NewGenericStateHasher, Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use n_bit_words_lib::NBitWord;
 
 const H0: u32 = 0x6A09E667;
 const H1: u32 = 0xBB67AE85;

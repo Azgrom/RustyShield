@@ -1,16 +1,7 @@
 use core::hash::{BuildHasher, Hash, Hasher};
 use criterion::{black_box, criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
 
-use rs_ssl::{
-    Sha1Hasher,
-    Sha224Hasher,
-    Sha256Hasher,
-    Sha384Hasher,
-    Sha512Hasher,
-    Sha512_224Hasher,
-    Sha512_256Hasher
-};
-
+use rs_ssl::{Sha1Hasher, Sha224Hasher, Sha256Hasher, Sha384Hasher, Sha512Hasher, Sha512_224Hasher, Sha512_256Hasher};
 
 const FUNCTIONS_BENCH_COMPARISON: &str = "Compare different SHA functions execution time";
 

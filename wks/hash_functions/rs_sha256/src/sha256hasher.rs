@@ -1,6 +1,6 @@
+use crate::Sha256State;
 use core::hash::Hasher;
 use hash_ctx_lib::{GenericHasher, NewHasherContext};
-use crate::Sha256State;
 
 /// The SHA-256 Hasher
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]

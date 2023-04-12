@@ -1,4 +1,5 @@
 extern crate alloc;
+use crate::sha1state::{H0, H1, H2, H3, H4};
 use crate::{Sha1Hasher, Sha1State};
 use alloc::{format, string::String};
 use core::{
@@ -6,7 +7,6 @@ use core::{
     hash::{BuildHasher, Hash},
 };
 use n_bit_words_lib::NBitWord;
-use crate::sha1state::{H0, H1, H2, H3, H4};
 
 type U32Word = NBitWord<u32>;
 
@@ -26,13 +26,8 @@ fn build_default_sha1_hasher() {
 #[test]
 fn default_sha1_state() {
     let default_state = Sha1State::default();
-    let expected_result = Sha1State(
-        U32Word::from(H0),
-        U32Word::from(H1),
-        U32Word::from(H2),
-        U32Word::from(H3),
-        U32Word::from(H4),
-    );
+    let expected_result =
+        Sha1State(U32Word::from(H0), U32Word::from(H1), U32Word::from(H2), U32Word::from(H3), U32Word::from(H4));
 
     assert_eq!(default_state, expected_result);
     assert_eq!(default_state.type_id(), expected_result.type_id());

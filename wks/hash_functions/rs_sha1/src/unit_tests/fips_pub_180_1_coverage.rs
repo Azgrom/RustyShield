@@ -1,11 +1,10 @@
 extern crate alloc;
+use crate::sha1state::{H0, H1, H2, H3, H4};
+use crate::{Sha1Hasher, Sha1State};
 use alloc::vec;
 use core::hash::{BuildHasher, Hasher};
 use internal_hasher::{BytePad, HasherPadOps, PAD_FOR_U32_WORDS, U8_PAD_FOR_U32_SIZE};
 use internal_state::{DWords, NewGenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
-use crate::{Sha1Hasher, Sha1State};
-use crate::sha1state::{H0, H1, H2, H3, H4};
-
 
 const MESSAGE: &str = "abc";
 
@@ -192,12 +191,13 @@ fn assert_hash_values_integrity_for_each_step_16_to_19() {
         2: state.2,
         3: state.3,
         4: state.4,
-        5: words
+        5: words,
     };
     sha160bits_state.block_00_15();
     sha160bits_state.next_words();
 
-    state = Sha1State(sha160bits_state.0, sha160bits_state.1, sha160bits_state.2, sha160bits_state.3, sha160bits_state.4);
+    state =
+        Sha1State(sha160bits_state.0, sha160bits_state.1, sha160bits_state.2, sha160bits_state.3, sha160bits_state.4);
     words = sha160bits_state.5;
 
     Rnd(&state.4, &mut state.0, &state.1, &state.2, &mut state.3, &words[0]).rounds_00_19();
