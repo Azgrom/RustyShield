@@ -1,13 +1,13 @@
 use crate::Sha512State;
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
+use hash_ctx_lib::{U128MaxGenericHasher, HasherContext};
 
 #[derive(Clone, Debug)]
-pub struct Sha512Hasher(GenericHasher<Sha512State>);
+pub struct Sha512Hasher(U128MaxGenericHasher<Sha512State>);
 
 impl Default for Sha512Hasher {
     fn default() -> Self {
-        Self(GenericHasher::default())
+        Self(U128MaxGenericHasher::default())
     }
 }
 

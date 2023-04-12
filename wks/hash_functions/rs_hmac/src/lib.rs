@@ -1,7 +1,7 @@
 #![no_std]
 
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
+use hash_ctx_lib::{U64MaxGenericHasher, HasherContext};
 use internal_hasher::{HashAlgorithm, LenPad};
 use internal_state::BytesLen;
 
@@ -17,8 +17,8 @@ const OUTER_PAD: u8 = 0x5c;
 /// use rs_sha1::Sha1State;
 /// ```
 pub struct Hmac<H: HashAlgorithm> {
-    inner_hasher: GenericHasher<H>,
-    outer_hasher: GenericHasher<H>,
+    inner_hasher: U64MaxGenericHasher<H>,
+    outer_hasher: U64MaxGenericHasher<H>,
 }
 
 impl<H> Hmac<H>
@@ -44,7 +44,7 @@ where
         let mut outer_key = H::Padding::default();
 
         if key.len() > H::Padding::len() {
-            let mut hasher: GenericHasher<H> = GenericHasher::default();
+            let mut hasher: U64MaxGenericHasher<H> = U64MaxGenericHasher::default();
             hasher.write(key);
             let bytes_output: H::Output = HasherContext::finish(&mut hasher).into();
 
@@ -60,8 +60,8 @@ where
             *o ^= OUTER_PAD;
         }
 
-        let mut inner_hasher = GenericHasher::default();
-        let mut outer_hasher = GenericHasher::default();
+        let mut inner_hasher = U64MaxGenericHasher::default();
+        let mut outer_hasher = U64MaxGenericHasher::default();
 
         inner_hasher.write(inner_key.as_ref());
         outer_hasher.write(outer_key.as_ref());

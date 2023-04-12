@@ -3,13 +3,13 @@ use core::hash::Hasher;
 use internal_hasher::{BytePad, HashAlgorithm, HasherPadOps, LenPad};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
-pub struct GenericHasher<H: HashAlgorithm> {
+pub struct U64MaxGenericHasher<H: HashAlgorithm> {
     pub padding: H::Padding,
     pub state: H,
     pub size: u64,
 }
 
-impl<H: HashAlgorithm> HasherPadOps for GenericHasher<H> {
+impl<H: HashAlgorithm> HasherPadOps for U64MaxGenericHasher<H> {
     fn size_mod_pad(&self) -> usize {
         (self.size & self.padding.last_index() as u64) as usize
     }
@@ -19,7 +19,7 @@ impl<H: HashAlgorithm> HasherPadOps for GenericHasher<H> {
     }
 }
 
-impl<H: HashAlgorithm + Default> Default for GenericHasher<H> {
+impl<H: HashAlgorithm + Default> Default for U64MaxGenericHasher<H> {
     fn default() -> Self {
         Self {
             padding: H::Padding::default(),
@@ -29,7 +29,7 @@ impl<H: HashAlgorithm + Default> Default for GenericHasher<H> {
     }
 }
 
-impl<H: HashAlgorithm> HasherContext for GenericHasher<H> {
+impl<H: HashAlgorithm> HasherContext for U64MaxGenericHasher<H> {
     type State = H;
 
     fn finish(&mut self) -> Self::State {
@@ -45,7 +45,7 @@ impl<H: HashAlgorithm> HasherContext for GenericHasher<H> {
     }
 }
 
-impl<H: HashAlgorithm> Hasher for GenericHasher<H> {
+impl<H: HashAlgorithm> Hasher for U64MaxGenericHasher<H> {
     fn finish(&self) -> u64 {
         let mut hasher = self.clone();
         HasherContext::finish(&mut hasher).state_to_u64()
@@ -81,39 +81,3 @@ impl<H: HashAlgorithm> Hasher for GenericHasher<H> {
         }
     }
 }
-
-// #[macro_export]
-// macro_rules! define_sha_hasher {
-//     ($THasherName:tt, $TState:tt) => {
-//         #[derive(Clone, Debug, Hash, PartialEq, Eq)]
-//         pub struct $THasherName(GenericHasher<$TState>);
-//
-//         impl Default for $THasherName {
-//             fn default() -> Self {
-//                 Self(GenericHasher::default())
-//             }
-//         }
-//
-//         impl Hasher for $THasherName {
-//             /// Finish the hash and return the hash value as a `u64`.
-//             fn finish(&self) -> u64 {
-//                 self.0.finish()
-//             }
-//
-//             /// Write a byte array to the hasher.
-//             /// This hasher can digest up to `u64::MAX` bytes. If more bytes are written, the hasher will panic.
-//             fn write(&mut self, bytes: &[u8]) {
-//                 self.0.write(bytes)
-//             }
-//         }
-//
-//         impl NewHasherContext for $THasherName {
-//             type State = $TState;
-//
-//             /// Finish the hash and return its resulting state.
-//             fn finish(&mut self) -> Self::State {
-//                 NewHasherContext::finish(&mut self.0)
-//             }
-//         }
-//     }
-// }

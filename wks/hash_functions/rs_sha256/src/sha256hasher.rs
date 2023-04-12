@@ -1,14 +1,14 @@
 use crate::Sha256State;
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
+use hash_ctx_lib::{U64MaxGenericHasher, HasherContext};
 
 /// The SHA-256 Hasher
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct Sha256Hasher(GenericHasher<Sha256State>);
+pub struct Sha256Hasher(U64MaxGenericHasher<Sha256State>);
 
 impl Default for Sha256Hasher {
     fn default() -> Self {
-        Self(GenericHasher::default())
+        Self(U64MaxGenericHasher::default())
     }
 }
 

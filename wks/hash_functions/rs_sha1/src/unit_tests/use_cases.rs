@@ -119,8 +119,8 @@ fn test_phrases_with_their_bytes_sequences() {
     let big_str_sha1_ctx = Sha1State::default();
     let mut sha1hasher = big_str_sha1_ctx.build_hasher();
     sha1hasher.write(random_big_string.as_ref());
-    HasherContext::finish(&mut sha1hasher);
-    let digest_result = Into::<[u8; 20]>::into(sha1hasher.state);
+    let sha1state = HasherContext::finish(&mut sha1hasher);
+    let digest_result = Into::<[u8; 20]>::into(sha1state);
     assert_eq!(
         digest_result.as_ref(),
         [
