@@ -1,7 +1,8 @@
-use core::ops::{AddAssign, Index, IndexMut, RangeTo};
-use crate::{BytePad, LenPad};
 use crate::constants::{PAD_FOR_U64_WORDS, U8_PAD_FOR_U64_SIZE};
+use crate::{BytePad, LenPad};
+use core::ops::{AddAssign, Index, IndexMut, RangeTo};
 
+#[derive(Clone, Debug)]
 pub struct U64Pad {
     pub size: u128,
     pub pad: [u8; U8_PAD_FOR_U64_SIZE],
@@ -39,7 +40,7 @@ impl Default for U64Pad {
     fn default() -> Self {
         Self {
             size: 0,
-            pad: PAD_FOR_U64_WORDS
+            pad: PAD_FOR_U64_WORDS,
         }
     }
 }
