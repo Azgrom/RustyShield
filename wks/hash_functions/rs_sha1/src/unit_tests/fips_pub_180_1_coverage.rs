@@ -1,18 +1,18 @@
 extern crate alloc;
 use crate::sha1state::{H0, H1, H2, H3, H4};
-use crate::{Sha1State};
+use crate::Sha1State;
 use alloc::vec;
 use core::hash::{BuildHasher, Hasher};
-use hash_ctx_lib::U64MaxGenericHasher;
+use hash_ctx_lib::GenericHasher;
 use internal_hasher::{BytePad, HasherPadOps, PAD_FOR_U32_WORDS, U8_PAD_FOR_U32_SIZE};
 use internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
 
 const MESSAGE: &str = "abc";
 
-fn instantiate_and_preprocess_abc_message() -> U64MaxGenericHasher<Sha1State> {
-    let mut sha1hasher = U64MaxGenericHasher::<Sha1State>::default();
+fn instantiate_and_preprocess_abc_message() -> GenericHasher<Sha1State> {
+    let mut sha1hasher = GenericHasher::<Sha1State>::default();
     Hasher::write(&mut sha1hasher, MESSAGE.as_ref());
-    let zero_padding_length = U64MaxGenericHasher::<Sha1State>::zeros_pad(&sha1hasher) as usize;
+    let zero_padding_length = GenericHasher::<Sha1State>::zeros_pad(&sha1hasher) as usize;
     let pad_len: [u8; 8] = (sha1hasher.size * 8).to_be_bytes();
     let mut offset_pad = PAD_FOR_U32_WORDS;
     offset_pad[0] = 0x80;
@@ -23,8 +23,8 @@ fn instantiate_and_preprocess_abc_message() -> U64MaxGenericHasher<Sha1State> {
     sha1hasher
 }
 
-fn completed_words(hasher: &mut U64MaxGenericHasher<Sha1State>) {
-    let zero_padding_len = U64MaxGenericHasher::<Sha1State>::zeros_pad(hasher) as usize;
+fn completed_words(hasher: &mut GenericHasher<Sha1State>) {
+    let zero_padding_len = GenericHasher::<Sha1State>::zeros_pad(hasher) as usize;
     let mut offset_pad: [u8; U8_PAD_FOR_U32_SIZE] = [0u8; U8_PAD_FOR_U32_SIZE];
     offset_pad[0] = 0x80;
 
@@ -42,7 +42,7 @@ fn completed_words(hasher: &mut U64MaxGenericHasher<Sha1State>) {
 
 #[test]
 fn start_processing_rounds_integrity() {
-    let mut hasher = U64MaxGenericHasher::<Sha1State>::default();
+    let mut hasher = GenericHasher::<Sha1State>::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
 
     let expected_rounds_of_words_1: [u8; U8_PAD_FOR_U32_SIZE] =

@@ -1,10 +1,8 @@
 #![no_std]
 
-pub use u128_max_generic_hasher::U128MaxGenericHasher;
-pub use u64_max_generic_hasher::U64MaxGenericHasher;
+pub use generic_hasher::GenericHasher;
 
-mod u64_max_generic_hasher;
-mod u128_max_generic_hasher;
+mod generic_hasher;
 
 /// Overloads the finish Hasher method for a version that mutates itself
 pub trait HasherContext {

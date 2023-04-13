@@ -1,15 +1,15 @@
 use crate::HasherContext;
 use core::hash::Hasher;
-use internal_hasher::{BytePad, HashAlgorithm, HasherPadOps, LenPad};
+use internal_hasher::{BigEndianBytes, BytePad, HashAlgorithm, HasherPadOps, LenPad};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
-pub struct U64MaxGenericHasher<H: HashAlgorithm> {
+pub struct GenericHasher<H: HashAlgorithm> {
     pub padding: H::Padding,
     pub state: H,
-    pub size: u64,
+    pub size: H::SizeBigEndianByteArray,
 }
 
-impl<H: HashAlgorithm> HasherPadOps for U64MaxGenericHasher<H> {
+impl<H: HashAlgorithm> HasherPadOps for GenericHasher<H> {
     fn size_mod_pad(&self) -> usize {
         (self.size & self.padding.last_index() as u64) as usize
     }
@@ -19,17 +19,17 @@ impl<H: HashAlgorithm> HasherPadOps for U64MaxGenericHasher<H> {
     }
 }
 
-impl<H: HashAlgorithm + Default> Default for U64MaxGenericHasher<H> {
+impl<H: HashAlgorithm + Default> Default for GenericHasher<H> {
     fn default() -> Self {
         Self {
             padding: H::Padding::default(),
             state: H::default(),
-            size: u64::MIN,
+            size: u64::MIN.into(),
         }
     }
 }
 
-impl<H: HashAlgorithm> HasherContext for U64MaxGenericHasher<H> {
+impl<H: HashAlgorithm> HasherContext for GenericHasher<H> {
     type State = H;
 
     fn finish(&mut self) -> Self::State {
@@ -37,15 +37,15 @@ impl<H: HashAlgorithm> HasherContext for U64MaxGenericHasher<H> {
         let mut offset = H::Padding::default();
         offset[0] = 0x80;
 
-        let len = (self.size * 8).to_be_bytes();
+        let len = H::SizeBigEndianByteArray::to_be_bytes(&(self.size * 8u32));
         self.write(&offset[..zeros_pad]);
-        self.write(&len);
+        self.write(len.as_ref());
 
         self.state.clone()
     }
 }
 
-impl<H: HashAlgorithm> Hasher for U64MaxGenericHasher<H> {
+impl<H: HashAlgorithm> Hasher for GenericHasher<H> {
     fn finish(&self) -> u64 {
         let mut hasher = self.clone();
         HasherContext::finish(&mut hasher).state_to_u64()

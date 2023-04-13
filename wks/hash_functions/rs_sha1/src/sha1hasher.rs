@@ -1,15 +1,15 @@
 use crate::Sha1State;
 use core::hash::Hasher;
-use hash_ctx_lib::{U64MaxGenericHasher, HasherContext};
+use hash_ctx_lib::{GenericHasher, HasherContext};
 use internal_hasher::HasherPadOps;
 
 /// The SHA-1 Hasher
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct Sha1Hasher(U64MaxGenericHasher<Sha1State>);
+pub struct Sha1Hasher(GenericHasher<Sha1State>);
 
 impl Default for Sha1Hasher {
     fn default() -> Self {
-        Self(U64MaxGenericHasher::default())
+        Self(GenericHasher::default())
     }
 }
 

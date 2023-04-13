@@ -1,13 +1,13 @@
 use crate::Sha384State;
 use core::hash::Hasher;
-use hash_ctx_lib::{U128MaxGenericHasher, HasherContext};
+use hash_ctx_lib::{GenericHasher, HasherContext};
 
 #[derive(Clone, Debug)]
-pub struct Sha384Hasher(U128MaxGenericHasher<Sha384State>);
+pub struct Sha384Hasher(GenericHasher<Sha384State>);
 
 impl Default for Sha384Hasher {
     fn default() -> Self {
-        Self(U128MaxGenericHasher::default())
+        Self(GenericHasher::default())
     }
 }
 
