@@ -4,7 +4,7 @@ use crate::Sha1State;
 use alloc::vec;
 use core::hash::{BuildHasher, Hasher};
 use hash_ctx_lib::GenericHasher;
-use internal_hasher::{BytePad, HasherPadOps, PAD_FOR_U32_WORDS, U8_PAD_FOR_U32_SIZE};
+use internal_hasher::{BigEndianBytes, BytePad, HasherPadOps, PAD_FOR_U32_WORDS, U8_PAD_FOR_U32_SIZE};
 use internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
 
 const MESSAGE: &str = "abc";
@@ -28,13 +28,13 @@ fn completed_words(hasher: &mut GenericHasher<Sha1State>) {
     let mut offset_pad: [u8; U8_PAD_FOR_U32_SIZE] = [0u8; U8_PAD_FOR_U32_SIZE];
     offset_pad[0] = 0x80;
 
-    let mut len_w = hasher.size as usize & hasher.padding.last_index() as usize;
+    let mut len_w = (hasher.size & hasher.padding.last_index() as u64) as usize;
     let mut left = U8_PAD_FOR_U32_SIZE - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&offset_pad[..left]);
     hasher.size += zero_padding_len as u64;
 
     let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
-    len_w = hasher.size as usize & hasher.padding.last_index() as usize;
+    len_w = (hasher.size & hasher.padding.last_index() as u64) as usize;
     left = U8_PAD_FOR_U32_SIZE - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&pad_len);
     hasher.size += zero_padding_len as u64;

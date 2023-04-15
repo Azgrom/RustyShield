@@ -10,5 +10,6 @@ pub use rotors::sha160rotor::Sha160Rotor;
 
 mod bytes_len;
 mod d_words;
+mod keccak_state;
 mod n_bit_states;
 mod rotors;

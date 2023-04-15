@@ -6,13 +6,20 @@ where
         + BitOr<Output = Self>
         + BitXor<Output = Self>
         + Copy
-        + Shl<Output = Self>
-        + Shr<Output = Self>
+        + Shl<u32, Output = T>
+        + Shr<u32, Output = Self>
         + Sized,
+    T: BitOr<Self, Output = Self>,
     u32: Sub<Self, Output = Self>,
 {
     const BITS: u32;
     const SIZE: usize;
+
+    fn gamma0(&self) -> Self;
+    fn gamma1(&self) -> Self;
+    fn new(value: usize) -> T;
+    fn sigma0(&self) -> Self;
+    fn sigma1(&self) -> Self;
 
     #[inline(always)]
     fn ch(x: Self, y: Self, z: Self) -> Self {
@@ -28,21 +35,4 @@ where
     fn parity(x: Self, y: Self, z: Self) -> Self {
         x ^ y ^ z
     }
-
-    fn rotate(x: Self, left: Self, right: Self) -> Self {
-        (x << left) | (x >> right)
-    }
-
-    fn rotate_left(self, n: Self) -> Self {
-        Self::rotate(self, n, Self::BITS - n)
-    }
-
-    fn rotate_right(self, n: Self) -> Self {
-        Self::rotate(self, Self::BITS - n, n)
-    }
-
-    fn gamma0(self) -> Self;
-    fn gamma1(self) -> Self;
-    fn sigma0(self) -> Self;
-    fn sigma1(self) -> Self;
 }

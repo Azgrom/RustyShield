@@ -2,7 +2,7 @@ use crate::n_bit_states::GenericStateHasher;
 use crate::rotors::sha160rotor::Sha160Rotor as Rotor;
 use crate::DWords;
 use core::hash::Hash;
-use n_bit_words_lib::{NBitWord, TSize};
+use n_bit_words_lib::{NBitWord, Rotate, TSize};
 
 #[derive(Debug, Hash, PartialEq)]
 pub struct Sha160BitsState(

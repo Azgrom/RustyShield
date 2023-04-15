@@ -1,4 +1,4 @@
-use n_bit_words_lib::{NBitWord, TSize};
+use n_bit_words_lib::{NBitWord, Rotate, TSize};
 
 pub struct Sha160Rotor<'a, 'b, 'c, 'd, 'e, 'f>(
     pub &'a NBitWord<u32>,
