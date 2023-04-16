@@ -2,16 +2,16 @@
 
 pub use crate::rotate::Rotate;
 pub use crate::t_size::TSize;
+use core::ops::{BitAndAssign, BitXorAssign, Not};
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::{Hash, Hasher},
     num::Wrapping,
     ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shl, Shr, Sub},
 };
-use core::ops::{BitAndAssign, BitXorAssign, Not};
 
-mod t_size;
 mod rotate;
+mod t_size;
 
 #[cfg(test)]
 mod unit_tests;
@@ -59,11 +59,11 @@ impl Rotate for NBitWord<u32> {
 
 impl Rotate for NBitWord<u64> {
     fn rotate_right(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_right(n.0.0 as u32)))
+        NBitWord(Wrapping(self.0 .0.rotate_right(n.0 .0 as u32)))
     }
 
     fn rotate_left(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_left(n.0.0 as u32)))
+        NBitWord(Wrapping(self.0 .0.rotate_left(n.0 .0 as u32)))
     }
 }
 
@@ -76,7 +76,8 @@ impl TSize<u8> for NBitWord<u8> {
     }
 
     fn gamma1(&self) -> Self {
-        ((((self.rotate_right(Self(Wrapping(5)))) ^ *self) >> Self(Wrapping(2))) ^ *self).rotate_right(Self(Wrapping(4)))
+        ((((self.rotate_right(Self(Wrapping(5)))) ^ *self) >> Self(Wrapping(2))) ^ *self)
+            .rotate_right(Self(Wrapping(4)))
     }
 
     fn new(value: usize) -> u8 {
@@ -84,11 +85,13 @@ impl TSize<u8> for NBitWord<u8> {
     }
 
     fn sigma0(&self) -> Self {
-        (((self.rotate_right(Self(Wrapping(1)))) ^ self.rotate_right(Self(Wrapping(2))))) ^ self.rotate_right(Self(Wrapping(4)))
+        ((self.rotate_right(Self(Wrapping(1)))) ^ self.rotate_right(Self(Wrapping(2))))
+            ^ self.rotate_right(Self(Wrapping(4)))
     }
 
     fn sigma1(&self) -> Self {
-        (((self.rotate_right(Self(Wrapping(3)))) ^ self.rotate_right(Self(Wrapping(4))))) ^ self.rotate_right(Self(Wrapping(2)))
+        ((self.rotate_right(Self(Wrapping(3)))) ^ self.rotate_right(Self(Wrapping(4))))
+            ^ self.rotate_right(Self(Wrapping(2)))
     }
 }
 
@@ -97,13 +100,11 @@ impl TSize<u16> for NBitWord<u16> {
     const SIZE: usize = 2;
 
     fn gamma0(&self) -> Self {
-        (((self.rotate_right(Self(Wrapping(5)))) ^ *self) >> Self(Wrapping(1)))
-            ^ self.rotate_right(Self(Wrapping(2)))
+        (((self.rotate_right(Self(Wrapping(5)))) ^ *self) >> Self(Wrapping(1))) ^ self.rotate_right(Self(Wrapping(2)))
     }
 
     fn gamma1(&self) -> Self {
-        (((self.rotate_right(Self(Wrapping(9)))) ^ *self) >> Self(Wrapping(2)))
-            ^ self.rotate_right(Self(Wrapping(6)))
+        (((self.rotate_right(Self(Wrapping(9)))) ^ *self) >> Self(Wrapping(2))) ^ self.rotate_right(Self(Wrapping(6)))
     }
 
     fn new(value: usize) -> u16 {
@@ -111,12 +112,12 @@ impl TSize<u16> for NBitWord<u16> {
     }
 
     fn sigma0(&self) -> Self {
-        (((self.rotate_right(Self(Wrapping(1)))) ^ self.rotate_right(Self(Wrapping(4)))))
+        ((self.rotate_right(Self(Wrapping(1)))) ^ self.rotate_right(Self(Wrapping(4))))
             ^ self.rotate_right(Self(Wrapping(8)))
     }
 
     fn sigma1(&self) -> Self {
-        (((self.rotate_right(Self(Wrapping(5)))) ^ self.rotate_right(Self(Wrapping(7)))))
+        ((self.rotate_right(Self(Wrapping(5)))) ^ self.rotate_right(Self(Wrapping(7))))
             ^ self.rotate_right(Self(Wrapping(4)))
     }
 }
@@ -138,11 +139,13 @@ impl TSize<u32> for NBitWord<u32> {
     }
 
     fn sigma0(&self) -> Self {
-        ((((self.rotate_right(Self(Wrapping(9))))) ^ *self).rotate_right(Self(Wrapping(11))) ^ *self).rotate_right(Self(Wrapping(2)))
+        (((self.rotate_right(Self(Wrapping(9)))) ^ *self).rotate_right(Self(Wrapping(11))) ^ *self)
+            .rotate_right(Self(Wrapping(2)))
     }
 
     fn sigma1(&self) -> Self {
-        ((((self.rotate_right(Self(Wrapping(14)))) ^ *self).rotate_right(Self(Wrapping(5)))) ^ *self).rotate_right(Self(Wrapping(6)))
+        ((((self.rotate_right(Self(Wrapping(14)))) ^ *self).rotate_right(Self(Wrapping(5)))) ^ *self)
+            .rotate_right(Self(Wrapping(6)))
     }
 }
 
@@ -230,10 +233,10 @@ where
 
 impl<T> BitAndAssign for NBitWord<T>
 where
-T: BitAndAssign
+    T: BitAndAssign,
 {
     fn bitand_assign(&mut self, rhs: Self) {
-        self.0.0.bitand_assign(rhs.0.0)
+        self.0 .0.bitand_assign(rhs.0 .0)
     }
 }
 
@@ -252,7 +255,7 @@ impl BitOr<NBitWord<u8>> for u8 {
     type Output = NBitWord<u8>;
 
     fn bitor(self, rhs: NBitWord<u8>) -> Self::Output {
-        NBitWord(Wrapping(self | rhs.0.0))
+        NBitWord(Wrapping(self | rhs.0 .0))
     }
 }
 
@@ -260,7 +263,7 @@ impl BitOr<NBitWord<u16>> for u16 {
     type Output = NBitWord<u16>;
 
     fn bitor(self, rhs: NBitWord<u16>) -> Self::Output {
-        NBitWord(Wrapping(self | rhs.0.0))
+        NBitWord(Wrapping(self | rhs.0 .0))
     }
 }
 
@@ -268,7 +271,7 @@ impl BitOr<NBitWord<u32>> for u32 {
     type Output = NBitWord<u32>;
 
     fn bitor(self, rhs: NBitWord<u32>) -> Self::Output {
-        NBitWord(Wrapping(self | rhs.0.0))
+        NBitWord(Wrapping(self | rhs.0 .0))
     }
 }
 
@@ -276,7 +279,7 @@ impl BitOr<NBitWord<u64>> for u64 {
     type Output = NBitWord<u64>;
 
     fn bitor(self, rhs: NBitWord<u64>) -> Self::Output {
-        NBitWord(Wrapping(self | rhs.0.0))
+        NBitWord(Wrapping(self | rhs.0 .0))
     }
 }
 
@@ -293,10 +296,10 @@ where
 
 impl<T> BitXorAssign for NBitWord<T>
 where
-T: BitXorAssign
+    T: BitXorAssign,
 {
     fn bitxor_assign(&mut self, rhs: Self) {
-        self.0.0.bitxor_assign(rhs.0.0)
+        self.0 .0.bitxor_assign(rhs.0 .0)
     }
 }
 
@@ -367,7 +370,8 @@ where
 }
 
 impl<T> Not for NBitWord<T>
-where T: Not<Output = T>
+where
+    T: Not<Output = T>,
 {
     type Output = Self;
 
@@ -397,7 +401,7 @@ impl Shl<u32> for NBitWord<u8> {
     type Output = u8;
 
     fn shl(self, rhs: u32) -> Self::Output {
-        self.0.0 << rhs
+        self.0 .0 << rhs
     }
 }
 
@@ -405,7 +409,7 @@ impl Shl<u32> for NBitWord<u16> {
     type Output = u16;
 
     fn shl(self, rhs: u32) -> Self::Output {
-        self.0.0 << rhs
+        self.0 .0 << rhs
     }
 }
 
@@ -413,7 +417,7 @@ impl Shl<u32> for NBitWord<u32> {
     type Output = u32;
 
     fn shl(self, rhs: u32) -> Self::Output {
-        self.0.0 << rhs
+        self.0 .0 << rhs
     }
 }
 
@@ -421,7 +425,7 @@ impl Shl<u32> for NBitWord<u64> {
     type Output = u64;
 
     fn shl(self, rhs: u32) -> Self::Output {
-        self.0.0 << rhs
+        self.0 .0 << rhs
     }
 }
 

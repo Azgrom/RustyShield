@@ -1,5 +1,5 @@
-use core::ops::{AddAssign, BitAnd, Mul};
 use crate::BigEndianBytes;
+use core::ops::{AddAssign, BitAnd, Mul};
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct U128Size(u128);

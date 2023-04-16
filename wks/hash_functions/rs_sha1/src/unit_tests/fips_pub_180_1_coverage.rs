@@ -2,7 +2,7 @@ extern crate alloc;
 use crate::sha1state::{H0, H1, H2, H3, H4};
 use crate::Sha1State;
 use alloc::vec;
-use core::hash::{BuildHasher, Hasher};
+use core::hash::Hasher;
 use hash_ctx_lib::GenericHasher;
 use internal_hasher::{BigEndianBytes, BytePad, HasherPadOps, PAD_FOR_U32_WORDS, U8_PAD_FOR_U32_SIZE};
 use internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
