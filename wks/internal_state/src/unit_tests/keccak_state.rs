@@ -69,7 +69,6 @@ fn assert_theta_correctness() {
 fn assert_rho_correctness() {
     let mut state = KeccakState::from(INITIAL_STATE);
     state.rho();
-    let string = format!("{state:016X?}");
     assert_eq!(state, KeccakState::from(AFTER_RHO_STATE));
 }
 
@@ -85,4 +84,30 @@ fn assert_chi_correctness() {
     let mut state = KeccakState::from(INITIAL_STATE);
     state.chi();
     assert_eq!(state, KeccakState::from(AFTER_CHI_STATE));
+}
+
+#[test]
+fn assert_iota_first_cycle_correctness() {
+    let mut state = KeccakState::from(INITIAL_STATE);
+    state.theta();
+    state.rho();
+    state.pi();
+    state.chi();
+    state.iota(0);
+    assert_eq!(state, KeccakState::from(AFTER_IOTA_STATE_ON_FIRST_CYCLE));
+}
+
+#[test]
+fn assert_iota_two_cycles_correctness() {
+    let mut state = KeccakState::from(INITIAL_STATE);
+
+    for i in 0..2 {
+        state.theta();
+        state.rho();
+        state.pi();
+        state.chi();
+        state.iota(i);
+    }
+
+    assert_eq!(state, KeccakState::from(AFTER_IOTA_STATE_ON_SECOND_CYCLE));
 }
