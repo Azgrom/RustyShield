@@ -9,16 +9,6 @@ pub struct GenericHasher<H: HashAlgorithm> {
     pub size: H::SizeBigEndianByteArray,
 }
 
-impl<H: HashAlgorithm> HasherPadOps for GenericHasher<H> {
-    fn size_mod_pad(&self) -> usize {
-        (self.size & self.padding.last_index() as u64) as usize
-    }
-
-    fn zeros_pad(&self) -> usize {
-        1 + (self.padding.last_index() & (self.padding.offset().wrapping_sub(self.size_mod_pad())))
-    }
-}
-
 impl<H: HashAlgorithm + Default> Default for GenericHasher<H> {
     fn default() -> Self {
         Self {
@@ -26,22 +16,6 @@ impl<H: HashAlgorithm + Default> Default for GenericHasher<H> {
             state: H::default(),
             size: u64::MIN.into(),
         }
-    }
-}
-
-impl<H: HashAlgorithm> HasherContext for GenericHasher<H> {
-    type State = H;
-
-    fn finish(&mut self) -> Self::State {
-        let zeros_pad = self.zeros_pad();
-        let mut offset = H::Padding::default();
-        offset[0] = 0x80;
-
-        let len = H::SizeBigEndianByteArray::to_be_bytes(&(self.size * 8u32));
-        self.write(&offset[..zeros_pad]);
-        self.write(len.as_ref());
-
-        self.state.clone()
     }
 }
 
@@ -79,5 +53,31 @@ impl<H: HashAlgorithm> Hasher for GenericHasher<H> {
         if !bytes.is_empty() {
             self.padding.as_mut()[..bytes.len()].clone_from_slice(&bytes[..]);
         }
+    }
+}
+
+impl<H: HashAlgorithm> HasherContext for GenericHasher<H> {
+    type State = H;
+
+    fn finish(&mut self) -> Self::State {
+        let zeros_pad = self.zeros_pad();
+        let mut offset = H::Padding::default();
+        offset[0] = 0x80;
+
+        let len = H::SizeBigEndianByteArray::to_be_bytes(&(self.size * 8u32));
+        self.write(&offset[..zeros_pad]);
+        self.write(len.as_ref());
+
+        self.state.clone()
+    }
+}
+
+impl<H: HashAlgorithm> HasherPadOps for GenericHasher<H> {
+    fn size_mod_pad(&self) -> usize {
+        (self.size & self.padding.last_index() as u64) as usize
+    }
+
+    fn zeros_pad(&self) -> usize {
+        1 + (self.padding.last_index() & (self.padding.offset().wrapping_sub(self.size_mod_pad())))
     }
 }

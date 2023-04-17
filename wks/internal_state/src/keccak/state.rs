@@ -1,13 +1,10 @@
-use crate::{
-    keccak::chi::Chi,
-    keccak::iota::Iota,
-    keccak::pi::Pi,
-    keccak::rho::Rho,
-    keccak::theta::Theta,
-    keccak::{HEIGHT, RC, WIDTH},
-};
+use crate::{keccak::chi::Chi, keccak::iota::Iota, keccak::pi::Pi, keccak::rho::Rho, keccak::theta::Theta, keccak::{HEIGHT, RC, WIDTH}, KeccakSponge};
+use core::iter::Flatten;
+use core::mem::size_of;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
-use n_bit_words_lib::{NBitWord, Rotate, TSize};
+use core::slice::IterMut;
+use n_bit_words_lib::{FromLittleEndianBytes, NBitWord, Rotate, TSize};
+use crate::keccak::from_bytes::FromBytes;
 
 /// `KeccakState<T>` represents the internal state of the Keccak-based permutations with a variable width.
 /// It is used as the foundation for various NIST-validated hash algorithms and other Keccak-based constructions.
@@ -45,26 +42,29 @@ pub struct KeccakState<T: Default + Copy> {
 
 impl<T> KeccakState<T>
 where
-    T: BitAndAssign + BitXorAssign + Clone + Copy + Default + Not<Output = T>,
+    T: BitAnd
+        + BitAndAssign
+        + BitOr<NBitWord<T>, Output = NBitWord<T>>
+        + BitXor<Output = T>
+        + BitXorAssign
+        + Copy
+        + Default
+        + Not<Output = T>,
+    NBitWord<T>: From<u64> + FromLittleEndianBytes + Rotate + TSize<T>,
+    u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
-    fn and(&mut self, row: usize, col: usize, value: NBitWord<T>) {
-        self.lanes[row][col] &= value;
+    pub(crate) fn apply_f(&mut self) {
+        for i in 0..24 {
+            self.theta();
+            self.rho();
+            self.pi();
+            self.chi();
+            self.iota(i);
+        }
     }
 
-    fn not(&mut self, row: usize, col: usize) {
-        self.lanes[row][col] = !self.lanes[row][col];
-    }
-
-    fn read(&self, row: usize, col: usize) -> NBitWord<T> {
-        self.lanes[row][col]
-    }
-
-    fn xor(&mut self, row: usize, col: usize, value: NBitWord<T>) {
-        self.lanes[row][col] ^= value;
-    }
-
-    fn write(&mut self, row: usize, col: usize, value: NBitWord<T>) {
-        self.lanes[row][col] = value;
+    pub(crate) fn write_into(&mut self, i: usize, le_bytes: &[u8]) {
+        self.lanes[i / WIDTH][i % HEIGHT] = NBitWord::from_le_bytes(&le_bytes)
     }
 }
 

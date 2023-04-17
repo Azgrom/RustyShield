@@ -1,15 +1,15 @@
 #![no_std]
 
-pub use crate::rotate::Rotate;
-pub use crate::t_size::TSize;
-use core::ops::{BitAndAssign, BitXorAssign, Not};
+pub use crate::{little_endian::FromLittleEndianBytes, rotate::Rotate, t_size::TSize};
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::{Hash, Hasher},
     num::Wrapping,
     ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shl, Shr, Sub},
+    ops::{BitAndAssign, BitXorAssign, Not},
 };
 
+mod little_endian;
 mod rotate;
 mod t_size;
 
@@ -26,6 +26,30 @@ mod unit_tests;
 /// and `S1(e) = (((e >>> 14) ^ e) >>> 5) ^ e) >>> 6`
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct NBitWord<T>(Wrapping<T>);
+
+impl FromLittleEndianBytes for NBitWord<u8> {
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        Self(Wrapping(u8::from_le_bytes(<[u8; 1]>::try_from(bytes).unwrap())))
+    }
+}
+
+impl FromLittleEndianBytes for NBitWord<u16> {
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        Self(Wrapping(u16::from_le_bytes(<[u8; 2]>::try_from(bytes).unwrap())))
+    }
+}
+
+impl FromLittleEndianBytes for NBitWord<u32> {
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        Self(Wrapping(u32::from_le_bytes(<[u8; 4]>::try_from(bytes).unwrap())))
+    }
+}
+
+impl FromLittleEndianBytes for NBitWord<u64> {
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        Self(Wrapping(u64::from_le_bytes(<[u8; 8]>::try_from(bytes).unwrap())))
+    }
+}
 
 impl Rotate for NBitWord<u8> {
     fn rotate_right(self, n: Self) -> Self {
