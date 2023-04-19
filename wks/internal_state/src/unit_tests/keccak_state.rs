@@ -1,5 +1,5 @@
+use crate::{Chi, Iota, KeccakState, Pi, Rho, Theta, HEIGHT, WIDTH};
 use alloc::format;
-use crate::{KeccakState, Chi, Iota, Pi, Rho, Theta, HEIGHT, WIDTH};
 
 // Test constants, based on examples from the Keccak reference
 const INITIAL_STATE: [[u64; WIDTH]; HEIGHT] = [

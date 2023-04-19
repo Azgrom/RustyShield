@@ -189,7 +189,8 @@ where
 }
 
 impl<S, const LEN: usize> PartialEq<[u8; LEN]> for Sha1FamilyPad<S, LEN>
-where S: AddAssign<usize> + Copy + BitAnd<Output = usize> + From<usize>
+where
+    S: AddAssign<usize> + Copy + BitAnd<Output = usize> + From<usize>,
 {
     fn eq(&self, other: &[u8; LEN]) -> bool {
         self.pad == *other

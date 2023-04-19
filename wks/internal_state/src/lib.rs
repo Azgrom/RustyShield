@@ -11,7 +11,7 @@ pub use n_bit_states::{
 };
 pub use rotors::sha160rotor::Sha160Rotor;
 
-use keccak::{WIDTH, HEIGHT, chi::Chi, iota::Iota, pi::Pi, rho::Rho, theta::Theta};
+use keccak::{chi::Chi, iota::Iota, pi::Pi, rho::Rho, theta::Theta, HEIGHT, WIDTH};
 
 mod bytes_len;
 mod d_words;
