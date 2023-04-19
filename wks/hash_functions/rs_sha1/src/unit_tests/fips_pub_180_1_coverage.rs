@@ -4,7 +4,7 @@ use crate::Sha1State;
 use alloc::vec;
 use core::hash::Hasher;
 use hash_ctx_lib::GenericHasher;
-use internal_hasher::{BigEndianBytes, BytePad, HasherPadOps, PAD_FOR_U32_WORDS, U8_PAD_FOR_U32_SIZE};
+use internal_hasher::{BigEndianBytes, BytePad, HasherPadOps};
 use internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
 
 const MESSAGE: &str = "abc";
@@ -12,9 +12,9 @@ const MESSAGE: &str = "abc";
 fn instantiate_and_preprocess_abc_message() -> GenericHasher<Sha1State> {
     let mut sha1hasher = GenericHasher::<Sha1State>::default();
     Hasher::write(&mut sha1hasher, MESSAGE.as_ref());
-    let zero_padding_length = GenericHasher::<Sha1State>::zeros_pad(&sha1hasher) as usize;
-    let pad_len: [u8; 8] = (sha1hasher.size * 8).to_be_bytes();
-    let mut offset_pad = PAD_FOR_U32_WORDS;
+    let zero_padding_length = sha1hasher.padding.zeros_pad();
+    let pad_len: [u8; 8] = (sha1hasher.padding.size * 8).to_be_bytes();
+    let mut offset_pad = [0u8; 64];
     offset_pad[0] = 0x80;
 
     Hasher::write(&mut sha1hasher, &offset_pad[..zero_padding_length]);
@@ -24,20 +24,20 @@ fn instantiate_and_preprocess_abc_message() -> GenericHasher<Sha1State> {
 }
 
 fn completed_words(hasher: &mut GenericHasher<Sha1State>) {
-    let zero_padding_len = GenericHasher::<Sha1State>::zeros_pad(hasher) as usize;
-    let mut offset_pad: [u8; U8_PAD_FOR_U32_SIZE] = [0u8; U8_PAD_FOR_U32_SIZE];
+    let zero_padding_len = hasher.padding.zeros_pad();
+    let mut offset_pad = [0u8; 64];
     offset_pad[0] = 0x80;
 
-    let mut len_w = (hasher.size & hasher.padding.last_index() as u64) as usize;
-    let mut left = U8_PAD_FOR_U32_SIZE - len_w;
+    let mut len_w = hasher.padding.size & hasher.padding.last_index();
+    let mut left = 64 - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&offset_pad[..left]);
-    hasher.size += zero_padding_len as u64;
+    hasher.padding.size += zero_padding_len;
 
     let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
-    len_w = (hasher.size & hasher.padding.last_index() as u64) as usize;
-    left = U8_PAD_FOR_U32_SIZE - len_w;
+    len_w = hasher.padding.size & hasher.padding.last_index();
+    left = 64 - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&pad_len);
-    hasher.size += zero_padding_len as u64;
+    hasher.padding.size += zero_padding_len;
 }
 
 #[test]
@@ -45,13 +45,13 @@ fn start_processing_rounds_integrity() {
     let mut hasher = GenericHasher::<Sha1State>::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
 
-    let expected_rounds_of_words_1: [u8; U8_PAD_FOR_U32_SIZE] =
+    let expected_rounds_of_words_1: [u8; 64] =
         [vec![0x61, 0x62, 0x63, 0x00], vec![0u8; 60]].concat().try_into().unwrap();
     assert_eq!(hasher.padding, expected_rounds_of_words_1);
 
     completed_words(&mut hasher);
 
-    let expected_rounds_of_words_2: [u8; U8_PAD_FOR_U32_SIZE] =
+    let expected_rounds_of_words_2: [u8; 64] =
         [vec![0x61, 0x62, 0x63, 0x80], vec![0u8; 59], vec![0x18]].concat().try_into().unwrap();
     assert_eq!(hasher.padding, expected_rounds_of_words_2);
 }

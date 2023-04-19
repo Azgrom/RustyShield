@@ -1,7 +1,6 @@
 use crate::Sha1State;
 use core::hash::Hasher;
 use hash_ctx_lib::{GenericHasher, HasherContext};
-use internal_hasher::HasherPadOps;
 
 /// The SHA-1 Hasher
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -31,15 +30,5 @@ impl HasherContext for Sha1Hasher {
 
     fn finish(&mut self) -> Self::State {
         HasherContext::finish(&mut self.0)
-    }
-}
-
-impl HasherPadOps for Sha1Hasher {
-    fn size_mod_pad(&self) -> usize {
-        self.0.size_mod_pad()
-    }
-
-    fn zeros_pad(&self) -> usize {
-        self.0.zeros_pad()
     }
 }

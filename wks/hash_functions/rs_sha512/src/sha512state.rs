@@ -4,7 +4,7 @@ use core::{
     hash::BuildHasher,
     ops::AddAssign,
 };
-use internal_hasher::{HashAlgorithm, U128Size, U64Pad};
+use internal_hasher::{HashAlgorithm, U128Size, Sha1FamilyPad};
 use internal_state::{BytesLen, DWords, GenericStateHasher, Sha512BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 use n_bit_words_lib::NBitWord;
 
@@ -101,9 +101,8 @@ impl From<Sha512State> for [u8; BYTES_LEN] {
 }
 
 impl HashAlgorithm for Sha512State {
-    type Padding = U64Pad;
+    type Padding = Sha1FamilyPad<U128Size, 128>;
     type Output = [u8; BYTES_LEN];
-    type SizeBigEndianByteArray = U128Size;
 
     fn hash_block(&mut self, bytes: &[u8]) {
         let mut state = Sha512BitsState(
