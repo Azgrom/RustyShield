@@ -1,12 +1,11 @@
 use crate::HasherContext;
 use core::hash::Hasher;
-use internal_hasher::{BigEndianBytes, BytePad, HashAlgorithm, HasherPadOps, LenPad};
+use internal_hasher::{DigestThroughPad, HashAlgorithm};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct GenericHasher<H: HashAlgorithm> {
     pub padding: H::Padding,
     pub state: H,
-    pub size: H::SizeBigEndianByteArray,
 }
 
 impl<H: HashAlgorithm + Default> Default for GenericHasher<H> {
@@ -14,7 +13,6 @@ impl<H: HashAlgorithm + Default> Default for GenericHasher<H> {
         Self {
             padding: H::Padding::default(),
             state: H::default(),
-            size: u64::MIN.into(),
         }
     }
 }
@@ -25,34 +23,8 @@ impl<H: HashAlgorithm> Hasher for GenericHasher<H> {
         HasherContext::finish(&mut hasher).state_to_u64()
     }
 
-    fn write(&mut self, mut bytes: &[u8]) {
-        let lw = self.size_mod_pad();
-        self.size += bytes.len() as u64;
-
-        if lw != 0 {
-            let mut left = H::Padding::len() - lw;
-            if left > bytes.len() {
-                left = bytes.len();
-            }
-
-            self.padding.as_mut()[lw..lw + left].clone_from_slice(&bytes[..left]);
-
-            if (lw + left) & self.padding.last_index() != 0 {
-                return;
-            }
-
-            self.state.hash_block(self.padding.as_ref());
-            bytes = &bytes[left..];
-        }
-
-        while bytes.len() >= H::Padding::len() {
-            self.state.hash_block(&bytes[..H::Padding::len()]);
-            bytes = &bytes[H::Padding::len()..];
-        }
-
-        if !bytes.is_empty() {
-            self.padding.as_mut()[..bytes.len()].clone_from_slice(&bytes[..]);
-        }
+    fn write(&mut self, bytes: &[u8]) {
+        self.padding.write(&mut self.state, bytes)
     }
 }
 
@@ -60,24 +32,7 @@ impl<H: HashAlgorithm> HasherContext for GenericHasher<H> {
     type State = H;
 
     fn finish(&mut self) -> Self::State {
-        let zeros_pad = self.zeros_pad();
-        let mut offset = H::Padding::default();
-        offset[0] = 0x80;
-
-        let len = H::SizeBigEndianByteArray::to_be_bytes(&(self.size * 8u32));
-        self.write(&offset[..zeros_pad]);
-        self.write(len.as_ref());
-
+        self.padding.finish(&mut self.state);
         self.state.clone()
-    }
-}
-
-impl<H: HashAlgorithm> HasherPadOps for GenericHasher<H> {
-    fn size_mod_pad(&self) -> usize {
-        (self.size & self.padding.last_index() as u64) as usize
-    }
-
-    fn zeros_pad(&self) -> usize {
-        1 + (self.padding.last_index() & (self.padding.offset().wrapping_sub(self.size_mod_pad())))
     }
 }

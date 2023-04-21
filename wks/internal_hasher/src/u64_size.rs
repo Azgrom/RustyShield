@@ -4,17 +4,25 @@ use core::ops::{AddAssign, BitAnd, Mul};
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct U64Size(u64);
 
-impl AddAssign<u64> for U64Size {
-    fn add_assign(&mut self, rhs: u64) {
-        self.0 += rhs
+impl AddAssign<usize> for U64Size {
+    fn add_assign(&mut self, rhs: usize) {
+        self.0 += rhs as u64
     }
 }
 
-impl BitAnd<u64> for U64Size {
-    type Output = u64;
+impl BitAnd for U64Size {
+    type Output = usize;
 
-    fn bitand(self, rhs: u64) -> Self::Output {
-        self.0 & rhs
+    fn bitand(self, rhs: Self) -> Self::Output {
+        (self.0 & rhs.0) as usize
+    }
+}
+
+impl BitAnd<usize> for U64Size {
+    type Output = usize;
+
+    fn bitand(self, rhs: usize) -> Self::Output {
+        (self.0 & rhs as u64) as usize
     }
 }
 
@@ -34,6 +42,12 @@ impl From<u64> for U64Size {
 
 impl From<u128> for U64Size {
     fn from(value: u128) -> Self {
+        Self(value as u64)
+    }
+}
+
+impl From<usize> for U64Size {
+    fn from(value: usize) -> Self {
         Self(value as u64)
     }
 }
