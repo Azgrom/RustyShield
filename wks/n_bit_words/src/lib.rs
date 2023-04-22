@@ -1,6 +1,6 @@
 #![no_std]
 
-pub use crate::{little_endian::FromLittleEndianBytes, rotate::Rotate, t_size::TSize};
+pub use crate::{little_endian::LittleEndianBytes, rotate::Rotate, t_size::TSize};
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::{Hash, Hasher},
@@ -27,27 +27,51 @@ mod unit_tests;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct NBitWord<T>(Wrapping<T>);
 
-impl FromLittleEndianBytes for NBitWord<u8> {
+impl LittleEndianBytes for NBitWord<u8> {
+    type OutputBytesArray = [u8; 1];
+
     fn from_le_bytes(bytes: &[u8]) -> Self {
         Self(Wrapping(u8::from_le_bytes(<[u8; 1]>::try_from(bytes).unwrap())))
     }
+
+    fn to_le_bytes(&self) -> Self::OutputBytesArray {
+        self.0.0.to_le_bytes()
+    }
 }
 
-impl FromLittleEndianBytes for NBitWord<u16> {
+impl LittleEndianBytes for NBitWord<u16> {
+    type OutputBytesArray = [u8; 2];
+
     fn from_le_bytes(bytes: &[u8]) -> Self {
         Self(Wrapping(u16::from_le_bytes(<[u8; 2]>::try_from(bytes).unwrap())))
     }
-}
 
-impl FromLittleEndianBytes for NBitWord<u32> {
-    fn from_le_bytes(bytes: &[u8]) -> Self {
-        Self(Wrapping(u32::from_le_bytes(<[u8; 4]>::try_from(bytes).unwrap())))
+    fn to_le_bytes(&self) -> Self::OutputBytesArray {
+        self.0.0.to_le_bytes()
     }
 }
 
-impl FromLittleEndianBytes for NBitWord<u64> {
+impl LittleEndianBytes for NBitWord<u32> {
+    type OutputBytesArray = [u8; 4];
+
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        Self(Wrapping(u32::from_le_bytes(<[u8; 4]>::try_from(bytes).unwrap())))
+    }
+
+    fn to_le_bytes(&self) -> Self::OutputBytesArray {
+        self.0.0.to_le_bytes()
+    }
+}
+
+impl LittleEndianBytes for NBitWord<u64> {
+    type OutputBytesArray = [u8; 8];
+
     fn from_le_bytes(bytes: &[u8]) -> Self {
         Self(Wrapping(u64::from_le_bytes(<[u8; 8]>::try_from(bytes).unwrap())))
+    }
+
+    fn to_le_bytes(&self) -> Self::OutputBytesArray {
+        self.0.0.to_le_bytes()
     }
 }
 

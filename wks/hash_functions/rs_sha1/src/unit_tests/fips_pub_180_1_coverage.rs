@@ -4,7 +4,7 @@ use crate::Sha1State;
 use alloc::vec;
 use core::hash::Hasher;
 use hash_ctx_lib::GenericHasher;
-use internal_hasher::{BigEndianBytes, BytePad, HasherPadOps};
+use internal_hasher::{BigEndianBytes, BytePad, HasherPadOps, U64Size};
 use internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
 
 const MESSAGE: &str = "abc";
@@ -12,8 +12,8 @@ const MESSAGE: &str = "abc";
 fn instantiate_and_preprocess_abc_message() -> GenericHasher<Sha1State> {
     let mut sha1hasher = GenericHasher::<Sha1State>::default();
     Hasher::write(&mut sha1hasher, MESSAGE.as_ref());
-    let zero_padding_length = sha1hasher.padding.zeros_pad();
-    let pad_len: [u8; 8] = (sha1hasher.padding.size * 8).to_be_bytes();
+    let pad_len: [u8; 8] = sha1hasher.padding.size.to_be_bytes();
+    let zero_padding_length = 64 - ((sha1hasher.padding.size + pad_len.len()) % 64);
     let mut offset_pad = [0u8; 64];
     offset_pad[0] = 0x80;
 
@@ -24,7 +24,8 @@ fn instantiate_and_preprocess_abc_message() -> GenericHasher<Sha1State> {
 }
 
 fn completed_words(hasher: &mut GenericHasher<Sha1State>) {
-    let zero_padding_len = hasher.padding.zeros_pad();
+    let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
+    let zero_padding_len = 64 - ((hasher.padding.size + pad_len.len()) % 64);
     let mut offset_pad = [0u8; 64];
     offset_pad[0] = 0x80;
 
@@ -33,8 +34,7 @@ fn completed_words(hasher: &mut GenericHasher<Sha1State>) {
     hasher.padding[len_w..len_w + left].clone_from_slice(&offset_pad[..left]);
     hasher.padding.size += zero_padding_len;
 
-    let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
-    len_w = hasher.padding.size & hasher.padding.last_index();
+    len_w = hasher.padding.size % 64;
     left = 64 - len_w;
     hasher.padding[len_w..len_w + left].clone_from_slice(&pad_len);
     hasher.padding.size += zero_padding_len;

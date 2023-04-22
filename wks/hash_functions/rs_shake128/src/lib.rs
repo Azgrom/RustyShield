@@ -1,22 +1,10 @@
-use internal_state::{BytesLen, KeccakSponge};
+#![no_std]
 
-const RATE: usize = 1344;
+pub use shake128hasher::Shake128Hasher;
+pub use shake128state::Shake128State;
 
-// Example of how to use KeccakSponge in SHAKE128
-pub struct Shake128State {
-    sponge: KeccakSponge<u64, RATE>,
-}
+mod shake128hasher;
+mod shake128state;
 
-impl BytesLen for Shake128State {
-    fn len() -> usize {
-        RATE
-    }
-}
-
-impl Default for Shake128State {
-    fn default() -> Self {
-        Self {
-            sponge: KeccakSponge::new(0x1F),
-        }
-    }
-}
+#[cfg(test)]
+mod unit_tests;

@@ -1,14 +1,14 @@
 use crate::keccak::chi::Chi;
+use crate::keccak::from_bytes::FromBytes;
 use crate::keccak::iota::Iota;
 use crate::keccak::pi::Pi;
 use crate::keccak::rho::Rho;
-use crate::keccak::state::KeccakState;
+use crate::keccak::state::{KeccakState, KeccakStateIter, KeccakStateIterMut};
 use crate::keccak::theta::Theta;
 use core::mem::size_of;
-use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
+use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Range, Sub};
 use core::slice::ChunksExact;
-use n_bit_words_lib::{FromLittleEndianBytes, NBitWord, Rotate, TSize};
-use crate::keccak::from_bytes::FromBytes;
+use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
 
 pub(crate) mod chi;
 mod from_bytes;
@@ -60,17 +60,16 @@ const RC: [u64; 24] = [
 ///
 /// The Keccak-f permutation is a family of permutations parameterized by the width of the state.
 /// The most commonly used instance is Keccak-f[1600], with a state width of 1600 bits.
-pub struct KeccakSponge<T, const RATE: usize>
+#[derive(Clone, Debug)]
+pub struct KeccakSponge<T, const RATE: usize, const OUTPUT_SIZE: usize>
 where
     T: Default + Copy,
 {
     /// The internal state of the sponge, which holds a Keccak state of generic type `T` (e.g., u64 for Keccak-f[1600])
     state: KeccakState<T>,
-    /// A delimiter byte used in the padding rule to distinguish different applications of the sponge construction
-    delimiter: u8,
 }
 
-impl<T, const RATE: usize> KeccakSponge<T, RATE>
+impl<T, const RATE: usize, const OUTPUT_SIZE: usize> KeccakSponge<T, RATE, OUTPUT_SIZE>
 where
     T: BitAnd
         + BitAndAssign
@@ -80,17 +79,14 @@ where
         + Copy
         + Default
         + Not<Output = T>,
-    NBitWord<T>: From<u64> + FromLittleEndianBytes + Rotate + TSize<T>,
+    NBitWord<T>: From<u64> + LittleEndianBytes + Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     /// Creates a new Keccak sponge with the specified rate and capacity
     /// * `N`: The block size, in bytes, of the sponge construction. It is equal to the rate divided by 8.
-    /// * `d`: The delimiter byte used in the padding rule, which is unique to each specific application
-    ///   of the sponge construction
-    pub fn new(delimiter: u8) -> Self {
+    pub fn new() -> Self {
         KeccakSponge {
             state: KeccakState::default(),
-            delimiter,
         }
     }
 
@@ -100,49 +96,36 @@ where
     /// size `N`. Each block is XORed with the rate portion of the state, followed by the application of
     /// the Keccak-f permutation
     pub fn absorb(&mut self, input: &[u8]) {
-        let keccak_chunk = RATE / u8::BITS as usize;
-        let rate_chunk = keccak_chunk / size_of::<T>();
-        let mut rate_part_chunks = input.chunks_exact(keccak_chunk);
-
-        while let Some(rate_part_chunk) = rate_part_chunks.next(){
-            for (i, le_bytes) in rate_part_chunk.chunks(size_of::<T>()).enumerate() {
-                self.state.write_into(i, le_bytes);
-            }
-
-            self.state.apply_f();
+        let lanes_to_fulfill = RATE / (u8::BITS as usize * size_of::<T>());
+        for (x, byte) in
+            KeccakStateIterMut::new(&mut self.state).take(lanes_to_fulfill).zip(input.chunks_exact(size_of::<T>()))
+        {
+            *x = NBitWord::<T>::from_le_bytes(byte);
         }
 
-        let x = rate_part_chunks.remainder();
-        if !x.is_empty() {
-
-        }
+        self.state.apply_f();
     }
 
     /// Squeezes the output data from the sponge
-    pub fn squeeze(&mut self, output: &mut [u8; RATE]) {
-        // let mut offset = 0;
-        // let block_size = RATE / 8;
-        //
-        // while offset < output.len() {
-        //     let remaining = output.len() - offset;
-        //     let to_copy = usize::min(block_size, remaining);
-        //     self.state.copy_block(&mut output[offset..offset + to_copy]);
-        //     self.state.apply_f();
-        //
-        //     offset += block_size;
-        // }
-    }
+    pub fn squeeze(&mut self) -> [u8; OUTPUT_SIZE] {
+        let t_size = size_of::<T>();
+        let bytes_to_copy = RATE / u8::BITS as usize;
+        let mut output = [0u8; OUTPUT_SIZE];
+        let mut remaining_bytes = OUTPUT_SIZE;
 
-    // /// The padding rule, denoted as pad, is used to pad the input data before absorbing it into the
-    // /// sponge. It appends a delimiter byte `d`, followed by a series of zero bytes, and finally a `1` byte
-    // fn pad(&self, input: &mut ChunksExact<u8>) -> [u8; RATE / u8::BITS as usize] {
-    //     let mut pad = [0u8; RATE / u8::BITS as usize];
-    //
-    //     if let Some(input_chunk) = input.next() {
-    //         pad.clone_from_slice(input_chunk);
-    //         return pad;
-    //     }
-    //
-    //
-    // }
+        while remaining_bytes > 0 {
+            output
+                .chunks_mut(t_size)
+                .zip(KeccakStateIter::new(&mut self.state).take(bytes_to_copy / t_size))
+                .for_each(|(le_bytes, lane)| le_bytes.clone_from_slice(lane.to_le_bytes().as_ref()));
+
+            remaining_bytes =remaining_bytes.saturating_sub(bytes_to_copy);
+
+            if remaining_bytes > 0 {
+                self.state.apply_f();
+            }
+        }
+
+        output
+    }
 }

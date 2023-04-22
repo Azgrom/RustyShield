@@ -1,8 +1,16 @@
 use crate::BigEndianBytes;
-use core::ops::{AddAssign, BitAnd, Mul};
+use core::ops::{Add, AddAssign, BitAnd, Mul, Rem};
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct U64Size(u64);
+
+impl Add<usize> for U64Size {
+    type Output = usize;
+
+    fn add(self, rhs: usize) -> Self::Output {
+        (self.0 + rhs as u64) as usize
+    }
+}
 
 impl AddAssign<usize> for U64Size {
     fn add_assign(&mut self, rhs: usize) {
@@ -30,7 +38,7 @@ impl BigEndianBytes for U64Size {
     type BigEndianBytesArray = [u8; 8];
 
     fn to_be_bytes(&self) -> Self::BigEndianBytesArray {
-        self.0.to_be_bytes()
+        (self.0 * 8).to_be_bytes()
     }
 }
 
@@ -57,5 +65,21 @@ impl Mul<u32> for U64Size {
 
     fn mul(self, rhs: u32) -> Self::Output {
         U64Size::from(self.0 * rhs as u64)
+    }
+}
+
+impl Rem for U64Size {
+    type Output = usize;
+
+    fn rem(self, rhs: Self) -> Self::Output {
+        (self.0 % rhs.0) as usize
+    }
+}
+
+impl Rem<u8> for U64Size {
+    type Output = usize;
+
+    fn rem(self, rhs: u8) -> Self::Output {
+        (self.0 % rhs as u64) as usize
     }
 }
