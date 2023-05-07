@@ -1,4 +1,4 @@
-use internal_hasher::{HashAlgorithm, GenericPad, U128Size, KeccakU128Size};
+use internal_hasher::{HashAlgorithm, GenericPad, KeccakU128Size};
 use internal_state::{BytesLen, KeccakSponge};
 
 const RATE: usize = 1344;

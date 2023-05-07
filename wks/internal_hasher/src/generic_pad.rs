@@ -71,7 +71,7 @@ where
 {
     fn finish(&mut self, state: &mut H) {
         let trailing_byte = self.size.to_be_bytes();
-        let zeros_pad = LEN - ((self.size + trailing_byte.as_ref().len()) % LEN);;
+        let zeros_pad = LEN - ((self.size + trailing_byte.as_ref().len()) % LEN);
         let mut offset = [0u8; LEN];
         offset[0] = DELIMITER;
 

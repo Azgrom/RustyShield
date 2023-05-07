@@ -1,13 +1,6 @@
-use crate::keccak::chi::Chi;
-use crate::keccak::from_bytes::FromBytes;
-use crate::keccak::iota::Iota;
-use crate::keccak::pi::Pi;
-use crate::keccak::rho::Rho;
 use crate::keccak::state::{KeccakState, KeccakStateIter, KeccakStateIterMut};
-use crate::keccak::theta::Theta;
 use core::mem::size_of;
-use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Range, Sub};
-use core::slice::ChunksExact;
+use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
 use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
 
 pub(crate) mod chi;
@@ -20,7 +13,6 @@ pub(crate) mod theta;
 
 pub(crate) const WIDTH: usize = 5;
 pub(crate) const HEIGHT: usize = 5;
-const LANES: usize = WIDTH * HEIGHT;
 
 const RC: [u64; 24] = [
     0x0000000000000001,

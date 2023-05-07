@@ -1,5 +1,4 @@
 use core::ops::{Add, AddAssign, BitAnd, Mul, Rem};
-use internal_state::KeccakState;
 use crate::BigEndianBytes;
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]

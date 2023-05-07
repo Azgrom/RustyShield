@@ -1,11 +1,8 @@
-use core::array::IntoIter;
-use crate::{keccak::chi::Chi, keccak::iota::Iota, keccak::pi::Pi, keccak::rho::Rho, keccak::theta::Theta, keccak::{HEIGHT, RC, WIDTH}, KeccakSponge};
+use crate::{keccak::chi::Chi, keccak::iota::Iota, keccak::pi::Pi, keccak::rho::Rho, keccak::theta::Theta, keccak::{HEIGHT, RC, WIDTH}};
 use core::iter::Flatten;
-use core::mem::size_of;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
 use core::slice::{Iter, IterMut};
 use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
-use crate::keccak::from_bytes::FromBytes;
 
 type Plane<T> = [NBitWord<T>; WIDTH];
 
