@@ -2,7 +2,7 @@ use crate::HasherContext;
 use core::hash::Hasher;
 use internal_hasher::{DigestThroughPad, HashAlgorithm};
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct GenericHasher<H: HashAlgorithm> {
     pub padding: H::Padding,
     pub state: H,

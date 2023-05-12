@@ -16,22 +16,22 @@ pub struct Sha160BitsState(
 
 impl GenericStateHasher for Sha160BitsState {
     fn next_words(&mut self) {
-        self.5[0] = (self.5[0] ^ self.5[2] ^ self.5[8] ^ self.5[13]).rotate_left(1.into());
-        self.5[1] = (self.5[1] ^ self.5[3] ^ self.5[9] ^ self.5[14]).rotate_left(1.into());
-        self.5[2] = (self.5[2] ^ self.5[4] ^ self.5[10] ^ self.5[15]).rotate_left(1.into());
-        self.5[3] = (self.5[3] ^ self.5[5] ^ self.5[11] ^ self.5[0]).rotate_left(1.into());
-        self.5[4] = (self.5[4] ^ self.5[6] ^ self.5[12] ^ self.5[1]).rotate_left(1.into());
-        self.5[5] = (self.5[5] ^ self.5[7] ^ self.5[13] ^ self.5[2]).rotate_left(1.into());
-        self.5[6] = (self.5[6] ^ self.5[8] ^ self.5[14] ^ self.5[3]).rotate_left(1.into());
-        self.5[7] = (self.5[7] ^ self.5[9] ^ self.5[15] ^ self.5[4]).rotate_left(1.into());
-        self.5[8] = (self.5[8] ^ self.5[10] ^ self.5[0] ^ self.5[5]).rotate_left(1.into());
-        self.5[9] = (self.5[9] ^ self.5[11] ^ self.5[1] ^ self.5[6]).rotate_left(1.into());
-        self.5[10] = (self.5[10] ^ self.5[12] ^ self.5[2] ^ self.5[7]).rotate_left(1.into());
-        self.5[11] = (self.5[11] ^ self.5[13] ^ self.5[3] ^ self.5[8]).rotate_left(1.into());
-        self.5[12] = (self.5[12] ^ self.5[14] ^ self.5[4] ^ self.5[9]).rotate_left(1.into());
-        self.5[13] = (self.5[13] ^ self.5[15] ^ self.5[5] ^ self.5[10]).rotate_left(1.into());
-        self.5[14] = (self.5[14] ^ self.5[0] ^ self.5[6] ^ self.5[11]).rotate_left(1.into());
-        self.5[15] = (self.5[15] ^ self.5[1] ^ self.5[7] ^ self.5[12]).rotate_left(1.into());
+        self.5[0] = (self.5[0] ^ self.5[2] ^ self.5[8] ^ self.5[13]).rotate_left(1);
+        self.5[1] = (self.5[1] ^ self.5[3] ^ self.5[9] ^ self.5[14]).rotate_left(1);
+        self.5[2] = (self.5[2] ^ self.5[4] ^ self.5[10] ^ self.5[15]).rotate_left(1);
+        self.5[3] = (self.5[3] ^ self.5[5] ^ self.5[11] ^ self.5[0]).rotate_left(1);
+        self.5[4] = (self.5[4] ^ self.5[6] ^ self.5[12] ^ self.5[1]).rotate_left(1);
+        self.5[5] = (self.5[5] ^ self.5[7] ^ self.5[13] ^ self.5[2]).rotate_left(1);
+        self.5[6] = (self.5[6] ^ self.5[8] ^ self.5[14] ^ self.5[3]).rotate_left(1);
+        self.5[7] = (self.5[7] ^ self.5[9] ^ self.5[15] ^ self.5[4]).rotate_left(1);
+        self.5[8] = (self.5[8] ^ self.5[10] ^ self.5[0] ^ self.5[5]).rotate_left(1);
+        self.5[9] = (self.5[9] ^ self.5[11] ^ self.5[1] ^ self.5[6]).rotate_left(1);
+        self.5[10] = (self.5[10] ^ self.5[12] ^ self.5[2] ^ self.5[7]).rotate_left(1);
+        self.5[11] = (self.5[11] ^ self.5[13] ^ self.5[3] ^ self.5[8]).rotate_left(1);
+        self.5[12] = (self.5[12] ^ self.5[14] ^ self.5[4] ^ self.5[9]).rotate_left(1);
+        self.5[13] = (self.5[13] ^ self.5[15] ^ self.5[5] ^ self.5[10]).rotate_left(1);
+        self.5[14] = (self.5[14] ^ self.5[0] ^ self.5[6] ^ self.5[11]).rotate_left(1);
+        self.5[15] = (self.5[15] ^ self.5[1] ^ self.5[7] ^ self.5[12]).rotate_left(1);
     }
 
     fn block_00_15(&mut self) {

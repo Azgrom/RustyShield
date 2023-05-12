@@ -8,6 +8,7 @@ use core::{
     ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shl, Shr, Sub},
     ops::{BitAndAssign, BitXorAssign, Not},
 };
+use core::fmt::Debug;
 
 mod little_endian;
 mod rotate;
@@ -24,7 +25,7 @@ mod unit_tests;
 /// writing `S0` and `S1` as
 /// `S0(a) = ((( a >>> 9) ^ a) >>> 11) ^ a) >>> 2`
 /// and `S1(e) = (((e >>> 14) ^ e) >>> 5) ^ e) >>> 6`
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct NBitWord<T>(Wrapping<T>);
 
 impl LittleEndianBytes for NBitWord<u8> {
@@ -76,42 +77,42 @@ impl LittleEndianBytes for NBitWord<u64> {
 }
 
 impl Rotate for NBitWord<u8> {
-    fn rotate_right(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_right(n.0 .0 as u32)))
+    fn rotate_right(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
     }
 
-    fn rotate_left(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_left(n.0 .0 as u32)))
+    fn rotate_left(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
     }
 }
 
 impl Rotate for NBitWord<u16> {
-    fn rotate_right(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_right(n.0 .0 as u32)))
+    fn rotate_right(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
     }
 
-    fn rotate_left(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_left(n.0 .0 as u32)))
+    fn rotate_left(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
     }
 }
 
 impl Rotate for NBitWord<u32> {
-    fn rotate_right(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_right(n.0 .0)))
+    fn rotate_right(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
     }
 
-    fn rotate_left(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_left(n.0 .0)))
+    fn rotate_left(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
     }
 }
 
 impl Rotate for NBitWord<u64> {
-    fn rotate_right(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_right(n.0 .0 as u32)))
+    fn rotate_right(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
     }
 
-    fn rotate_left(self, n: Self) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_left(n.0 .0 as u32)))
+    fn rotate_left(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
     }
 }
 
@@ -120,12 +121,12 @@ impl TSize<u8> for NBitWord<u8> {
     const SIZE: usize = 1;
 
     fn gamma0(&self) -> Self {
-        ((self.rotate_right(Self(Wrapping(3))) ^ *self) >> Self(Wrapping(1))) ^ self.rotate_right(Self(Wrapping(2)))
+        ((self.rotate_right(3) ^ *self) >> Self(Wrapping(1))) ^ self.rotate_right(2)
     }
 
     fn gamma1(&self) -> Self {
-        ((((self.rotate_right(Self(Wrapping(5)))) ^ *self) >> Self(Wrapping(2))) ^ *self)
-            .rotate_right(Self(Wrapping(4)))
+        ((((self.rotate_right(5)) ^ *self) >> Self(Wrapping(2))) ^ *self)
+            .rotate_right(4)
     }
 
     fn new(value: usize) -> u8 {
@@ -133,13 +134,13 @@ impl TSize<u8> for NBitWord<u8> {
     }
 
     fn sigma0(&self) -> Self {
-        ((self.rotate_right(Self(Wrapping(1)))) ^ self.rotate_right(Self(Wrapping(2))))
-            ^ self.rotate_right(Self(Wrapping(4)))
+        ((self.rotate_right(1)) ^ self.rotate_right(2))
+            ^ self.rotate_right(4)
     }
 
     fn sigma1(&self) -> Self {
-        ((self.rotate_right(Self(Wrapping(3)))) ^ self.rotate_right(Self(Wrapping(4))))
-            ^ self.rotate_right(Self(Wrapping(2)))
+        ((self.rotate_right(3)) ^ self.rotate_right(4))
+            ^ self.rotate_right(2)
     }
 }
 
@@ -148,11 +149,11 @@ impl TSize<u16> for NBitWord<u16> {
     const SIZE: usize = 2;
 
     fn gamma0(&self) -> Self {
-        (((self.rotate_right(Self(Wrapping(5)))) ^ *self) >> Self(Wrapping(1))) ^ self.rotate_right(Self(Wrapping(2)))
+        (((self.rotate_right(5)) ^ *self) >> Self(Wrapping(1))) ^ self.rotate_right(2)
     }
 
     fn gamma1(&self) -> Self {
-        (((self.rotate_right(Self(Wrapping(9)))) ^ *self) >> Self(Wrapping(2))) ^ self.rotate_right(Self(Wrapping(6)))
+        (((self.rotate_right(9)) ^ *self) >> Self(Wrapping(2))) ^ self.rotate_right(6)
     }
 
     fn new(value: usize) -> u16 {
@@ -160,13 +161,13 @@ impl TSize<u16> for NBitWord<u16> {
     }
 
     fn sigma0(&self) -> Self {
-        ((self.rotate_right(Self(Wrapping(1)))) ^ self.rotate_right(Self(Wrapping(4))))
-            ^ self.rotate_right(Self(Wrapping(8)))
+        ((self.rotate_right(1)) ^ self.rotate_right(4))
+            ^ self.rotate_right(8)
     }
 
     fn sigma1(&self) -> Self {
-        ((self.rotate_right(Self(Wrapping(5)))) ^ self.rotate_right(Self(Wrapping(7))))
-            ^ self.rotate_right(Self(Wrapping(4)))
+        ((self.rotate_right(5)) ^ self.rotate_right(7))
+            ^ self.rotate_right(4)
     }
 }
 
@@ -175,11 +176,11 @@ impl TSize<u32> for NBitWord<u32> {
     const SIZE: usize = 4;
 
     fn gamma0(&self) -> Self {
-        self.rotate_right(Self(Wrapping(7))) ^ self.rotate_right(Self(Wrapping(18))) ^ (*self >> Self(Wrapping(3)))
+        self.rotate_right(7) ^ self.rotate_right(1) ^ (*self >> Self(Wrapping(3)))
     }
 
     fn gamma1(&self) -> Self {
-        self.rotate_right(Self(Wrapping(17))) ^ self.rotate_right(Self(Wrapping(19))) ^ (*self >> Self(Wrapping(10)))
+        self.rotate_right(17) ^ self.rotate_right(19) ^ (*self >> Self(Wrapping(10)))
     }
 
     fn new(value: usize) -> u32 {
@@ -187,13 +188,13 @@ impl TSize<u32> for NBitWord<u32> {
     }
 
     fn sigma0(&self) -> Self {
-        (((self.rotate_right(Self(Wrapping(9)))) ^ *self).rotate_right(Self(Wrapping(11))) ^ *self)
-            .rotate_right(Self(Wrapping(2)))
+        (((self.rotate_right(9)) ^ *self).rotate_right(11) ^ *self)
+            .rotate_right(2)
     }
 
     fn sigma1(&self) -> Self {
-        ((((self.rotate_right(Self(Wrapping(14)))) ^ *self).rotate_right(Self(Wrapping(5)))) ^ *self)
-            .rotate_right(Self(Wrapping(6)))
+        ((((self.rotate_right(14)) ^ *self).rotate_right(5)) ^ *self)
+            .rotate_right(6)
     }
 }
 
@@ -202,11 +203,11 @@ impl TSize<u64> for NBitWord<u64> {
     const SIZE: usize = 8;
 
     fn gamma0(&self) -> Self {
-        self.rotate_right(Self(Wrapping(1))) ^ self.rotate_right(Self(Wrapping(8))) ^ (*self >> Self(Wrapping(7)))
+        self.rotate_right(1) ^ self.rotate_right(8) ^ (*self >> Self(Wrapping(7)))
     }
 
     fn gamma1(&self) -> Self {
-        self.rotate_right(Self(Wrapping(19))) ^ self.rotate_right(Self(Wrapping(61))) ^ (*self >> Self(Wrapping(6)))
+        self.rotate_right(19) ^ self.rotate_right(61) ^ (*self >> Self(Wrapping(6)))
     }
 
     fn new(value: usize) -> u64 {
@@ -214,15 +215,15 @@ impl TSize<u64> for NBitWord<u64> {
     }
 
     fn sigma0(&self) -> Self {
-        self.rotate_right(Self(Wrapping(28)))
-            ^ self.rotate_right(Self(Wrapping(34)))
-            ^ self.rotate_right(Self(Wrapping(39)))
+        self.rotate_right(28)
+            ^ self.rotate_right(34)
+            ^ self.rotate_right(39)
     }
 
     fn sigma1(&self) -> Self {
-        self.rotate_right(Self(Wrapping(14)))
-            ^ self.rotate_right(Self(Wrapping(18)))
-            ^ self.rotate_right(Self(Wrapping(41)))
+        self.rotate_right(14)
+            ^ self.rotate_right(18)
+            ^ self.rotate_right(41)
     }
 }
 

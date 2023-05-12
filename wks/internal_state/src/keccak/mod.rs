@@ -52,7 +52,7 @@ const RC: [u64; 24] = [
 ///
 /// The Keccak-f permutation is a family of permutations parameterized by the width of the state.
 /// The most commonly used instance is Keccak-f[1600], with a state width of 1600 bits.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct KeccakSponge<T, const RATE: usize, const OUTPUT_SIZE: usize>
 where
     T: Default + Copy,
@@ -89,10 +89,10 @@ where
     /// the Keccak-f permutation
     pub fn absorb(&mut self, input: &[u8]) {
         let lanes_to_fulfill = RATE / (u8::BITS as usize * size_of::<T>());
-        for (x, byte) in
+        for (lane, byte) in
             KeccakStateIterMut::new(&mut self.state).take(lanes_to_fulfill).zip(input.chunks_exact(size_of::<T>()))
         {
-            *x = NBitWord::<T>::from_le_bytes(byte);
+            *lane = NBitWord::<T>::from_le_bytes(byte);
         }
 
         self.state.apply_f();
@@ -106,12 +106,13 @@ where
         let mut remaining_bytes = OUTPUT_SIZE;
 
         while remaining_bytes > 0 {
-            output
-                .chunks_mut(t_size)
-                .zip(KeccakStateIter::new(&mut self.state).take(bytes_to_copy / t_size))
-                .for_each(|(le_bytes, lane)| le_bytes.clone_from_slice(lane.to_le_bytes().as_ref()));
+            for (le_bytes, lane) in
+                output.chunks_mut(t_size).zip(KeccakStateIter::new(&mut self.state).take(bytes_to_copy / t_size))
+            {
+                le_bytes.clone_from_slice(&lane.to_le_bytes().as_ref()[..le_bytes.len()])
+            }
 
-            remaining_bytes =remaining_bytes.saturating_sub(bytes_to_copy);
+            remaining_bytes = remaining_bytes.saturating_sub(bytes_to_copy);
 
             if remaining_bytes > 0 {
                 self.state.apply_f();
