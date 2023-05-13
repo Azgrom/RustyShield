@@ -1,66 +1,16 @@
 use crate::{
     keccak::chi::Chi,
     keccak::iota::Iota,
+    keccak::plane::Plane,
     keccak::pi::Pi,
     keccak::rho::Rho,
     keccak::theta::Theta,
     keccak::{HEIGHT, RC, WIDTH},
 };
 use core::iter::Flatten;
-use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Index, IndexMut, Not, Sub};
+use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
 use core::slice::{Iter, IterMut};
 use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-struct Plane<T> {
-    lanes: [NBitWord<T>; WIDTH],
-}
-
-impl<T: Copy> Plane<T> {
-    fn deconstruct(&self) -> [NBitWord<T>; WIDTH] {
-        self.lanes
-    }
-}
-
-impl<T: Copy + Default> Default for Plane<T> {
-    fn default() -> Self {
-        Self {
-            lanes: [NBitWord::default(); WIDTH],
-        }
-    }
-}
-
-impl<T> Index<usize> for Plane<T> {
-    type Output = NBitWord<T>;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        &self.lanes[index]
-    }
-}
-
-impl<T> IndexMut<usize> for Plane<T> {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        &mut self.lanes[index]
-    }
-}
-
-impl<'a, T> IntoIterator for &'a Plane<T> {
-    type Item = &'a NBitWord<T>;
-    type IntoIter = Iter<'a, NBitWord<T>>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.lanes.iter()
-    }
-}
-
-impl<'a, T> IntoIterator for &'a mut Plane<T> {
-    type Item = &'a mut NBitWord<T>;
-    type IntoIter = IterMut<'a, NBitWord<T>>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.lanes.iter_mut()
-    }
-}
 
 /// `KeccakState<T>` represents the internal state of the Keccak-based permutations with a variable width.
 /// It is used as the foundation for various NIST-validated hash algorithms and other Keccak-based constructions.
@@ -229,12 +179,12 @@ impl<T: Copy + Default> Default for KeccakState<T> {
 }
 
 impl From<[[u64; WIDTH]; HEIGHT]> for KeccakState<u64> {
-    fn from(lanes: [[u64; WIDTH]; HEIGHT]) -> Self {
+    fn from(planes: [[u64; WIDTH]; HEIGHT]) -> Self {
         let mut state = Self::default();
 
-        for x in 0..5 {
-            for y in 0..5 {
-                state.planes[x][y] = lanes[x][y].into();
+        for (self_plane, from_plane) in state.planes.iter_mut().zip(planes.iter()) {
+            for (self_lane, from_lane) in self_plane.into_iter().zip(from_plane.iter()) {
+                *self_lane = (*from_lane).into();
             }
         }
 

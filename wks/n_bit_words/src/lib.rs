@@ -129,10 +129,6 @@ impl TSize<u8> for NBitWord<u8> {
             .rotate_right(4)
     }
 
-    fn new(value: usize) -> u8 {
-        value as u8
-    }
-
     fn sigma0(&self) -> Self {
         ((self.rotate_right(1)) ^ self.rotate_right(2))
             ^ self.rotate_right(4)
@@ -154,10 +150,6 @@ impl TSize<u16> for NBitWord<u16> {
 
     fn gamma1(&self) -> Self {
         (((self.rotate_right(9)) ^ *self) >> Self(Wrapping(2))) ^ self.rotate_right(6)
-    }
-
-    fn new(value: usize) -> u16 {
-        value as u16
     }
 
     fn sigma0(&self) -> Self {
@@ -183,10 +175,6 @@ impl TSize<u32> for NBitWord<u32> {
         self.rotate_right(17) ^ self.rotate_right(19) ^ (*self >> Self(Wrapping(10)))
     }
 
-    fn new(value: usize) -> u32 {
-        value as u32
-    }
-
     fn sigma0(&self) -> Self {
         (((self.rotate_right(9)) ^ *self).rotate_right(11) ^ *self)
             .rotate_right(2)
@@ -208,10 +196,6 @@ impl TSize<u64> for NBitWord<u64> {
 
     fn gamma1(&self) -> Self {
         self.rotate_right(19) ^ self.rotate_right(61) ^ (*self >> Self(Wrapping(6)))
-    }
-
-    fn new(value: usize) -> u64 {
-        value as u64
     }
 
     fn sigma0(&self) -> Self {

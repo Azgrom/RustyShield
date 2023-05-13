@@ -3,12 +3,13 @@ use core::mem::size_of;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
 use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
 
-pub(crate) mod chi;
 mod from_bytes;
+pub(crate) mod chi;
 pub(crate) mod iota;
 pub(crate) mod pi;
 pub(crate) mod rho;
 pub(crate) mod state;
+pub(crate) mod plane;
 pub(crate) mod theta;
 
 pub(crate) const WIDTH: usize = 5;
@@ -74,14 +75,6 @@ where
     NBitWord<T>: From<u64> + LittleEndianBytes + Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
-    /// Creates a new Keccak sponge with the specified rate and capacity
-    /// * `N`: The block size, in bytes, of the sponge construction. It is equal to the rate divided by 8.
-    pub fn new() -> Self {
-        KeccakSponge {
-            state: KeccakState::default(),
-        }
-    }
-
     /// Absorbs the input data into the sponge
     /// The absorb method takes an input byte slice and processes it through the sponge construction.
     /// It first pads the input using the padding rule, then divides the padded input into blocks of
@@ -107,7 +100,7 @@ where
 
         while remaining_bytes > 0 {
             for (le_bytes, lane) in
-                output.chunks_mut(t_size).zip(KeccakStateIter::new(&mut self.state).take(bytes_to_copy / t_size))
+                output.chunks_mut(t_size).zip(KeccakStateIter::new(&self.state).take(bytes_to_copy / t_size))
             {
                 le_bytes.clone_from_slice(&lane.to_le_bytes().as_ref()[..le_bytes.len()])
             }
@@ -120,5 +113,16 @@ where
         }
 
         output
+    }
+}
+
+impl<T, const RATE: usize, const OUTPUT_SIZE: usize> Default for KeccakSponge<T, RATE, OUTPUT_SIZE>
+where T: Default + Copy
+{
+    /// Creates a new Keccak sponge with the specified rate and squeezable output
+    fn default() -> Self {
+        Self {
+            state: KeccakState::default(),
+        }
     }
 }

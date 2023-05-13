@@ -16,6 +16,7 @@ const OUTER_PAD: u8 = 0x5c;
 /// use rs_hmac::Hmac;
 /// use rs_sha1::Sha1State;
 /// ```
+#[derive(Clone)]
 pub struct Hmac<H: HashAlgorithm> {
     inner_hasher: GenericHasher<H>,
     outer_hasher: GenericHasher<H>,
@@ -103,7 +104,7 @@ where
 
 impl<H: HashAlgorithm> Hasher for Hmac<H> {
     fn finish(&self) -> u64 {
-        self.clone().inner_hasher.finish()
+        self.inner_hasher.clone().finish()
     }
 
     fn write(&mut self, bytes: &[u8]) {

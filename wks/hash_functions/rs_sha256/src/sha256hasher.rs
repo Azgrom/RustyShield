@@ -3,14 +3,8 @@ use core::hash::Hasher;
 use hash_ctx_lib::{GenericHasher, HasherContext};
 
 /// The SHA-256 Hasher
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Sha256Hasher(GenericHasher<Sha256State>);
-
-impl Default for Sha256Hasher {
-    fn default() -> Self {
-        Self(GenericHasher::default())
-    }
-}
 
 impl Hasher for Sha256Hasher {
     /// Finish the hash and return the hash value as a `u64`.

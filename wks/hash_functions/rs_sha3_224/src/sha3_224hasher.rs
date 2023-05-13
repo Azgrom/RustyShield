@@ -3,14 +3,8 @@ use hash_ctx_lib::{GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
 use crate::Sha3_224State;
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq)]
 pub struct Sha3_224Hasher(GenericHasher<Sha3_224State>);
-
-impl Default for Sha3_224Hasher {
-    fn default() -> Self {
-        Self(GenericHasher::default())
-    }
-}
 
 impl Hasher for Sha3_224Hasher {
     fn finish(&self) -> u64 {

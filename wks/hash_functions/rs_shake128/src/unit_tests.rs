@@ -1,7 +1,7 @@
+extern crate alloc;
 use alloc::format;
 use core::fmt::{Formatter, LowerHex};
 use core::hash::Hasher;
-use core::ops::Index;
 use hash_ctx_lib::HasherContext;
 use internal_state::LOWER_HEX_ERR;
 use crate::Shake128Hasher;

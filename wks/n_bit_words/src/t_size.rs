@@ -17,7 +17,6 @@ where
 
     fn gamma0(&self) -> Self;
     fn gamma1(&self) -> Self;
-    fn new(value: usize) -> T;
     fn sigma0(&self) -> Self;
     fn sigma1(&self) -> Self;
 

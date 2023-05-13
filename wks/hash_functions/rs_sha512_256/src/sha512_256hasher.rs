@@ -2,14 +2,8 @@ use crate::Sha512_256State;
 use core::hash::Hasher;
 use hash_ctx_lib::{GenericHasher, HasherContext};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Sha512_256Hasher(GenericHasher<Sha512_256State>);
-
-impl Default for Sha512_256Hasher {
-    fn default() -> Self {
-        Self(GenericHasher::default())
-    }
-}
 
 impl Hasher for Sha512_256Hasher {
     fn finish(&self) -> u64 {

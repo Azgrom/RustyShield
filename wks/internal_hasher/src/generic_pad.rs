@@ -105,7 +105,7 @@ where
         }
 
         if !bytes.is_empty() {
-            self.pad[..bytes.len()].clone_from_slice(&bytes[..]);
+            self.pad[..bytes.len()].clone_from_slice(bytes);
         }
     }
 }
@@ -115,7 +115,7 @@ impl<S, const LEN: usize, const DELIMITER: u8> HasherPadOps for GenericPad<S, LE
         S: Add<usize, Output = usize> + AddAssign<usize> + BitAnd<Output = usize> + Clone + Copy + From<usize> + Rem<Output = usize>,
 {
     fn size_mod_pad(&self) -> usize {
-        (self.size % self.pad.len().into()) as usize
+        self.size % self.pad.len().into()
     }
 
     fn zeros_pad(&self) -> usize {

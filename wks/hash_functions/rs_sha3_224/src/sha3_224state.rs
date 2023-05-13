@@ -6,7 +6,7 @@ use crate::Sha3_224Hasher;
 const RATE: usize = 1152;
 const OUTPUT_SIZE: usize = 28;
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Sha3_224State {
     sponge: KeccakSponge<u64, RATE, OUTPUT_SIZE>,
 }
@@ -29,14 +29,6 @@ impl BuildHasher for Sha3_224State {
 impl BytesLen for Sha3_224State {
     fn len() -> usize {
         RATE
-    }
-}
-
-impl Default for Sha3_224State {
-    fn default() -> Self {
-        Self {
-            sponge: KeccakSponge::new(),
-        }
     }
 }
 
