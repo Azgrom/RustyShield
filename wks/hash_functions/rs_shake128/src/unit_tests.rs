@@ -18,7 +18,6 @@ fn test() {
     shake128hasher.write(MSG);
     shake128hasher.write(MSG);
 
-
     assert_eq!(shake128hasher.finish(), 0)
 }
 

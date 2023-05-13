@@ -4,7 +4,7 @@ use crate::Sha1State;
 use alloc::vec;
 use core::hash::Hasher;
 use hash_ctx_lib::GenericHasher;
-use internal_hasher::{BigEndianBytes, BytePad, HasherPadOps, U64Size};
+use internal_hasher::{BigEndianBytes, BytePad};
 use internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
 
 const MESSAGE: &str = "abc";

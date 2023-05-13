@@ -43,7 +43,7 @@ use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
 /// Keccak-based constructions or research purposes.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct KeccakState<T: Default + Copy> {
-    planes: [Plane<T>; HEIGHT],
+    pub(crate) planes: [Plane<T>; HEIGHT],
 }
 
 impl<T> KeccakState<T>
