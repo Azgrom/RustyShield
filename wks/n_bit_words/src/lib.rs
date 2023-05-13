@@ -168,21 +168,21 @@ impl TSize<u32> for NBitWord<u32> {
     const SIZE: usize = 4;
 
     fn gamma0(&self) -> Self {
-        self.rotate_right(7) ^ self.rotate_right(1) ^ (*self >> Self(Wrapping(3)))
+        (self.rotate_right(7)) ^ (self.rotate_right(18)) ^ (*self >> Self(Wrapping(3)))
     }
 
     fn gamma1(&self) -> Self {
-        self.rotate_right(17) ^ self.rotate_right(19) ^ (*self >> Self(Wrapping(10)))
+        (self.rotate_right(17)) ^ (self.rotate_right(19)) ^ (*self >> Self(Wrapping(10)))
     }
 
     fn sigma0(&self) -> Self {
-        (((self.rotate_right(9)) ^ *self).rotate_right(11) ^ *self)
-            .rotate_right(2)
+        ((((self.rotate_right(9)) ^ *self).rotate_right(11)) ^ *self)
+        .rotate_right(2)
     }
 
     fn sigma1(&self) -> Self {
         ((((self.rotate_right(14)) ^ *self).rotate_right(5)) ^ *self)
-            .rotate_right(6)
+        .rotate_right(6)
     }
 }
 

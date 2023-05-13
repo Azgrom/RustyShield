@@ -24,8 +24,8 @@ impl CAVSLongMsg {
         let mut sha256_long_msgs: Vec<Self> = Vec::new();
         let mut chunk_offset = 7;
         while long_msgs.len() >= chunk_offset + 4 {
-            let (_, hash) = (&long_msgs[chunk_offset..chunk_offset + 4][1]).split_at(6);
-            let (_, digest) = (&long_msgs[chunk_offset..chunk_offset + 4][2]).split_at(5);
+            let (_, hash) = long_msgs[chunk_offset..chunk_offset + 4][1].split_at(6);
+            let (_, digest) = long_msgs[chunk_offset..chunk_offset + 4][2].split_at(5);
 
             sha256_long_msgs.push(Self {
                 message: hash
@@ -33,7 +33,6 @@ impl CAVSLongMsg {
                     .map(|c| u8::from_str_radix(&c.to_string(), 16).unwrap())
                     .collect::<Vec<u8>>()
                     .chunks(2)
-                    .into_iter()
                     .map(|t| t[0] << 4 | t[1])
                     .collect::<Vec<u8>>(),
                 message_digest: digest.to_string(),

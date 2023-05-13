@@ -28,7 +28,7 @@ fn test2() {
     shake128hasher.write(MSG);
 
     let context = HasherContext::finish(&mut shake128hasher);
-    assert_eq!(context, [0u8; 32]);
+    assert_eq!(context, [244, 32, 46, 60, 88, 82, 249, 24, 42, 4, 48, 253, 129, 68, 240, 167, 75, 149, 231, 65, 126, 202, 225, 125, 176, 248, 207, 238, 208, 227, 230, 110]);
 }
 
 struct ByteArrayWrapper<const LEN: usize>([u8; LEN]);
