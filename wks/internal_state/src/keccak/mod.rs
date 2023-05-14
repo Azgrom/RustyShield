@@ -88,7 +88,7 @@ where
         for (lane, byte) in
             KeccakStateIterMut::new(&mut self.state).take(lanes_to_fulfill).zip(input.chunks_exact(size_of::<T>()))
         {
-            *lane = NBitWord::<T>::from_le_bytes(byte);
+            *lane ^= NBitWord::<T>::from_le_bytes(byte);
         }
 
         self.state.apply_f();
@@ -112,27 +112,18 @@ where
         let mut state = self.state.clone();
 
         while BYTE_COUNT_IN_U64 > completed_bytes {
-            if bytes_in_rate > BYTE_COUNT_IN_U64 {
-                // KeccakStateIter::new(&state)
-                //     .take(bytes_in_rate)
-                //     .map(|lane| lane.to_le_bytes().as_ref())
-                //     .flatten()
-                //     .zip();
+            for (le_bytes, lane) in u64_le_bytes.iter_mut().skip(completed_bytes).zip(
+                KeccakStateIter::new(&state)
+                    .take(bytes_in_rate)
+                    .flat_map(|lane| lane.to_le_bytes().as_ref().to_owned()),
+            ) {
+                *le_bytes = lane;
+            }
 
-                for (le_bytes, lane) in u64_le_bytes.iter_mut().skip(completed_bytes).zip(
-                    KeccakStateIter::new(&state)
-                        .take(bytes_in_rate)
-                        .map(|lane| lane.to_le_bytes().as_ref().to_owned())
-                        .flatten(),
-                ) {
-                    *le_bytes = lane;
-                }
+            completed_bytes += bytes_in_rate;
 
-                completed_bytes += bytes_in_rate;
-
-                if BYTE_COUNT_IN_U64 > completed_bytes {
-                    state.apply_f();
-                }
+            if BYTE_COUNT_IN_U64 > completed_bytes {
+                state.apply_f();
             }
         }
 
