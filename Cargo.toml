@@ -47,6 +47,7 @@ rs_sha512_224 = { path = "wks/hash_functions/rs_sha512_224" }
 rs_sha512_256 = { path = "wks/hash_functions/rs_sha512_256" }
 rs_shake128 = { path = "wks/hash_functions/rs_shake128" }
 rs_sha3_224 = { path = "wks/hash_functions/rs_sha3_224" }
+rs_sha3_256 = { path = "wks/hash_functions/rs_sha3_256" }
 hash_ctx = { path = "wks/hash_ctx" }
 
 [[bench]]
