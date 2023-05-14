@@ -1,8 +1,8 @@
 use crate::{
     keccak::chi::Chi,
     keccak::iota::Iota,
-    keccak::plane::Plane,
     keccak::pi::Pi,
+    keccak::plane::Plane,
     keccak::rho::Rho,
     keccak::theta::Theta,
     keccak::{HEIGHT, RC, WIDTH},
@@ -48,7 +48,7 @@ pub struct KeccakState<T: Default + Copy> {
 
 impl<T> KeccakState<T>
 where
-    T: BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor<Output = T> + BitXorAssign + Copy + Default,
+    T: BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor + BitXorAssign + Copy + Default,
     NBitWord<T>: Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
@@ -104,15 +104,8 @@ impl<'a, T> ExactSizeIterator for KeccakStateIterMut<'a, T> {}
 
 impl<T> KeccakState<T>
 where
-    T: BitAnd
-        + BitAndAssign
-        + BitOr<NBitWord<T>, Output = NBitWord<T>>
-        + BitXor<Output = T>
-        + BitXorAssign
-        + Copy
-        + Default
-        + Not<Output = T>,
-    NBitWord<T>: From<u64> + LittleEndianBytes + Rotate + TSize<T>,
+    T: BitAnd + BitAndAssign + BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor + BitXorAssign + Copy + Default + Not,
+    NBitWord<T>: From<u64> + LittleEndianBytes + Not<Output = NBitWord<T>> + Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     pub fn apply_f(&mut self) {
@@ -271,7 +264,7 @@ where
 
 impl<T> Theta for KeccakState<T>
 where
-    T: BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor<Output = T> + BitXorAssign + Copy + Default,
+    T: BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor + BitXorAssign + Copy + Default,
     NBitWord<T>: Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {

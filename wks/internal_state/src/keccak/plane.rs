@@ -1,7 +1,7 @@
+use crate::keccak::WIDTH;
 use core::ops::{Index, IndexMut};
 use core::slice::{Iter, IterMut};
 use n_bit_words_lib::NBitWord;
-use crate::keccak::WIDTH;
 
 #[derive(Clone, Copy, Default, Debug, Eq, Hash, PartialEq)]
 pub(crate) struct Plane<T> {

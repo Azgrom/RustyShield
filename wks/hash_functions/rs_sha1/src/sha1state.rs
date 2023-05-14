@@ -4,7 +4,7 @@ use core::{
     hash::BuildHasher,
     ops::AddAssign,
 };
-use internal_hasher::{HashAlgorithm, GenericPad, U64Size};
+use internal_hasher::{GenericPad, HashAlgorithm, U64Size};
 use internal_state::{BytesLen, DWords, GenericStateHasher, Sha160BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
 use n_bit_words_lib::NBitWord;
 

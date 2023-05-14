@@ -45,7 +45,7 @@ where
 
 impl<S, const LEN: usize, const DELIMITER: u8> Default for GenericPad<S, LEN, DELIMITER>
 where
-    S: AddAssign<usize> + Copy + BitAnd<Output = usize> + From<usize> + Rem<Output = usize>
+    S: AddAssign<usize> + Copy + BitAnd<Output = usize> + From<usize> + Rem<Output = usize>,
 {
     fn default() -> Self {
         Self {
@@ -57,7 +57,7 @@ where
 
 impl<S, const LEN: usize, const DELIMITER: u8> LenPad for GenericPad<S, LEN, DELIMITER>
 where
-    S: AddAssign<usize> + Copy + BitAnd<Output = usize> + From<usize> + Rem<Output = usize>
+    S: AddAssign<usize> + Copy + BitAnd<Output = usize> + From<usize> + Rem<Output = usize>,
 {
     fn len() -> usize {
         LEN
@@ -67,7 +67,15 @@ where
 impl<S, H, const LEN: usize, const DELIMITER: u8> DigestThroughPad<H> for GenericPad<S, LEN, DELIMITER>
 where
     H: HashAlgorithm,
-    S: Add<usize, Output = usize> + AddAssign<usize> + BigEndianBytes + BitAnd<Output = usize> + Clone + Copy + From<usize> + Mul<u32, Output = S> + Rem<Output = usize>,
+    S: Add<usize, Output = usize>
+        + AddAssign<usize>
+        + BigEndianBytes
+        + BitAnd<Output = usize>
+        + Clone
+        + Copy
+        + From<usize>
+        + Mul<u32, Output = S>
+        + Rem<Output = usize>,
 {
     fn finish(&mut self, state: &mut H) {
         let trailing_byte = self.size.to_be_bytes();
@@ -111,8 +119,14 @@ where
 }
 
 impl<S, const LEN: usize, const DELIMITER: u8> HasherPadOps for GenericPad<S, LEN, DELIMITER>
-    where
-        S: Add<usize, Output = usize> + AddAssign<usize> + BitAnd<Output = usize> + Clone + Copy + From<usize> + Rem<Output = usize>,
+where
+    S: Add<usize, Output = usize>
+        + AddAssign<usize>
+        + BitAnd<Output = usize>
+        + Clone
+        + Copy
+        + From<usize>
+        + Rem<Output = usize>,
 {
     fn size_mod_pad(&self) -> usize {
         self.size % self.pad.len().into()

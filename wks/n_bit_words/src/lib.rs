@@ -1,6 +1,7 @@
 #![no_std]
 
 pub use crate::{little_endian::LittleEndianBytes, rotate::Rotate, t_size::TSize};
+use core::fmt::Debug;
 use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     hash::{Hash, Hasher},
@@ -8,7 +9,6 @@ use core::{
     ops::{Add, AddAssign, BitAnd, BitOr, BitXor, Shl, Shr, Sub},
     ops::{BitAndAssign, BitXorAssign, Not},
 };
-use core::fmt::Debug;
 
 mod little_endian;
 mod rotate;
@@ -27,189 +27,6 @@ mod unit_tests;
 /// and `S1(e) = (((e >>> 14) ^ e) >>> 5) ^ e) >>> 6`
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct NBitWord<T>(Wrapping<T>);
-
-impl LittleEndianBytes for NBitWord<u8> {
-    type OutputBytesArray = [u8; 1];
-
-    fn from_le_bytes(bytes: &[u8]) -> Self {
-        Self(Wrapping(u8::from_le_bytes(<[u8; 1]>::try_from(bytes).unwrap())))
-    }
-
-    fn to_le_bytes(&self) -> Self::OutputBytesArray {
-        self.0.0.to_le_bytes()
-    }
-}
-
-impl LittleEndianBytes for NBitWord<u16> {
-    type OutputBytesArray = [u8; 2];
-
-    fn from_le_bytes(bytes: &[u8]) -> Self {
-        Self(Wrapping(u16::from_le_bytes(<[u8; 2]>::try_from(bytes).unwrap())))
-    }
-
-    fn to_le_bytes(&self) -> Self::OutputBytesArray {
-        self.0.0.to_le_bytes()
-    }
-}
-
-impl LittleEndianBytes for NBitWord<u32> {
-    type OutputBytesArray = [u8; 4];
-
-    fn from_le_bytes(bytes: &[u8]) -> Self {
-        Self(Wrapping(u32::from_le_bytes(<[u8; 4]>::try_from(bytes).unwrap())))
-    }
-
-    fn to_le_bytes(&self) -> Self::OutputBytesArray {
-        self.0.0.to_le_bytes()
-    }
-}
-
-impl LittleEndianBytes for NBitWord<u64> {
-    type OutputBytesArray = [u8; 8];
-
-    fn from_le_bytes(bytes: &[u8]) -> Self {
-        Self(Wrapping(u64::from_le_bytes(<[u8; 8]>::try_from(bytes).unwrap())))
-    }
-
-    fn to_le_bytes(&self) -> Self::OutputBytesArray {
-        self.0.0.to_le_bytes()
-    }
-}
-
-impl Rotate for NBitWord<u8> {
-    fn rotate_right(self, n: u32) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
-    }
-
-    fn rotate_left(self, n: u32) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
-    }
-}
-
-impl Rotate for NBitWord<u16> {
-    fn rotate_right(self, n: u32) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
-    }
-
-    fn rotate_left(self, n: u32) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
-    }
-}
-
-impl Rotate for NBitWord<u32> {
-    fn rotate_right(self, n: u32) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
-    }
-
-    fn rotate_left(self, n: u32) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
-    }
-}
-
-impl Rotate for NBitWord<u64> {
-    fn rotate_right(self, n: u32) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
-    }
-
-    fn rotate_left(self, n: u32) -> Self {
-        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
-    }
-}
-
-impl TSize<u8> for NBitWord<u8> {
-    const BITS: u32 = u8::BITS;
-    const SIZE: usize = 1;
-
-    fn gamma0(&self) -> Self {
-        ((self.rotate_right(3) ^ *self) >> Self(Wrapping(1))) ^ self.rotate_right(2)
-    }
-
-    fn gamma1(&self) -> Self {
-        ((((self.rotate_right(5)) ^ *self) >> Self(Wrapping(2))) ^ *self)
-            .rotate_right(4)
-    }
-
-    fn sigma0(&self) -> Self {
-        ((self.rotate_right(1)) ^ self.rotate_right(2))
-            ^ self.rotate_right(4)
-    }
-
-    fn sigma1(&self) -> Self {
-        ((self.rotate_right(3)) ^ self.rotate_right(4))
-            ^ self.rotate_right(2)
-    }
-}
-
-impl TSize<u16> for NBitWord<u16> {
-    const BITS: u32 = u8::BITS;
-    const SIZE: usize = 2;
-
-    fn gamma0(&self) -> Self {
-        (((self.rotate_right(5)) ^ *self) >> Self(Wrapping(1))) ^ self.rotate_right(2)
-    }
-
-    fn gamma1(&self) -> Self {
-        (((self.rotate_right(9)) ^ *self) >> Self(Wrapping(2))) ^ self.rotate_right(6)
-    }
-
-    fn sigma0(&self) -> Self {
-        ((self.rotate_right(1)) ^ self.rotate_right(4))
-            ^ self.rotate_right(8)
-    }
-
-    fn sigma1(&self) -> Self {
-        ((self.rotate_right(5)) ^ self.rotate_right(7))
-            ^ self.rotate_right(4)
-    }
-}
-
-impl TSize<u32> for NBitWord<u32> {
-    const BITS: u32 = u32::BITS;
-    const SIZE: usize = 4;
-
-    fn gamma0(&self) -> Self {
-        (self.rotate_right(7)) ^ (self.rotate_right(18)) ^ (*self >> Self(Wrapping(3)))
-    }
-
-    fn gamma1(&self) -> Self {
-        (self.rotate_right(17)) ^ (self.rotate_right(19)) ^ (*self >> Self(Wrapping(10)))
-    }
-
-    fn sigma0(&self) -> Self {
-        ((((self.rotate_right(9)) ^ *self).rotate_right(11)) ^ *self)
-        .rotate_right(2)
-    }
-
-    fn sigma1(&self) -> Self {
-        ((((self.rotate_right(14)) ^ *self).rotate_right(5)) ^ *self)
-        .rotate_right(6)
-    }
-}
-
-impl TSize<u64> for NBitWord<u64> {
-    const BITS: u32 = u64::BITS;
-    const SIZE: usize = 8;
-
-    fn gamma0(&self) -> Self {
-        self.rotate_right(1) ^ self.rotate_right(8) ^ (*self >> Self(Wrapping(7)))
-    }
-
-    fn gamma1(&self) -> Self {
-        self.rotate_right(19) ^ self.rotate_right(61) ^ (*self >> Self(Wrapping(6)))
-    }
-
-    fn sigma0(&self) -> Self {
-        self.rotate_right(28)
-            ^ self.rotate_right(34)
-            ^ self.rotate_right(39)
-    }
-
-    fn sigma1(&self) -> Self {
-        self.rotate_right(14)
-            ^ self.rotate_right(18)
-            ^ self.rotate_right(41)
-    }
-}
 
 impl<T> Add for NBitWord<T>
 where
@@ -348,6 +165,24 @@ impl<T> From<T> for NBitWord<T> {
     }
 }
 
+impl From<u64> for NBitWord<u8> {
+    fn from(value: u64) -> Self {
+        Self(Wrapping(value as u8))
+    }
+}
+
+impl From<u64> for NBitWord<u16> {
+    fn from(value: u64) -> Self {
+        Self(Wrapping(value as u16))
+    }
+}
+
+impl From<u64> for NBitWord<u32> {
+    fn from(value: u64) -> Self {
+        Self(Wrapping(value as u32))
+    }
+}
+
 impl From<NBitWord<u32>> for u32 {
     fn from(value: NBitWord<u32>) -> Self {
         value.0 .0
@@ -393,6 +228,54 @@ where
     }
 }
 
+impl LittleEndianBytes for NBitWord<u8> {
+    type OutputBytesArray = [u8; 1];
+
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        Self(Wrapping(u8::from_le_bytes(<[u8; 1]>::try_from(bytes).unwrap())))
+    }
+
+    fn to_le_bytes(&self) -> Self::OutputBytesArray {
+        self.0 .0.to_le_bytes()
+    }
+}
+
+impl LittleEndianBytes for NBitWord<u16> {
+    type OutputBytesArray = [u8; 2];
+
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        Self(Wrapping(u16::from_le_bytes(<[u8; 2]>::try_from(bytes).unwrap())))
+    }
+
+    fn to_le_bytes(&self) -> Self::OutputBytesArray {
+        self.0 .0.to_le_bytes()
+    }
+}
+
+impl LittleEndianBytes for NBitWord<u32> {
+    type OutputBytesArray = [u8; 4];
+
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        Self(Wrapping(u32::from_le_bytes(<[u8; 4]>::try_from(bytes).unwrap())))
+    }
+
+    fn to_le_bytes(&self) -> Self::OutputBytesArray {
+        self.0 .0.to_le_bytes()
+    }
+}
+
+impl LittleEndianBytes for NBitWord<u64> {
+    type OutputBytesArray = [u8; 8];
+
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        Self(Wrapping(u64::from_le_bytes(<[u8; 8]>::try_from(bytes).unwrap())))
+    }
+
+    fn to_le_bytes(&self) -> Self::OutputBytesArray {
+        self.0 .0.to_le_bytes()
+    }
+}
+
 impl<T> LowerHex for NBitWord<T>
 where
     T: LowerHex,
@@ -416,6 +299,46 @@ where
 impl PartialEq<u32> for NBitWord<u32> {
     fn eq(&self, other: &u32) -> bool {
         self.0 .0 == *other
+    }
+}
+
+impl Rotate for NBitWord<u8> {
+    fn rotate_right(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
+    }
+
+    fn rotate_left(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
+    }
+}
+
+impl Rotate for NBitWord<u16> {
+    fn rotate_right(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
+    }
+
+    fn rotate_left(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
+    }
+}
+
+impl Rotate for NBitWord<u32> {
+    fn rotate_right(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
+    }
+
+    fn rotate_left(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
+    }
+}
+
+impl Rotate for NBitWord<u64> {
+    fn rotate_right(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_right(n)))
+    }
+
+    fn rotate_left(self, n: u32) -> Self {
+        NBitWord(Wrapping(self.0 .0.rotate_left(n)))
     }
 }
 
@@ -534,6 +457,90 @@ impl Sub<NBitWord<u64>> for u32 {
 
     fn sub(self, rhs: NBitWord<u64>) -> Self::Output {
         NBitWord(Wrapping(self as u64 - rhs.0 .0))
+    }
+}
+
+impl TSize<u8> for NBitWord<u8> {
+    const BITS: u32 = u8::BITS;
+    const SIZE: usize = 1;
+
+    fn gamma0(&self) -> Self {
+        ((self.rotate_right(3) ^ *self) >> Self(Wrapping(1))) ^ self.rotate_right(2)
+    }
+
+    fn gamma1(&self) -> Self {
+        ((((self.rotate_right(5)) ^ *self) >> Self(Wrapping(2))) ^ *self).rotate_right(4)
+    }
+
+    fn sigma0(&self) -> Self {
+        ((self.rotate_right(1)) ^ self.rotate_right(2)) ^ self.rotate_right(4)
+    }
+
+    fn sigma1(&self) -> Self {
+        ((self.rotate_right(3)) ^ self.rotate_right(4)) ^ self.rotate_right(2)
+    }
+}
+
+impl TSize<u16> for NBitWord<u16> {
+    const BITS: u32 = u8::BITS;
+    const SIZE: usize = 2;
+
+    fn gamma0(&self) -> Self {
+        (((self.rotate_right(5)) ^ *self) >> Self(Wrapping(1))) ^ self.rotate_right(2)
+    }
+
+    fn gamma1(&self) -> Self {
+        (((self.rotate_right(9)) ^ *self) >> Self(Wrapping(2))) ^ self.rotate_right(6)
+    }
+
+    fn sigma0(&self) -> Self {
+        ((self.rotate_right(1)) ^ self.rotate_right(4)) ^ self.rotate_right(8)
+    }
+
+    fn sigma1(&self) -> Self {
+        ((self.rotate_right(5)) ^ self.rotate_right(7)) ^ self.rotate_right(4)
+    }
+}
+
+impl TSize<u32> for NBitWord<u32> {
+    const BITS: u32 = u32::BITS;
+    const SIZE: usize = 4;
+
+    fn gamma0(&self) -> Self {
+        (self.rotate_right(7)) ^ (self.rotate_right(18)) ^ (*self >> Self(Wrapping(3)))
+    }
+
+    fn gamma1(&self) -> Self {
+        (self.rotate_right(17)) ^ (self.rotate_right(19)) ^ (*self >> Self(Wrapping(10)))
+    }
+
+    fn sigma0(&self) -> Self {
+        ((((self.rotate_right(9)) ^ *self).rotate_right(11)) ^ *self).rotate_right(2)
+    }
+
+    fn sigma1(&self) -> Self {
+        ((((self.rotate_right(14)) ^ *self).rotate_right(5)) ^ *self).rotate_right(6)
+    }
+}
+
+impl TSize<u64> for NBitWord<u64> {
+    const BITS: u32 = u64::BITS;
+    const SIZE: usize = 8;
+
+    fn gamma0(&self) -> Self {
+        self.rotate_right(1) ^ self.rotate_right(8) ^ (*self >> Self(Wrapping(7)))
+    }
+
+    fn gamma1(&self) -> Self {
+        self.rotate_right(19) ^ self.rotate_right(61) ^ (*self >> Self(Wrapping(6)))
+    }
+
+    fn sigma0(&self) -> Self {
+        self.rotate_right(28) ^ self.rotate_right(34) ^ self.rotate_right(39)
+    }
+
+    fn sigma1(&self) -> Self {
+        self.rotate_right(14) ^ self.rotate_right(18) ^ self.rotate_right(41)
     }
 }
 

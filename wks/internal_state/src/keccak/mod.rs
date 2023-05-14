@@ -1,6 +1,6 @@
-use alloc::borrow::ToOwned;
 use crate::keccak::state::{KeccakState, KeccakStateIter, KeccakStateIterMut};
 use crate::keccak::xof::ExtendedOutputFunction;
+use alloc::borrow::ToOwned;
 use core::mem::size_of;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
 use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
@@ -120,7 +120,10 @@ where
                 //     .zip();
 
                 for (le_bytes, lane) in u64_le_bytes.iter_mut().skip(completed_bytes).zip(
-                    KeccakStateIter::new(&state).take(bytes_in_rate).map(|lane| lane.to_le_bytes().as_ref().to_owned()).flatten(),
+                    KeccakStateIter::new(&state)
+                        .take(bytes_in_rate)
+                        .map(|lane| lane.to_le_bytes().as_ref().to_owned())
+                        .flatten(),
                 ) {
                     *le_bytes = lane;
                 }

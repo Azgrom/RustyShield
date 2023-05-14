@@ -1,5 +1,5 @@
-use core::ops::{Add, AddAssign, BitAnd, Mul, Rem};
 use crate::BigEndianBytes;
+use core::ops::{Add, AddAssign, BitAnd, Mul, Rem};
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct KeccakU128Size(u128);

@@ -1,7 +1,5 @@
 use crate::{
-    keccak::{
-        chi::Chi, iota::Iota, pi::Pi, rho::Rho, theta::Theta, HEIGHT, WIDTH,
-    },
+    keccak::{chi::Chi, iota::Iota, pi::Pi, rho::Rho, theta::Theta, HEIGHT, WIDTH},
     KeccakState,
 };
 

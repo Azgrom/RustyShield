@@ -1,7 +1,8 @@
+use crate::Sha3_224State;
 use core::hash::{Hash, Hasher};
 use hash_ctx_lib::{GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
-use crate::Sha3_224State;
+use internal_state::ExtendedOutputFunction;
 
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq)]
 pub struct Sha3_224Hasher(GenericHasher<Sha3_224State>);

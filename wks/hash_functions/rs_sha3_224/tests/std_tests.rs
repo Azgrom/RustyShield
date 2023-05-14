@@ -1,6 +1,6 @@
+use rs_sha3_224::Sha3_224State;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{BuildHasher, Hash, Hasher};
-use rs_sha3_224::Sha3_224State;
 
 #[test]
 fn sha3_224_state_hash() {

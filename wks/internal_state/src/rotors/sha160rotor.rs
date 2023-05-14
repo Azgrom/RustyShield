@@ -18,26 +18,22 @@ impl Sha160Rotor<'_, '_, '_, '_, '_, '_> {
 
 impl Sha160Rotor<'_, '_, '_, '_, '_, '_> {
     pub fn rounds_00_19(&mut self) {
-        *self.4 +=
-            *self.5 + Self::T_00_19 + self.0.rotate_left(5) + NBitWord::<u32>::ch(*self.1, *self.2, *self.3);
+        *self.4 += *self.5 + Self::T_00_19 + self.0.rotate_left(5) + NBitWord::<u32>::ch(*self.1, *self.2, *self.3);
         *self.1 = self.1.rotate_right(2);
     }
 
     pub fn rounds_20_39(&mut self) {
-        *self.4 +=
-            *self.5 + Self::T_20_39 + self.0.rotate_left(5) + NBitWord::<u32>::parity(*self.1, *self.2, *self.3);
+        *self.4 += *self.5 + Self::T_20_39 + self.0.rotate_left(5) + NBitWord::<u32>::parity(*self.1, *self.2, *self.3);
         *self.1 = self.1.rotate_right(2);
     }
 
     pub fn rounds_40_59(&mut self) {
-        *self.4 +=
-            *self.5 + Self::T_40_59 + self.0.rotate_left(5) + NBitWord::<u32>::maj(*self.1, *self.2, *self.3);
+        *self.4 += *self.5 + Self::T_40_59 + self.0.rotate_left(5) + NBitWord::<u32>::maj(*self.1, *self.2, *self.3);
         *self.1 = self.1.rotate_right(2);
     }
 
     pub fn rounds_60_79(&mut self) {
-        *self.4 +=
-            *self.5 + Self::T_60_79 + self.0.rotate_left(5) + NBitWord::<u32>::parity(*self.1, *self.2, *self.3);
+        *self.4 += *self.5 + Self::T_60_79 + self.0.rotate_left(5) + NBitWord::<u32>::parity(*self.1, *self.2, *self.3);
         *self.1 = self.1.rotate_right(2);
     }
 }
