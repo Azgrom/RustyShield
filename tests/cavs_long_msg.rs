@@ -2,7 +2,7 @@ use std::{env, fs, path::Path, process};
 
 pub struct CAVSLongMsg {
     pub message: Vec<u8>,
-    pub message_digest: String,
+    pub expected_message_digest: String,
 }
 
 impl CAVSLongMsg {
@@ -35,7 +35,7 @@ impl CAVSLongMsg {
                     .chunks(2)
                     .map(|t| t[0] << 4 | t[1])
                     .collect::<Vec<u8>>(),
-                message_digest: digest.to_string(),
+                expected_message_digest: digest.to_string(),
             });
 
             chunk_offset += 4;

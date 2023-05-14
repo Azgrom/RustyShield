@@ -20,6 +20,6 @@ fn compare_long_messages_provided_by_nist_sha3_256_validation_system() {
             .iter()
             .flat_map(|s| s.chars())
             .collect::<String>();
-        assert_eq!(result, long_msg.message_digest);
+        assert_eq!(result, long_msg.expected_message_digest);
     }
 }
