@@ -2,12 +2,12 @@ use core::hash::Hasher;
 use hash_ctx_lib::{GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
 use internal_state::ExtendedOutputFunction;
-use crate::Sha3_256State;
+use crate::Sha3_384State;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
-pub struct Sha3_256Hasher(GenericHasher<Sha3_256State>);
+pub struct Sha3_384Hasher(GenericHasher<Sha3_384State>);
 
-impl Hasher for Sha3_256Hasher {
+impl Hasher for Sha3_384Hasher {
     fn finish(&self) -> u64 {
         self.0.finish()
     }
@@ -17,8 +17,8 @@ impl Hasher for Sha3_256Hasher {
     }
 }
 
-impl HasherContext for Sha3_256Hasher {
-    type State = <Sha3_256State as HashAlgorithm>::Output;
+impl HasherContext for Sha3_384Hasher {
+    type State = <Sha3_384State as HashAlgorithm>::Output;
 
     fn finish(&mut self) -> Self::State {
         HasherContext::finish(&mut self.0).squeeze()

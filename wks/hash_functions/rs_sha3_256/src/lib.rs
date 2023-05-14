@@ -1,7 +1,5 @@
 #![no_std]
 
-extern crate alloc;
-
 pub use crate::{sha3_256hasher::Sha3_256Hasher, sha3_256state::Sha3_256State};
 
 mod sha3_256state;
