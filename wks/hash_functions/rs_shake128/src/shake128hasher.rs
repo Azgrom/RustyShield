@@ -1,14 +1,10 @@
+use crate::Shake128State;
 use core::hash::Hasher;
 use hash_ctx_lib::{GenericHasher, HasherContext};
-use crate::Shake128State;
+use internal_state::ExtendedOutputFunction;
 
+#[derive(Default)]
 pub struct Shake128Hasher<const OUTPUT_SIZE: usize>(GenericHasher<Shake128State<OUTPUT_SIZE>>);
-
-impl<const OUTPUT_SIZE: usize> Default for Shake128Hasher<OUTPUT_SIZE> {
-    fn default() -> Self {
-        Self(GenericHasher::default())
-    }
-}
 
 impl<const OUTPUT_SIZE: usize> Hasher for Shake128Hasher<OUTPUT_SIZE> {
     fn finish(&self) -> u64 {

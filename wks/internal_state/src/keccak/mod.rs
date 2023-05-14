@@ -1,16 +1,19 @@
+use alloc::borrow::ToOwned;
 use crate::keccak::state::{KeccakState, KeccakStateIter, KeccakStateIterMut};
+use crate::keccak::xof::ExtendedOutputFunction;
 use core::mem::size_of;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
 use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
 
-mod from_bytes;
 pub(crate) mod chi;
+mod from_bytes;
 pub(crate) mod iota;
 pub(crate) mod pi;
+pub(crate) mod plane;
 pub(crate) mod rho;
 pub(crate) mod state;
-pub(crate) mod plane;
 pub(crate) mod theta;
+pub(crate) mod xof;
 
 pub(crate) const WIDTH: usize = 5;
 pub(crate) const HEIGHT: usize = 5;
@@ -53,7 +56,7 @@ const RC: [u64; 24] = [
 ///
 /// The Keccak-f permutation is a family of permutations parameterized by the width of the state.
 /// The most commonly used instance is Keccak-f[1600], with a state width of 1600 bits.
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct KeccakSponge<T, const RATE: usize, const OUTPUT_SIZE: usize>
 where
     T: Default + Copy,
@@ -81,7 +84,7 @@ where
     /// size `N`. Each block is XORed with the rate portion of the state, followed by the application of
     /// the Keccak-f permutation
     pub fn absorb(&mut self, input: &[u8]) {
-        let lanes_to_fulfill = RATE / (u8::BITS as usize * size_of::<T>());
+        let lanes_to_fulfill = RATE / (size_of::<T>());
         for (lane, byte) in
             KeccakStateIterMut::new(&mut self.state).take(lanes_to_fulfill).zip(input.chunks_exact(size_of::<T>()))
         {
@@ -90,39 +93,71 @@ where
 
         self.state.apply_f();
     }
+}
 
-    /// Squeezes the output data from the sponge
-    pub fn squeeze(&mut self) -> [u8; OUTPUT_SIZE] {
+impl<T, const RATE: usize, const OUTPUT_SIZE: usize> ExtendedOutputFunction<OUTPUT_SIZE>
+    for KeccakSponge<T, RATE, OUTPUT_SIZE>
+where
+    T: BitAnd + BitAndAssign + BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor + BitXorAssign + Copy + Default + Not,
+    NBitWord<T>: From<u64> + LittleEndianBytes + Not<Output = NBitWord<T>> + Rotate + TSize<T>,
+    u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
+{
+    fn squeeze_u64(&self) -> u64 {
+        const BYTE_COUNT_IN_U64: usize = 8;
         let t_size = size_of::<T>();
-        let bytes_to_copy = RATE / u8::BITS as usize;
-        let mut output = [0u8; OUTPUT_SIZE];
-        let mut remaining_bytes = OUTPUT_SIZE;
+        let bytes_in_rate = RATE / (t_size);
+        let mut u64_le_bytes = [0u8; BYTE_COUNT_IN_U64];
+        let mut completed_bytes = 0;
 
-        while remaining_bytes > 0 {
-            for (le_bytes, lane) in
-                output.chunks_mut(t_size).zip(KeccakStateIter::new(&self.state).take(bytes_to_copy / t_size))
+        let mut state = self.state.clone();
+
+        while BYTE_COUNT_IN_U64 > completed_bytes {
+            if bytes_in_rate > BYTE_COUNT_IN_U64 {
+                // KeccakStateIter::new(&state)
+                //     .take(bytes_in_rate)
+                //     .map(|lane| lane.to_le_bytes().as_ref())
+                //     .flatten()
+                //     .zip();
+
+                for (le_bytes, lane) in u64_le_bytes.iter_mut().skip(completed_bytes).zip(
+                    KeccakStateIter::new(&state).take(bytes_in_rate).map(|lane| lane.to_le_bytes().as_ref().to_owned()).flatten(),
+                ) {
+                    *le_bytes = lane;
+                }
+
+                completed_bytes += bytes_in_rate;
+
+                if BYTE_COUNT_IN_U64 > completed_bytes {
+                    state.apply_f();
+                }
+            }
+        }
+
+        u64::from_le_bytes(u64_le_bytes)
+    }
+
+    fn squeeze(&mut self) -> [u8; OUTPUT_SIZE] {
+        let t_size = size_of::<T>();
+        let bytes_to_copy = RATE;
+        let mut output = [0u8; OUTPUT_SIZE];
+        let mut completed_bytes = 0;
+
+        while OUTPUT_SIZE > completed_bytes {
+            for (le_bytes, lane) in output
+                .chunks_mut(t_size)
+                .skip(completed_bytes)
+                .zip(KeccakStateIter::new(&self.state).take(bytes_to_copy / t_size))
             {
                 le_bytes.clone_from_slice(&lane.to_le_bytes().as_ref()[..le_bytes.len()])
             }
 
-            remaining_bytes = remaining_bytes.saturating_sub(bytes_to_copy);
+            completed_bytes += bytes_to_copy;
 
-            if remaining_bytes > 0 {
+            if OUTPUT_SIZE > completed_bytes {
                 self.state.apply_f();
             }
         }
 
         output
-    }
-}
-
-impl<T, const RATE: usize, const OUTPUT_SIZE: usize> Default for KeccakSponge<T, RATE, OUTPUT_SIZE>
-where T: Default + Copy
-{
-    /// Creates a new Keccak sponge with the specified rate and squeezable output
-    fn default() -> Self {
-        Self {
-            state: KeccakState::default(),
-        }
     }
 }
