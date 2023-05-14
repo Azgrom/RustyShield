@@ -1,151 +1,71 @@
-extern crate criterion;
-extern crate hashes_sha1;
-extern crate openssl as ossl_sha1;
+use core::hash::{Hash, Hasher};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
-use core::hash::{BuildHasher, Hash, Hasher};
-use criterion::{criterion_group, criterion_main, Bencher, BenchmarkId, Criterion};
-use rs_sha1_lib::{Sha1Context, Sha1State};
+use rs_ssl::{Sha1Hasher, Sha224Hasher, Sha256Hasher, Sha384Hasher, Sha512Hasher, Sha512_224Hasher, Sha512_256Hasher};
 
-const BASE_INPUT_SIZE: usize = 4_096;
-const SIXTEEN_KB_BASE_INPUT: [u8; BASE_INPUT_SIZE] = [0x80; BASE_INPUT_SIZE];
+const FUNCTIONS_BENCH_COMPARISON: &str = "Compare different SHA functions execution time";
 
-#[inline(always)]
-#[cfg(feature = "comparator_build")]
-fn this_impl_sha1_simple_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
-    b.iter(|| {
-        let sha1_default_state = Sha1State::default();
-        let mut sha1hasher = sha1_default_state.build_hasher();
-        input.hash(&mut sha1hasher);
-        let _result = sha1hasher.finish();
-    })
+fn compare_sha_impls(c: &mut Criterion) {
+    let mut b_group = c.benchmark_group(FUNCTIONS_BENCH_COMPARISON);
+
+    b_group.bench_function("SHA-1", |b| {
+        b.iter(|| {
+            let mut sha1hasher = Sha1Hasher::default();
+            black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut sha1hasher);
+            sha1hasher.finish();
+        })
+    });
+
+    b_group.bench_function("SHA-224", |b| {
+        b.iter(|| {
+            let mut sha224hasher = Sha224Hasher::default();
+            black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut sha224hasher);
+            sha224hasher.finish();
+        })
+    });
+
+    b_group.bench_function("SHA-256", |b| {
+        b.iter(|| {
+            let mut sha256hasher = Sha256Hasher::default();
+            black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut sha256hasher);
+            sha256hasher.finish();
+        })
+    });
+
+    b_group.bench_function("SHA-384", |b| {
+        b.iter(|| {
+            let mut sha384hasher = Sha384Hasher::default();
+            black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut sha384hasher);
+            sha384hasher.finish();
+        })
+    });
+
+    b_group.bench_function("SHA-512", |b| {
+        b.iter(|| {
+            let mut sha512hasher = Sha512Hasher::default();
+            black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut sha512hasher);
+            sha512hasher.finish();
+        })
+    });
+
+    b_group.bench_function("SHA-512/224", |b| {
+        b.iter(|| {
+            let mut sha512_224hasher = Sha512_224Hasher::default();
+            black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut sha512_224hasher);
+            sha512_224hasher.finish();
+        })
+    });
+
+    b_group.bench_function("SHA-512/256", |b| {
+        b.iter(|| {
+            let mut sha512_256hasher = Sha512_256Hasher::default();
+            black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut sha512_256hasher);
+            sha512_256hasher.finish();
+        })
+    });
+
+    b_group.finish();
 }
 
-#[inline(always)]
-#[cfg(feature = "comparator_build")]
-fn openssl_bind_sha1_simple_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
-    b.iter(|| {
-        let mut sha1_ctx = ossl_sha1::sha::Sha1::new();
-        sha1_ctx.update(input);
-        let _result = sha1_ctx.finish();
-    })
-}
-
-#[inline(always)]
-#[cfg(feature = "comparator_build")]
-fn rust_crypto_sha1_simple_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
-    use hashes_sha1::Digest;
-    b.iter(|| {
-        let mut sha1_ctx = hashes_sha1::Sha1::new();
-        sha1_ctx.update(input);
-        let _result = sha1_ctx.finalize();
-    })
-}
-
-#[inline(always)]
-#[cfg(feature = "comparator_build")]
-fn this_impl_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
-    b.iter(|| {
-        let sha1_default_state = Sha1State::default();
-        let mut sha1hasher = sha1_default_state.build_hasher();
-        input.hash(&mut sha1hasher);
-        let _result = sha1hasher.to_hex_string();
-    })
-}
-
-#[inline(always)]
-#[cfg(feature = "comparator_build")]
-fn openssl_bind_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
-    b.iter(|| {
-        let mut sha1_ctx = ossl_sha1::sha::Sha1::new();
-        sha1_ctx.update(input);
-        let _result = sha1_ctx
-            .finish()
-            .iter()
-            .map(|&b| format!("{:02x}", b))
-            .collect::<String>();
-    })
-}
-
-#[inline(always)]
-#[cfg(feature = "comparator_build")]
-fn rust_crypto_sha1_digestion_with_given_input_size(b: &mut Bencher, input: &[u8]) {
-    use hashes_sha1::Digest;
-    b.iter(|| {
-        let mut sha1_ctx = hashes_sha1::Sha1::new();
-        sha1_ctx.update(input);
-        let _result = sha1_ctx
-            .finalize()
-            .iter()
-            .map(|&b| format!("{:02x}", b))
-            .collect::<String>();
-    })
-}
-
-#[cfg(feature = "comparator_build")]
-fn compare_simple_digestion_of_different_implementations(c: &mut Criterion) {
-    let mut benchmark_different_messages_lengths_impact = c.benchmark_group(
-        "Compare messages from 0 to 4 kilobytes simple digestion of different implementations",
-    );
-
-    for current_size in (0..=BASE_INPUT_SIZE).step_by(1024) {
-        benchmark_different_messages_lengths_impact.bench_with_input(
-            BenchmarkId::new("This impl", current_size),
-            &SIXTEEN_KB_BASE_INPUT[..current_size],
-            this_impl_sha1_simple_digestion_with_given_input_size,
-        );
-
-        benchmark_different_messages_lengths_impact.bench_with_input(
-            BenchmarkId::new("OpenSSL bind", current_size),
-            &SIXTEEN_KB_BASE_INPUT[..current_size],
-            openssl_bind_sha1_simple_digestion_with_given_input_size,
-        );
-
-        benchmark_different_messages_lengths_impact.bench_with_input(
-            BenchmarkId::new("RustCrypto", current_size),
-            &SIXTEEN_KB_BASE_INPUT[..current_size],
-            rust_crypto_sha1_simple_digestion_with_given_input_size,
-        );
-    }
-
-    benchmark_different_messages_lengths_impact.finish();
-}
-
-#[cfg(feature = "comparator_build")]
-fn compare_simple_digestion_with_hash_producing_of_different_implementations(c: &mut Criterion) {
-    let mut benchmark_different_messages_lengths_impact =
-        c.benchmark_group("Compare messages from 0 to 4 kilobytes simple digestion, with final hash computing, of different implementations");
-
-    for current_size in (0..=BASE_INPUT_SIZE).step_by(1024) {
-        benchmark_different_messages_lengths_impact.bench_with_input(
-            BenchmarkId::new("This impl", current_size),
-            &SIXTEEN_KB_BASE_INPUT[..current_size],
-            this_impl_sha1_digestion_with_given_input_size,
-        );
-
-        benchmark_different_messages_lengths_impact.bench_with_input(
-            BenchmarkId::new("OpenSSL bind", current_size),
-            &SIXTEEN_KB_BASE_INPUT[..current_size],
-            openssl_bind_sha1_digestion_with_given_input_size,
-        );
-
-        benchmark_different_messages_lengths_impact.bench_with_input(
-            BenchmarkId::new("RustCrypto", current_size),
-            &SIXTEEN_KB_BASE_INPUT[..current_size],
-            rust_crypto_sha1_digestion_with_given_input_size,
-        );
-    }
-
-    benchmark_different_messages_lengths_impact.finish();
-}
-
-#[cfg(feature = "criterion")]
-criterion_group!(benches, bit_rotation,);
-
-#[cfg(feature = "comparator_build")]
-criterion_group!(
-    benches,
-    compare_simple_digestion_of_different_implementations,
-    compare_simple_digestion_with_hash_producing_of_different_implementations,
-);
-
+criterion_group!(benches, compare_sha_impls,);
 criterion_main!(benches);

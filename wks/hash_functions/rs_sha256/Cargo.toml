@@ -1,0 +1,13 @@
+[package]
+authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
+keywords = ["sha", "sha_2", "sha_256"]
+name = "rs_sha256"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+n_bit_words = { path = "../../n_bit_words" }
+internal_hasher = { path = "../../internal_hasher" }
+internal_state = { path = "../../internal_state" }
+hash_ctx = { path = "../../hash_ctx" }
