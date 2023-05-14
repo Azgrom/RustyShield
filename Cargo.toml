@@ -37,6 +37,7 @@ debug = false
 
 [dependencies]
 rs_hmac = { path = "wks/hash_functions/rs_hmac" }
+rs_keccak_nbits = { path = "wks/hash_functions/rs_keccak_nbits" }
 rs_sha1 = { path = "wks/hash_functions/rs_sha1" }
 rs_sha224 = { path = "wks/hash_functions/rs_sha224" }
 rs_sha256 = { path = "wks/hash_functions/rs_sha256" }
