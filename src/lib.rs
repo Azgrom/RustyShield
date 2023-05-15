@@ -11,4 +11,5 @@ pub use rs_sha512_256::{Sha512_256Hasher, Sha512_256State};
 pub use rs_sha3_224::{Sha3_224Hasher, Sha3_224State};
 pub use rs_sha3_256::{Sha3_256Hasher, Sha3_256State};
 pub use rs_sha3_384::{Sha3_384Hasher, Sha3_384State};
+pub use rs_sha3_512::{Sha3_512Hasher, Sha3_512State};
 pub use rs_shake128::{Shake128Hasher, Shake128State};

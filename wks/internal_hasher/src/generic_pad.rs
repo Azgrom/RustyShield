@@ -81,6 +81,13 @@ where
         let trailing_byte = self.size.to_be_bytes();
         let zeros_pad = LEN - ((self.size + trailing_byte.as_ref().len()) % LEN);
         let mut offset = [0u8; LEN];
+
+        if zeros_pad == LEN && trailing_byte.as_ref().len() == 1 {
+            offset[0] = DELIMITER | trailing_byte.as_ref()[0];
+            self.write(state, &offset[..1]);
+            return;
+        }
+
         offset[0] = DELIMITER;
 
         self.write(state, &offset[..zeros_pad]);
