@@ -1,7 +1,7 @@
+use crate::Shake256State;
 use core::hash::Hasher;
 use hash_ctx_lib::{GenericHasher, HasherContext};
 use internal_state::ExtendedOutputFunction;
-use crate::Shake256State;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Shake256Hasher<const OUTPUT_SIZE: usize>(GenericHasher<Shake256State<OUTPUT_SIZE>>);

@@ -1,14 +1,14 @@
+use crate::Sha3_512Hasher;
 use core::hash::BuildHasher;
 use internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
 use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
-use crate::Sha3_512Hasher;
 
 const RATE: usize = 72;
 const OUTPUT_SIZE: usize = 64;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
-pub struct Sha3_512State{
-    sponge: KeccakSponge<u64, RATE, OUTPUT_SIZE>
+pub struct Sha3_512State {
+    sponge: KeccakSponge<u64, RATE, OUTPUT_SIZE>,
 }
 
 impl ExtendedOutputFunction<OUTPUT_SIZE> for Sha3_512State {

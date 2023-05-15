@@ -1,13 +1,13 @@
+use crate::Shake256Hasher;
 use core::hash::BuildHasher;
 use internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
 use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
-use crate::Shake256Hasher;
 
 const RATE: usize = 136;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Shake256State<const OUTPUT_SIZE: usize> {
-sponge: KeccakSponge<u64, RATE, OUTPUT_SIZE>
+    sponge: KeccakSponge<u64, RATE, OUTPUT_SIZE>,
 }
 
 impl<const OUTPUT_SIZE: usize> BuildHasher for Shake256State<OUTPUT_SIZE> {

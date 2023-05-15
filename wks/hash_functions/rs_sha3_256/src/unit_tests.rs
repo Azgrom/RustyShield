@@ -1,10 +1,10 @@
 extern crate alloc;
 
+use crate::Sha3_256State;
 use alloc::format;
 use alloc::string::String;
 use core::hash::{BuildHasher, Hasher};
 use hash_ctx_lib::HasherContext;
-use crate::Sha3_256State;
 
 #[test]
 fn assert_empty_string_hash_correctness() {

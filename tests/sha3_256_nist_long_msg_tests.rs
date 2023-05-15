@@ -1,7 +1,6 @@
-use std::hash::{BuildHasher, Hasher};
-use hash_ctx_lib::HasherContext;
-use rs_ssl::Sha3_256State;
 use crate::cavs_long_msg::CAVSLongMsg;
+use rs_ssl::{HasherContext, Sha3_256State};
+use std::hash::{BuildHasher, Hasher};
 
 mod cavs_long_msg;
 
@@ -15,8 +14,8 @@ fn compare_long_messages_provided_by_nist_sha3_256_validation_system() {
 
         sha3_256hasher.write(long_msg.message.as_ref());
 
-        let result = HasherContext::finish(&mut sha3_256hasher).
-            map(|b| format!("{b:02x}"))
+        let result = HasherContext::finish(&mut sha3_256hasher)
+            .map(|b| format!("{b:02x}"))
             .iter()
             .flat_map(|s| s.chars())
             .collect::<String>();

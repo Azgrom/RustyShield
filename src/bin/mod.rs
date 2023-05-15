@@ -1,6 +1,6 @@
 use core::hash::{BuildHasher, Hasher};
+use rs_ssl::HasherContext;
 use std::{env, fs, process};
-use hash_ctx_lib::HasherContext;
 
 use rs_sha3_224::Sha3_224State;
 
@@ -26,9 +26,7 @@ fn main() {
     println!("SHA3-224({}) = {}", file_path, result)
 }
 
-fn parse_arguments<'a>(
-    mut args: impl Iterator<Item = &'a String>,
-) -> Result<&'a String, &'static str> {
+fn parse_arguments<'a>(mut args: impl Iterator<Item = &'a String>) -> Result<&'a String, &'static str> {
     match args.next() {
         Some(_) => (),
         None => return Err("Executable cannot have no name"),
