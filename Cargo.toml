@@ -36,6 +36,7 @@ strip = false
 debug = false
 
 [dependencies]
+hash_ctx = { path = "wks/hash_ctx" }
 rs_hmac = { path = "wks/hash_functions/rs_hmac" }
 rs_keccak_nbits = { path = "wks/hash_functions/rs_keccak_nbits" }
 rs_sha1 = { path = "wks/hash_functions/rs_sha1" }
@@ -45,9 +46,12 @@ rs_sha384 = { path = "wks/hash_functions/rs_sha384" }
 rs_sha512 = { path = "wks/hash_functions/rs_sha512" }
 rs_sha512_224 = { path = "wks/hash_functions/rs_sha512_224" }
 rs_sha512_256 = { path = "wks/hash_functions/rs_sha512_256" }
-rs_shake128 = { path = "wks/hash_functions/rs_shake128" }
 rs_sha3_224 = { path = "wks/hash_functions/rs_sha3_224" }
-hash_ctx = { path = "wks/hash_ctx" }
+rs_sha3_256 = { path = "wks/hash_functions/rs_sha3_256" }
+rs_sha3_384 = { path = "wks/hash_functions/rs_sha3_384" }
+rs_sha3_512 = { path = "wks/hash_functions/rs_sha3_512" }
+rs_shake128 = { path = "wks/hash_functions/rs_shake128" }
+rs_shake256 = { path = "wks/hash_functions/rs_shake256" }
 
 [[bench]]
 name = "benches"

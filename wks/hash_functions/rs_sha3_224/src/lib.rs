@@ -1,7 +1,5 @@
 #![no_std]
 
-extern crate alloc;
-
 pub use sha3_224hasher::Sha3_224Hasher;
 pub use sha3_224state::Sha3_224State;
 

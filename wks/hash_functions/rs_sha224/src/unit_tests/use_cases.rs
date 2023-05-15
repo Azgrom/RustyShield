@@ -1,3 +1,5 @@
+extern crate alloc;
+
 use crate::sha224state::Sha224State;
 use alloc::format;
 use core::hash::{BuildHasher, Hash, Hasher};

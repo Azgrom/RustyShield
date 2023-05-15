@@ -1,3 +1,5 @@
+extern crate alloc;
+
 use crate::Sha3_224State;
 use alloc::format;
 use alloc::string::String;
@@ -24,10 +26,7 @@ fn assert_quick_fox_hash_correctness() {
     sha3_224hasher.write(b"The quick brown fox jumps over the lazy dog");
 
     let output = HasherContext::finish(&mut sha3_224hasher);
-    assert_eq!(
-        convert_to_str(output),
-        "d15dadceaa4d5d7bb3b48f446421d542e08ad8887305e28d58335795"
-    )
+    assert_eq!(convert_to_str(output), "d15dadceaa4d5d7bb3b48f446421d542e08ad8887305e28d58335795")
 }
 
 fn convert_to_str(output: [u8; 28]) -> String {
