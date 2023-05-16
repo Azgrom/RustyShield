@@ -14,11 +14,7 @@ fn compare_long_messages_provided_by_sha3_224_validation_system() {
 
         sha3_224hasher.write(long_msg.message.as_ref());
 
-        let result = HasherContext::finish(&mut sha3_224hasher)
-            .map(|b| format!("{:02x}", b))
-            .iter()
-            .flat_map(|s| s.chars())
-            .collect::<String>();
-        assert_eq!(result, long_msg.expected_message_digest);
+        let result = HasherContext::finish(&mut sha3_224hasher);
+        assert_eq!(format!("{result:02x}"), long_msg.expected_message_digest);
     }
 }

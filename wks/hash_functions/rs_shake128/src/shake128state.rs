@@ -1,5 +1,6 @@
 use crate::Shake128Hasher;
 use core::hash::BuildHasher;
+use hash_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
 use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
 
@@ -35,9 +36,15 @@ impl<const OUTPUT_SIZE: usize> ExtendedOutputFunction<OUTPUT_SIZE> for Shake128S
     }
 }
 
+impl<const OUTPUT_SIZE: usize> From<Shake128State<OUTPUT_SIZE>> for ByteArrayWrapper<OUTPUT_SIZE> {
+    fn from(mut value: Shake128State<OUTPUT_SIZE>) -> Self {
+        value.squeeze().into()
+    }
+}
+
 impl<const OUTPUT_SIZE: usize> HashAlgorithm for Shake128State<OUTPUT_SIZE> {
     type Padding = GenericPad<KeccakU128Size, RATE, 0x1F>;
-    type Output = [u8; OUTPUT_SIZE];
+    type Output = ByteArrayWrapper<OUTPUT_SIZE>;
 
     fn hash_block(&mut self, bytes: &[u8]) {
         self.sponge.absorb(bytes);

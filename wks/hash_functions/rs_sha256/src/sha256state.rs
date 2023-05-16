@@ -1,11 +1,8 @@
-use crate::Sha256Hasher;
-use core::{
-    fmt::{Formatter, LowerHex, UpperHex},
-    hash::BuildHasher,
-    ops::AddAssign,
-};
+use crate::{Sha256Hasher, BYTES_LEN};
+use core::{hash::BuildHasher, ops::AddAssign};
+use hash_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, U64Size};
-use internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState};
 use n_bit_words_lib::NBitWord;
 
 const H0: u32 = 0x6A09E667;
@@ -18,7 +15,6 @@ const H6: u32 = 0x1F83D9AB;
 const H7: u32 = 0x5BE0CD19;
 
 const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
-const BYTES_LEN: usize = 32;
 
 /// The state of the SHA-256 algorithm.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -81,7 +77,7 @@ impl From<[u32; 8]> for Sha256State {
     }
 }
 
-impl From<Sha256State> for [u8; BYTES_LEN] {
+impl From<Sha256State> for ByteArrayWrapper<BYTES_LEN> {
     fn from(value: Sha256State) -> Self {
         let a = u32::to_be_bytes(value.0.into());
         let b = u32::to_be_bytes(value.1.into());
@@ -96,12 +92,13 @@ impl From<Sha256State> for [u8; BYTES_LEN] {
             a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3], c[0], c[1], c[2], c[3], d[0], d[1], d[2], d[3], e[0], e[1],
             e[2], e[3], f[0], f[1], f[2], f[3], g[0], g[1], g[2], g[3], h[0], h[1], h[2], h[3],
         ]
+        .into()
     }
 }
 
 impl HashAlgorithm for Sha256State {
     type Padding = GenericPad<U64Size, 64, 0x80>;
-    type Output = [u8; BYTES_LEN];
+    type Output = ByteArrayWrapper<BYTES_LEN>;
 
     fn hash_block(&mut self, bytes: &[u8]) {
         let mut state = Sha256BitsState(
@@ -126,31 +123,5 @@ impl HashAlgorithm for Sha256State {
 
     fn state_to_u64(&self) -> u64 {
         Into::<u64>::into(self.0) << 32 | Into::<u64>::into(self.1)
-    }
-}
-
-impl LowerHex for Sha256State {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        LowerHex::fmt(&self.0, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.1, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.2, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.3, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.4, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.5, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.6, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.7, f)
-    }
-}
-
-impl UpperHex for Sha256State {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        UpperHex::fmt(&self.0, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.1, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.2, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.3, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.4, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.5, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.6, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.7, f)
     }
 }

@@ -4,3 +4,5 @@ pub use crate::{sha512_224hasher::Sha512_224Hasher, sha512_224state::Sha512_224S
 
 mod sha512_224hasher;
 mod sha512_224state;
+
+const BYTES_LEN: usize = 28;

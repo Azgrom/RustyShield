@@ -14,6 +14,6 @@ fn compare_long_messages_provided_by_sha256_validation_system() {
 
         sha256hasher.write(long_msg.message.as_ref());
 
-        assert_eq!(format!("{:08x}", HasherContext::finish(&mut sha256hasher)), long_msg.expected_message_digest);
+        assert_eq!(format!("{:02x}", HasherContext::finish(&mut sha256hasher)), long_msg.expected_message_digest);
     }
 }

@@ -8,3 +8,5 @@ mod sha3_224state;
 
 #[cfg(test)]
 mod unit_tests;
+
+const OUTPUT_SIZE: usize = 28;

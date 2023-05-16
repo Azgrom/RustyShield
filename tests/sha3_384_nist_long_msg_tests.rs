@@ -14,11 +14,7 @@ fn compare_long_messages_provided_by_nist_sha3_384_validation_system() {
 
         sha3_384hasher.write(long_msg.message.as_ref());
 
-        let result = HasherContext::finish(&mut sha3_384hasher)
-            .map(|b| format!("{b:02x}"))
-            .iter()
-            .flat_map(|s| s.chars())
-            .collect::<String>();
-        assert_eq!(result, long_msg.expected_message_digest);
+        let result = HasherContext::finish(&mut sha3_384hasher);
+        assert_eq!(format!("{result:02x}"), long_msg.expected_message_digest);
     }
 }

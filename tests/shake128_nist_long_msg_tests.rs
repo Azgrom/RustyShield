@@ -14,12 +14,8 @@ fn compare_long_messages_provided_by_nist_shake128_validation_system() {
 
         shake128hasher.write(long_msg.message.as_ref());
 
-        let result = HasherContext::finish(&mut shake128hasher)
-            .map(|b| format!("{b:02x}"))
-            .iter()
-            .flat_map(|s| s.chars())
-            .collect::<String>();
+        let result = HasherContext::finish(&mut shake128hasher);
 
-        assert_eq!(result, long_msg.expected_message_digest);
+        assert_eq!(format!("{result:02x}"), long_msg.expected_message_digest);
     }
 }

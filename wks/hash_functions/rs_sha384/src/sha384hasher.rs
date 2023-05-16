@@ -1,9 +1,9 @@
-use crate::Sha384State;
+use crate::{Sha384State, BYTES_LEN};
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
+use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 #[derive(Clone, Debug, Default)]
-pub struct Sha384Hasher(GenericHasher<Sha384State>);
+pub struct Sha384Hasher(GenericHasher<Sha384State, BYTES_LEN>);
 
 impl Hasher for Sha384Hasher {
     fn finish(&self) -> u64 {
@@ -15,10 +15,10 @@ impl Hasher for Sha384Hasher {
     }
 }
 
-impl HasherContext for Sha384Hasher {
-    type State = Sha384State;
+impl HasherContext<BYTES_LEN> for Sha384Hasher {
+    type Output = ByteArrayWrapper<BYTES_LEN>;
 
-    fn finish(&mut self) -> Self::State {
-        HasherContext::finish(&mut self.0)
+    fn finish(&mut self) -> Self::Output {
+        ByteArrayWrapper::from(HasherContext::finish(&mut self.0))
     }
 }

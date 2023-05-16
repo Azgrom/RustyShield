@@ -1,15 +1,15 @@
-use crate::Sha224State;
+use crate::{Sha224State, BYTES_LEN};
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
+use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// The SHA-224 Hasher
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
-pub struct Sha224Hasher(GenericHasher<Sha224State>);
+pub struct Sha224Hasher(GenericHasher<Sha224State, BYTES_LEN>);
 
 impl Hasher for Sha224Hasher {
     /// Finish the hash and return the hash value as a `u64`.
     fn finish(&self) -> u64 {
-        self.0.finish()
+        Hasher::finish(&self.0)
     }
 
     /// Write a byte array to the hasher.
@@ -19,10 +19,10 @@ impl Hasher for Sha224Hasher {
     }
 }
 
-impl HasherContext for Sha224Hasher {
-    type State = Sha224State;
+impl HasherContext<BYTES_LEN> for Sha224Hasher {
+    type Output = ByteArrayWrapper<BYTES_LEN>;
 
-    fn finish(&mut self) -> Self::State {
-        HasherContext::finish(&mut self.0)
+    fn finish(&mut self) -> Self::Output {
+        HasherContext::finish(&mut self.0).into()
     }
 }

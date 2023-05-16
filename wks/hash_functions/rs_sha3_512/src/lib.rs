@@ -7,3 +7,5 @@ mod sha3_512state;
 
 #[cfg(test)]
 mod unit_tests;
+
+const OUTPUT_SIZE: usize = 64;

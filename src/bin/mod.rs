@@ -18,12 +18,8 @@ fn main() {
         .chunks(128)
         .for_each(|line| hasher.write(line.as_ref()));
 
-    let result = HasherContext::finish(&mut hasher)
-        .map(|b| format!("{b:02x}"))
-        .iter()
-        .flat_map(|s| s.chars())
-        .collect::<String>();
-    println!("SHA3-224({}) = {}", file_path, result)
+    let result = HasherContext::finish(&mut hasher);
+    println!("SHA3-224({}) = {:02x}", file_path, result)
 }
 
 fn parse_arguments<'a>(mut args: impl Iterator<Item = &'a String>) -> Result<&'a String, &'static str> {
