@@ -53,32 +53,32 @@ Inspired by the Unix philosophy, but adapting to the purpose of this project:
 
 ## Supported Algorithms
 
-|            Ciphers            |                    Hashing Functions                     |                 Public-key                  |
-| :---------------------------: | :------------------------------------------------------: | :-----------------------------------------: |
-|      AES - `coming soon`      |                    SHA-1 - `rs_sha1`                     |             RSA - `coming soon`             |
-|   Blowfish - `coming soon`    |                  SHA-224  - `rs_sha224`                  |             DSA - `coming soon`             |
-|   Camellia - `coming soon`    |                  SHA-256 - `rs_sha256`                   | Diffie-Hellman key exchange - `coming soon` |
-|   Chacha20 - `coming soon`    |                  SHA-384 - `rs_sha384`                   |       Elliptic curve - `coming soon`        |
-|   Poly1305 - `coming soon`    |                  SHA-512 - `rs_sha512`                   |           X25519 - `coming soon`            |
-|     SEED - `coming soon`      |              SHA-512/224 - `rs_sha512_224`               |           Ed25519 - `coming soon`           |
-|   CAST-128 - `coming soon`    |              SHA-512/256 - `rs_sha512_256`               |            X448 - `coming soon`             |
-|      DES - `coming soon`      |                 SHA3-224 - `rs_sha3_224`                 |            Ed448 - `coming soon`            |
-|     IDEA - `coming soon`      |                 SHA3-256 - `rs_sha3_256`                 |      GOST R 34.10-2001 - `coming soon`      |
-|      RC2 - `coming soon`      |                 SHA3-384 - `rs_sha3_384`                 |             SM2 - `coming soon`             |
-|      RC4 - `coming soon`      |                 SHA3-512 - `rs_sha3_512`                 |                                             |
-|      RC5 - `coming soon`      |                 SHAKE128 - `rs_shake128`                 |                                             |
-|  Triple DES - `coming soon`   |                 SHAKE256 - `rs_shake256`                 |                                             |
-| GOST 28147-89 - `coming soon` |                     HMAC - `rs_hmac`                     |                                             |
-|      SM4 - `coming soon`      | Generic Keccak {200, 400, 800, 1600} - `rs_keccak_nbits` |                                             |
-|                               |                  BLAKE2 - `coming soon`                  |                                             |
-|                               |             GOST R 34.11-94 - `coming soon`              |                                             |
-|                               |                   MD2 - `coming soon`                    |                                             |
-|                               |                   MD4 - `coming soon`                    |                                             |
-|                               |                   MD5 - `coming soon`                    |                                             |
-|                               |                  MDC-2 - `coming soon`                   |                                             |
-|                               |                RIPEMD-160 - `coming soon`                |                                             |
-|                               |                   SM3 - `coming soon`                    |                                             |
-|                               |                Whirlpool - `coming soon`                 |                                             |
+| Ciphers                       | Hashing Functions                                        | Public-key                                  |
+| :---------------------------- | :------------------------------------------------------- | :------------------------------------------ |
+| AES - `coming soon`           | SHA-1 - `rs_sha1`                                        | RSA - `coming soon`                         |
+| Blowfish - `coming soon`      | SHA-224  - `rs_sha224`                                   | DSA - `coming soon`                         |
+| Camellia - `coming soon`      | SHA-256 - `rs_sha256`                                    | Diffie-Hellman key exchange - `coming soon` |
+| Chacha20 - `coming soon`      | SHA-384 - `rs_sha384`                                    | Elliptic curve - `coming soon`              |
+| Poly1305 - `coming soon`      | SHA-512 - `rs_sha512`                                    | X25519 - `coming soon`                      |
+| SEED - `coming soon`          | SHA-512/224 - `rs_sha512_224`                            | Ed25519 - `coming soon`                     |
+| CAST-128 - `coming soon`      | SHA-512/256 - `rs_sha512_256`                            | X448 - `coming soon`                        |
+| DES - `coming soon`           | SHA3-224 - `rs_sha3_224`                                 | Ed448 - `coming soon`                       |
+| IDEA - `coming soon`          | SHA3-256 - `rs_sha3_256`                                 | GOST R 34.10-2001 - `coming soon`           |
+| RC2 - `coming soon`           | SHA3-384 - `rs_sha3_384`                                 | SM2 - `coming soon`                         |
+| RC4 - `coming soon`           | SHA3-512 - `rs_sha3_512`                                 |                                             |
+| RC5 - `coming soon`           | SHAKE128 - `rs_shake128`                                 |                                             |
+| Triple DES - `coming soon`    | SHAKE256 - `rs_shake256`                                 |                                             |
+| GOST 28147-89 - `coming soon` | HMAC - `rs_hmac`                                         |                                             |
+| SM4 - `coming soon`           | Generic Keccak {200, 400, 800, 1600} - `rs_keccak_nbits` |                                             |
+|                               | BLAKE2 - `coming soon`                                   |                                             |
+|                               | GOST R 34.11-94 - `coming soon`                          |                                             |
+|                               | MD2 - `coming soon`                                      |                                             |
+|                               | MD4 - `coming soon`                                      |                                             |
+|                               | MD5 - `coming soon`                                      |                                             |
+|                               | MDC-2 - `coming soon`                                    |                                             |
+|                               | RIPEMD-160 - `coming soon`                               |                                             |
+|                               | SM3 - `coming soon`                                      |                                             |
+|                               | Whirlpool - `coming soon`                                |                                             |
 
 ## Contributing
 
