@@ -7,3 +7,5 @@ mod sha384state;
 
 #[cfg(test)]
 mod unit_tests;
+
+const BYTES_LEN: usize = 48;

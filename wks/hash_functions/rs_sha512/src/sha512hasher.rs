@@ -1,9 +1,9 @@
-use crate::Sha512State;
+use crate::{Sha512State, BYTES_LEN};
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
+use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 #[derive(Clone, Debug, Default)]
-pub struct Sha512Hasher(GenericHasher<Sha512State>);
+pub struct Sha512Hasher(GenericHasher<Sha512State, BYTES_LEN>);
 
 impl Hasher for Sha512Hasher {
     fn finish(&self) -> u64 {
@@ -15,10 +15,10 @@ impl Hasher for Sha512Hasher {
     }
 }
 
-impl HasherContext for Sha512Hasher {
-    type State = Sha512State;
+impl HasherContext<BYTES_LEN> for Sha512Hasher {
+    type Output = ByteArrayWrapper<BYTES_LEN>;
 
-    fn finish(&mut self) -> Self::State {
-        HasherContext::finish(&mut self.0)
+    fn finish(&mut self) -> Self::Output {
+        ByteArrayWrapper::from(HasherContext::finish(&mut self.0))
     }
 }

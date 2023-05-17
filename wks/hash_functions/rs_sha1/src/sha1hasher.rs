@@ -1,10 +1,10 @@
-use crate::Sha1State;
+use crate::{Sha1State, BYTES_LEN};
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
+use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// The SHA-1 Hasher
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
-pub struct Sha1Hasher(GenericHasher<Sha1State>);
+pub struct Sha1Hasher(GenericHasher<Sha1State, BYTES_LEN>);
 
 impl Hasher for Sha1Hasher {
     /// Finish the hash and return the hash value as a `u64`.
@@ -19,10 +19,10 @@ impl Hasher for Sha1Hasher {
     }
 }
 
-impl HasherContext for Sha1Hasher {
-    type State = Sha1State;
+impl HasherContext<BYTES_LEN> for Sha1Hasher {
+    type Output = ByteArrayWrapper<BYTES_LEN>;
 
-    fn finish(&mut self) -> Self::State {
-        HasherContext::finish(&mut self.0)
+    fn finish(&mut self) -> Self::Output {
+        ByteArrayWrapper::from(HasherContext::finish(&mut self.0))
     }
 }

@@ -1,10 +1,10 @@
-use crate::Sha3_512Hasher;
+use crate::{Sha3_512Hasher, OUTPUT_SIZE};
 use core::hash::BuildHasher;
+use hash_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
 use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
 
 const RATE: usize = 72;
-const OUTPUT_SIZE: usize = 64;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Sha3_512State {
@@ -35,9 +35,15 @@ impl BytesLen for Sha3_512State {
     }
 }
 
+impl From<Sha3_512State> for ByteArrayWrapper<OUTPUT_SIZE> {
+    fn from(value: Sha3_512State) -> Self {
+        value.sponge.into()
+    }
+}
+
 impl HashAlgorithm for Sha3_512State {
     type Padding = GenericPad<KeccakU128Size, RATE, 0x06>;
-    type Output = [u8; OUTPUT_SIZE];
+    type Output = ByteArrayWrapper<OUTPUT_SIZE>;
 
     fn hash_block(&mut self, bytes: &[u8]) {
         self.sponge.absorb(bytes)

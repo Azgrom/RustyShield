@@ -9,8 +9,8 @@ use internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as
 
 const MESSAGE: &str = "abc";
 
-fn instantiate_and_preprocess_abc_message() -> GenericHasher<Sha1State> {
-    let mut sha1hasher = GenericHasher::<Sha1State>::default();
+fn instantiate_and_preprocess_abc_message() -> GenericHasher<Sha1State, 20> {
+    let mut sha1hasher = GenericHasher::<Sha1State, 20>::default();
     Hasher::write(&mut sha1hasher, MESSAGE.as_ref());
     let pad_len: [u8; 8] = sha1hasher.padding.size.to_be_bytes();
     let zero_padding_length = 64 - ((sha1hasher.padding.size + pad_len.len()) % 64);
@@ -23,7 +23,7 @@ fn instantiate_and_preprocess_abc_message() -> GenericHasher<Sha1State> {
     sha1hasher
 }
 
-fn completed_words(hasher: &mut GenericHasher<Sha1State>) {
+fn completed_words(hasher: &mut GenericHasher<Sha1State, 20>) {
     let pad_len: [u8; 8] = ((MESSAGE.len() as u64) * 8).to_be_bytes();
     let zero_padding_len = 64 - ((hasher.padding.size + pad_len.len()) % 64);
     let mut offset_pad = [0u8; 64];
@@ -42,7 +42,7 @@ fn completed_words(hasher: &mut GenericHasher<Sha1State>) {
 
 #[test]
 fn start_processing_rounds_integrity() {
-    let mut hasher = GenericHasher::<Sha1State>::default();
+    let mut hasher = GenericHasher::<Sha1State, 20>::default();
     Hasher::write(&mut hasher, MESSAGE.as_ref());
 
     let expected_rounds_of_words_1: [u8; 64] =

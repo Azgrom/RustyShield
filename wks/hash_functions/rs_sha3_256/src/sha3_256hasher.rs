@@ -1,15 +1,14 @@
-use crate::Sha3_256State;
+use crate::{Sha3_256State, OUTPUT_SIZE};
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
-use internal_hasher::HashAlgorithm;
+use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_state::ExtendedOutputFunction;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
-pub struct Sha3_256Hasher(GenericHasher<Sha3_256State>);
+pub struct Sha3_256Hasher(GenericHasher<Sha3_256State, OUTPUT_SIZE>);
 
 impl Hasher for Sha3_256Hasher {
     fn finish(&self) -> u64 {
-        self.0.finish()
+        Hasher::finish(&self.0)
     }
 
     fn write(&mut self, bytes: &[u8]) {
@@ -17,10 +16,10 @@ impl Hasher for Sha3_256Hasher {
     }
 }
 
-impl HasherContext for Sha3_256Hasher {
-    type State = <Sha3_256State as HashAlgorithm>::Output;
+impl HasherContext<OUTPUT_SIZE> for Sha3_256Hasher {
+    type Output = ByteArrayWrapper<OUTPUT_SIZE>;
 
-    fn finish(&mut self) -> Self::State {
-        HasherContext::finish(&mut self.0).squeeze()
+    fn finish(&mut self) -> Self::Output {
+        HasherContext::finish(&mut self.0).squeeze().into()
     }
 }

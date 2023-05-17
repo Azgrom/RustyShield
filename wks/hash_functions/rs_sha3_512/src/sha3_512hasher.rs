@@ -1,11 +1,10 @@
-use crate::Sha3_512State;
+use crate::{Sha3_512State, OUTPUT_SIZE};
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
-use internal_hasher::HashAlgorithm;
+use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_state::ExtendedOutputFunction;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
-pub struct Sha3_512Hasher(GenericHasher<Sha3_512State>);
+pub struct Sha3_512Hasher(GenericHasher<Sha3_512State, OUTPUT_SIZE>);
 
 impl Hasher for Sha3_512Hasher {
     fn finish(&self) -> u64 {
@@ -17,10 +16,10 @@ impl Hasher for Sha3_512Hasher {
     }
 }
 
-impl HasherContext for Sha3_512Hasher {
-    type State = <Sha3_512State as HashAlgorithm>::Output;
+impl HasherContext<OUTPUT_SIZE> for Sha3_512Hasher {
+    type Output = ByteArrayWrapper<OUTPUT_SIZE>;
 
-    fn finish(&mut self) -> Self::State {
-        HasherContext::finish(&mut self.0).squeeze()
+    fn finish(&mut self) -> Self::Output {
+        HasherContext::finish(&mut self.0).squeeze().into()
     }
 }

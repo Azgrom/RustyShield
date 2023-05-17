@@ -2,7 +2,6 @@ extern crate alloc;
 
 use crate::Sha3_224State;
 use alloc::format;
-use alloc::string::String;
 use core::hash::{BuildHasher, Hasher};
 use hash_ctx_lib::HasherContext;
 
@@ -15,7 +14,7 @@ fn assert_empty_string_hash_correctness() {
 
     let output = HasherContext::finish(&mut sha3_224hasher);
 
-    assert_eq!(convert_to_str(output), "6b4e03423667dbb73b6e15454f0eb1abd4597f9a1b078e3f5b5a6bc7");
+    assert_eq!(format!("{output:02x}"), "6b4e03423667dbb73b6e15454f0eb1abd4597f9a1b078e3f5b5a6bc7");
 }
 
 #[test]
@@ -26,10 +25,5 @@ fn assert_quick_fox_hash_correctness() {
     sha3_224hasher.write(b"The quick brown fox jumps over the lazy dog");
 
     let output = HasherContext::finish(&mut sha3_224hasher);
-    assert_eq!(convert_to_str(output), "d15dadceaa4d5d7bb3b48f446421d542e08ad8887305e28d58335795")
-}
-
-fn convert_to_str(output: [u8; 28]) -> String {
-    let string = output.map(|b| format!("{:02x}", b)).iter().flat_map(|s| s.chars()).collect::<String>();
-    string
+    assert_eq!(format!("{output:02x}"), "d15dadceaa4d5d7bb3b48f446421d542e08ad8887305e28d58335795")
 }

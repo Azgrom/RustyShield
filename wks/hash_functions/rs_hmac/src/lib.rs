@@ -1,7 +1,7 @@
 #![no_std]
 
-use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
+use core::hash::{Hash, Hasher};
+use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::{HashAlgorithm, LenPad};
 use internal_state::BytesLen;
 
@@ -16,16 +16,17 @@ const OUTER_PAD: u8 = 0x5c;
 /// use rs_hmac::Hmac;
 /// use rs_sha1::Sha1State;
 /// ```
-#[derive(Clone)]
-pub struct Hmac<H: HashAlgorithm> {
-    inner_hasher: GenericHasher<H>,
-    outer_hasher: GenericHasher<H>,
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
+pub struct Hmac<H: Default + HashAlgorithm, const OUTPUT_SIZE: usize> {
+    inner_hasher: GenericHasher<H, OUTPUT_SIZE>,
+    outer_hasher: GenericHasher<H, OUTPUT_SIZE>,
 }
 
-impl<H> Hmac<H>
+impl<H, const OUTPUT_SIZE: usize> Hmac<H, OUTPUT_SIZE>
 where
-    H: BytesLen + Default + HashAlgorithm,
+    H: BytesLen + Default + HashAlgorithm<Output = ByteArrayWrapper<OUTPUT_SIZE>>,
     <H as HashAlgorithm>::Output: From<H>,
+    ByteArrayWrapper<OUTPUT_SIZE>: From<H>,
 {
     /// Create a new HMAC context with the given key.
     /// If the key is longer than the block size of the hash algorithm,
@@ -45,9 +46,9 @@ where
         let mut outer_key = H::Padding::default();
 
         if key.len() > H::Padding::len() {
-            let mut hasher: GenericHasher<H> = GenericHasher::default();
+            let mut hasher: GenericHasher<H, OUTPUT_SIZE> = GenericHasher::default();
             hasher.write(key);
-            let bytes_output: H::Output = HasherContext::finish(&mut hasher).into();
+            let bytes_output: ByteArrayWrapper<OUTPUT_SIZE> = HasherContext::finish(&mut hasher).into();
 
             inner_key.as_mut()[..H::len()].clone_from_slice(bytes_output.as_ref());
             outer_key.as_mut()[..H::len()].clone_from_slice(bytes_output.as_ref());
@@ -77,34 +78,29 @@ where
     /// # Example:
     /// ```
     /// use rs_hmac::Hmac;
-    /// use rs_sha1::Sha1State;
+    /// use rs_sha1::{Sha1Hasher, Sha1State};
     ///
     /// let key = b"key";
     /// let  msg = b"The quick brown fox jumps over the lazy dog";
-    /// let resulting_sha1state = Hmac::<Sha1State>::digest(key, msg);
+    /// let resulting_sha1state = Hmac::<Sha1State, 20>::digest(key, msg);
     ///
-    /// assert_eq!(format!("{resulting_sha1state:08x}"), "de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9");
+    /// assert_eq!(format!("{resulting_sha1state:02x}"), "de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9");
     /// ```
-    pub fn digest(key: &[u8], msg: &[u8]) -> H {
+    pub fn digest(key: &[u8], msg: &[u8]) -> ByteArrayWrapper<OUTPUT_SIZE> {
         let mut hmac = Self::new(key);
         hmac.write(msg);
         HasherContext::finish(&mut hmac)
     }
 }
 
-impl<H> Default for Hmac<H>
+impl<H, const OUTPUT_SIZE: usize> Hasher for Hmac<H, OUTPUT_SIZE>
 where
-    H: BytesLen + Default + HashAlgorithm,
+    H: Default + HashAlgorithm,
     <H as HashAlgorithm>::Output: From<H>,
+    ByteArrayWrapper<OUTPUT_SIZE>: From<H>,
 {
-    fn default() -> Self {
-        Self::new(&[])
-    }
-}
-
-impl<H: HashAlgorithm> Hasher for Hmac<H> {
     fn finish(&self) -> u64 {
-        self.inner_hasher.clone().finish()
+        Hasher::finish(&self.inner_hasher)
     }
 
     fn write(&mut self, bytes: &[u8]) {
@@ -112,17 +108,18 @@ impl<H: HashAlgorithm> Hasher for Hmac<H> {
     }
 }
 
-impl<H> HasherContext for Hmac<H>
+impl<H, const OUTPUT_SIZE: usize> HasherContext<OUTPUT_SIZE> for Hmac<H, OUTPUT_SIZE>
 where
-    H: HashAlgorithm,
+    H: Default + HashAlgorithm,
     <H as HashAlgorithm>::Output: From<H>,
+    ByteArrayWrapper<OUTPUT_SIZE>: From<H>,
 {
-    type State = H;
+    type Output = ByteArrayWrapper<OUTPUT_SIZE>;
 
-    fn finish(&mut self) -> Self::State {
-        let inner_result: H::Output = HasherContext::finish(&mut self.inner_hasher).into();
+    fn finish(&mut self) -> Self::Output {
+        let inner_result: ByteArrayWrapper<OUTPUT_SIZE> = HasherContext::finish(&mut self.inner_hasher).into();
 
         self.outer_hasher.write(inner_result.as_ref());
-        HasherContext::finish(&mut self.outer_hasher)
+        HasherContext::finish(&mut self.outer_hasher).into()
     }
 }
