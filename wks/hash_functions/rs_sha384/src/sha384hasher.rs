@@ -1,9 +1,63 @@
-use crate::Sha384State;
+use crate::{Sha384State, BYTES_LEN};
 use core::hash::Hasher;
-use hash_ctx_lib::{GenericHasher, HasherContext};
+use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
+use internal_hasher::HashAlgorithm;
 
-#[derive(Clone, Debug, Default)]
-pub struct Sha384Hasher(GenericHasher<Sha384State>);
+/// `Sha384Hasher` is a type that provides the SHA-384 hashing algorithm in RustySSL.
+///
+/// A "Hasher" in the context of cryptographic hashing refers to the object that manages the process of converting input
+/// data into a fixed-size sequence of bytes. The Hasher is responsible for maintaining the internal state of the
+/// hashing process and providing methods to add more data and retrieve the resulting hash.
+///
+/// The `Sha384Hasher` struct adheres to Rust's `Hasher` trait, enabling you to use it interchangeably with other hashers
+/// in Rust. It can be used anywhere a type implementing `Hasher` is required.
+///
+/// ## Examples
+///
+/// The following examples demonstrate using `Sha384Hasher` with both `Hash` and `Hasher`, and explain where the difference
+/// comes from:
+///
+///```rust
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_sha384::Sha384State;
+/// let data = b"hello";
+///
+/// // Using Hash
+/// let mut sha384hasher = Sha384State::default().build_hasher();
+/// data.hash(&mut sha384hasher);
+/// let result_via_hash = sha384hasher.finish();
+///
+/// // Using Hasher
+/// let mut sha384hasher = Sha384State::default().build_hasher();
+/// sha384hasher.write(data);
+/// let result_via_hasher = sha384hasher.finish();
+///
+/// // Simulating the Hash inners
+/// let mut sha384hasher = Sha384State::default().build_hasher();
+/// sha384hasher.write_usize(data.len());
+/// sha384hasher.write(data);
+/// let simulated_hash_result = sha384hasher.finish();
+///
+/// assert_ne!(result_via_hash, result_via_hasher);
+/// assert_eq!(result_via_hash, simulated_hash_result);
+///```
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
+pub struct Sha384Hasher(GenericHasher<Sha384State, BYTES_LEN>);
+
+impl From<Sha384Hasher> for Sha384State {
+    fn from(value: Sha384Hasher) -> Self {
+        value.0.state
+    }
+}
+
+impl From<Sha384State> for Sha384Hasher {
+    fn from(value: Sha384State) -> Self {
+        Self(GenericHasher {
+            padding: <Sha384State as HashAlgorithm>::Padding::default(),
+            state: value
+        })
+    }
+}
 
 impl Hasher for Sha384Hasher {
     fn finish(&self) -> u64 {
@@ -15,10 +69,10 @@ impl Hasher for Sha384Hasher {
     }
 }
 
-impl HasherContext for Sha384Hasher {
-    type State = Sha384State;
+impl HasherContext<BYTES_LEN> for Sha384Hasher {
+    type Output = ByteArrayWrapper<BYTES_LEN>;
 
-    fn finish(&mut self) -> Self::State {
-        HasherContext::finish(&mut self.0)
+    fn finish(&mut self) -> Self::Output {
+        ByteArrayWrapper::from(HasherContext::finish(&mut self.0))
     }
 }

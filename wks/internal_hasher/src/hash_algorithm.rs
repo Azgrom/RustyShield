@@ -1,4 +1,6 @@
 use crate::{BytePad, DigestThroughPad, LenPad};
+use core::fmt::Debug;
+use core::hash::Hash;
 use core::ops::{Index, IndexMut, RangeTo};
 use internal_state::BytesLen;
 
@@ -7,8 +9,11 @@ pub trait HashAlgorithm: BytesLen + Clone {
         + AsMut<[u8]>
         + BytePad
         + Clone
+        + Debug
         + Default
         + DigestThroughPad<Self>
+        + Eq
+        + Hash
         + LenPad
         + Index<usize, Output = u8>
         + IndexMut<usize>

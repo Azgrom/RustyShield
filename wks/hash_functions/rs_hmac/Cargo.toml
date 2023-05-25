@@ -13,4 +13,14 @@ internal_state = { path = "../../internal_state" }
 rs_sha1 = { path = "../rs_sha1" }
 rs_sha224 = { path = "../rs_sha224" }
 rs_sha256 = { path = "../rs_sha256" }
+rs_sha384 = { path = "../rs_sha384" }
 rs_sha512 = { path = "../rs_sha512" }
+rs_sha512_224 = { path = "../rs_sha512_224" }
+rs_sha512_256 = { path = "../rs_sha512_256" }
+rs_sha3_224 = { path = "../rs_sha3_224" }
+rs_sha3_256 = { path = "../rs_sha3_256" }
+rs_sha3_384 = { path = "../rs_sha3_384" }
+rs_sha3_512 = { path = "../rs_sha3_512" }
+rs_shake128 = { path = "../rs_shake128" }
+rs_shake256 = { path = "../rs_shake256" }
+rs_keccak_nbits = { path = "../rs_keccak_nbits" }

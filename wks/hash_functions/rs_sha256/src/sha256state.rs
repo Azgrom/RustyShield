@@ -1,11 +1,8 @@
-use crate::Sha256Hasher;
-use core::{
-    fmt::{Formatter, LowerHex, UpperHex},
-    hash::BuildHasher,
-    ops::AddAssign,
-};
+use crate::{Sha256Hasher, BYTES_LEN};
+use core::{hash::BuildHasher, ops::AddAssign};
+use hash_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, U64Size};
-use internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState};
 use n_bit_words_lib::NBitWord;
 
 const H0: u32 = 0x6A09E667;
@@ -18,9 +15,43 @@ const H6: u32 = 0x1F83D9AB;
 const H7: u32 = 0x5BE0CD19;
 
 const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
-const BYTES_LEN: usize = 32;
 
-/// The state of the SHA-256 algorithm.
+/// `Sha256State` signifies the state of a SHA-256 hashing operation.
+///
+/// The state encapsulates intermediate computations, facilitating the suspension and continuation of the hashing
+/// process. This proves beneficial while handling massive data or streaming inputs. With `Sha256State`, chunk-based
+/// hashing can be executed, eliminating the need to keep all data in memory simultaneously.
+///
+/// # Example
+///
+/// The following example demonstrates the persistence of a SHA-256 hashing operation's state:
+///
+/// ```rust
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_sha256::{Sha256Hasher, Sha256State};
+/// let hello = b"hello";
+/// let world = b" world";
+/// let default_sha256state = Sha256State::default();
+///
+/// let mut default_sha256hasher = default_sha256state.build_hasher();
+/// default_sha256hasher.write(hello);
+///
+/// let intermediate_state: Sha256State = default_sha256hasher.clone().into();
+///
+/// default_sha256hasher.write(world);
+///
+/// let mut from_sha256state: Sha256Hasher = intermediate_state.into();
+/// from_sha256state.write(world);
+///
+/// let default_hello_world_result = default_sha256hasher.finish();
+/// let from_arbitrary_state_result = from_sha256state.finish();
+/// assert_ne!(default_hello_world_result, from_arbitrary_state_result);
+/// ```
+///
+/// ## Note
+/// In this example, despite the internal states of `default_sha256hasher` and `from_sha256state` being identical before
+/// the `Hasher::finish` call, the results diverge due to `from_sha256state` being initiated with an empty pad while
+/// `default_sha256hasher`'s pad is already filled with `b"hello"`.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Sha256State(
     pub NBitWord<u32>,
@@ -66,6 +97,21 @@ impl Default for Sha256State {
     }
 }
 
+impl From<[u8; BYTES_LEN]> for Sha256State {
+    fn from(v: [u8; BYTES_LEN]) -> Self {
+        Self(
+            NBitWord::from(u32::from_ne_bytes([v[0], v[1], v[2], v[3]])),
+            NBitWord::from(u32::from_ne_bytes([v[4], v[5], v[6], v[7]])),
+            NBitWord::from(u32::from_ne_bytes([v[8], v[9], v[10], v[11]])),
+            NBitWord::from(u32::from_ne_bytes([v[12], v[13], v[14], v[15]])),
+            NBitWord::from(u32::from_ne_bytes([v[16], v[17], v[18], v[19]])),
+            NBitWord::from(u32::from_ne_bytes([v[20], v[21], v[22], v[23]])),
+            NBitWord::from(u32::from_ne_bytes([v[24], v[25], v[26], v[27]])),
+            NBitWord::from(u32::from_ne_bytes([v[28], v[29], v[30], v[31]]))
+        )
+    }
+}
+
 impl From<[u32; 8]> for Sha256State {
     fn from(v: [u32; 8]) -> Self {
         Self(
@@ -81,7 +127,7 @@ impl From<[u32; 8]> for Sha256State {
     }
 }
 
-impl From<Sha256State> for [u8; BYTES_LEN] {
+impl From<Sha256State> for ByteArrayWrapper<BYTES_LEN> {
     fn from(value: Sha256State) -> Self {
         let a = u32::to_be_bytes(value.0.into());
         let b = u32::to_be_bytes(value.1.into());
@@ -96,12 +142,13 @@ impl From<Sha256State> for [u8; BYTES_LEN] {
             a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3], c[0], c[1], c[2], c[3], d[0], d[1], d[2], d[3], e[0], e[1],
             e[2], e[3], f[0], f[1], f[2], f[3], g[0], g[1], g[2], g[3], h[0], h[1], h[2], h[3],
         ]
+        .into()
     }
 }
 
 impl HashAlgorithm for Sha256State {
     type Padding = GenericPad<U64Size, 64, 0x80>;
-    type Output = [u8; BYTES_LEN];
+    type Output = ByteArrayWrapper<BYTES_LEN>;
 
     fn hash_block(&mut self, bytes: &[u8]) {
         let mut state = Sha256BitsState(
@@ -126,31 +173,5 @@ impl HashAlgorithm for Sha256State {
 
     fn state_to_u64(&self) -> u64 {
         Into::<u64>::into(self.0) << 32 | Into::<u64>::into(self.1)
-    }
-}
-
-impl LowerHex for Sha256State {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        LowerHex::fmt(&self.0, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.1, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.2, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.3, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.4, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.5, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.6, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.7, f)
-    }
-}
-
-impl UpperHex for Sha256State {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        UpperHex::fmt(&self.0, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.1, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.2, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.3, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.4, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.5, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.6, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.7, f)
     }
 }

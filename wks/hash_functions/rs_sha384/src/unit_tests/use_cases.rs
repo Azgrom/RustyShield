@@ -16,7 +16,7 @@ fn sha384_empty_string_prefix_collision_resiliency() {
 
     assert_ne!(prefix_free_hasher.finish(), prefix_hasher.finish());
     assert_eq!(
-        format!("{:016x}", HasherContext::finish(&mut prefix_hasher)),
+        format!("{:02x}", HasherContext::finish(&mut prefix_hasher)),
         "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b"
     )
 }
@@ -31,7 +31,7 @@ fn sha384_quick_fox_consistency() {
 
     let result = HasherContext::finish(&mut sha384hasher);
     assert_eq!(
-        format!("{result:016x}"),
+        format!("{result:02x}"),
         "ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c494011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1"
     );
 }

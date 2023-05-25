@@ -1,11 +1,8 @@
-use crate::Sha1Hasher;
-use core::{
-    fmt::{Error, Formatter, LowerHex, UpperHex},
-    hash::BuildHasher,
-    ops::AddAssign,
-};
+use crate::{Sha1Hasher, BYTES_LEN};
+use core::{hash::BuildHasher, ops::AddAssign};
+use hash_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, U64Size};
-use internal_state::{BytesLen, DWords, GenericStateHasher, Sha160BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{BytesLen, DWords, GenericStateHasher, Sha160BitsState};
 use n_bit_words_lib::NBitWord;
 
 pub(crate) const H0: u32 = 0x67452301;
@@ -15,8 +12,43 @@ pub(crate) const H3: u32 = 0x10325476;
 pub(crate) const H4: u32 = 0xC3D2E1F0;
 
 const HX: [u32; 5] = [H0, H1, H2, H3, H4];
-const BYTES_LEN: usize = 20;
 
+/// `Sha1State` represents the state of a SHA-1 hashing process.
+///
+/// The state holds intermediate hash calculations, allowing you to pause and resume the hashing process.
+/// This is useful when working with large data or streaming inputs. With a `Sha1State`, hashing can
+/// be done in chunks without having to hold all the data in memory.
+///
+/// # Example
+///
+/// This example demonstrates how to persist the state of a SHA-1 hash operation:
+///
+/// ```rust
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_sha1::{Sha1Hasher, Sha1State};
+/// let hello = b"hello";
+/// let world = b" world";
+/// let default_sha1state = Sha1State::default();
+///
+/// let mut default_sha1hasher = default_sha1state.build_hasher();
+/// default_sha1hasher.write(hello);
+///
+/// let intermediate_state: Sha1State = default_sha1hasher.clone().into();
+///
+/// default_sha1hasher.write(world);
+///
+/// let mut from_sha1state: Sha1Hasher = intermediate_state.into();
+/// from_sha1state.write(world);
+///
+/// let default_hello_world_result = default_sha1hasher.finish();
+/// let from_arbitrary_state_result = from_sha1state.finish();
+/// assert_ne!(default_hello_world_result, from_arbitrary_state_result);
+/// ```
+///
+/// ## Note
+/// In this example, even though the internal state are the same between `default_sha1hasher` and `from_sha1state`
+/// before the `Hasher::finish` call, the results are different due to `from_sha1state` be instantiated with an empty
+/// pad while the `default_sha1hasher`'s pad already is populated with `b"hello"`.
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Sha1State(pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>);
 
@@ -50,6 +82,18 @@ impl Default for Sha1State {
     }
 }
 
+impl From<[u8; BYTES_LEN]> for Sha1State {
+    fn from(v: [u8; BYTES_LEN]) -> Self {
+        Self(
+            NBitWord::from(u32::from_ne_bytes([v[0], v[1], v[2], v[3]])),
+            NBitWord::from(u32::from_ne_bytes([v[4], v[5], v[6], v[7]])),
+            NBitWord::from(u32::from_ne_bytes([v[8], v[9], v[10], v[11]])),
+            NBitWord::from(u32::from_ne_bytes([v[12], v[13], v[14], v[15]])),
+            NBitWord::from(u32::from_ne_bytes([v[16], v[17], v[18], v[19]])),
+        )
+    }
+}
+
 impl From<[u32; 5]> for Sha1State {
     fn from(v: [u32; 5]) -> Self {
         Self(
@@ -62,7 +106,7 @@ impl From<[u32; 5]> for Sha1State {
     }
 }
 
-impl From<Sha1State> for [u8; BYTES_LEN] {
+impl From<Sha1State> for ByteArrayWrapper<BYTES_LEN> {
     fn from(value: Sha1State) -> Self {
         let x = u32::to_be_bytes(value.0.into());
         let y = u32::to_be_bytes(value.1.into());
@@ -74,12 +118,13 @@ impl From<Sha1State> for [u8; BYTES_LEN] {
             x[0], x[1], x[2], x[3], y[0], y[1], y[2], y[3], z[0], z[1], z[2], z[3], w[0], w[1], w[2], w[3], t[0], t[1],
             t[2], t[3],
         ]
+        .into()
     }
 }
 
 impl HashAlgorithm for Sha1State {
     type Padding = GenericPad<U64Size, 64, 0x80>;
-    type Output = [u8; BYTES_LEN];
+    type Output = ByteArrayWrapper<BYTES_LEN>;
 
     fn hash_block(&mut self, bytes: &[u8]) {
         let mut state = Sha160BitsState(
@@ -102,25 +147,5 @@ impl HashAlgorithm for Sha1State {
 
     fn state_to_u64(&self) -> u64 {
         Into::<u64>::into(self.0) << 32 | Into::<u64>::into(self.1)
-    }
-}
-
-impl LowerHex for Sha1State {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        LowerHex::fmt(&self.0, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.1, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.2, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.3, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.4, f)
-    }
-}
-
-impl UpperHex for Sha1State {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        UpperHex::fmt(&self.0, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.1, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.2, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.3, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.4, f)
     }
 }

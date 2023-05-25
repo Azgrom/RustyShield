@@ -1,11 +1,8 @@
-use crate::Sha224Hasher;
-use core::{
-    fmt::{Formatter, LowerHex, UpperHex},
-    hash::BuildHasher,
-    ops::AddAssign,
-};
+use crate::{Sha224Hasher, BYTES_LEN};
+use core::{hash::BuildHasher, ops::AddAssign};
+use hash_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, U64Size};
-use internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState, LOWER_HEX_ERR, UPPER_HEX_ERR};
+use internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState};
 use n_bit_words_lib::NBitWord;
 
 const H0: u32 = 0xC1059ED8;
@@ -18,8 +15,43 @@ const H6: u32 = 0x64F98FA7;
 const H7: u32 = 0xBEFA4FA4;
 
 const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
-const BYTES_LEN: usize = 28;
 
+/// `Sha224State` represents the state of a SHA-1 hashing process.
+///
+/// The state holds intermediate hash calculations, allowing you to pause and resume the hashing process.
+/// This is useful when working with large data or streaming inputs. With a `Sha224State`, hashing can
+/// be done in chunks without having to hold all the data in memory.
+///
+/// # Example
+///
+/// This example demonstrates how to persist the state of a SHA-1 hash operation:
+///
+/// ```
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_sha224::{Sha224Hasher, Sha224State};
+/// let hello = b"hello";
+/// let world = b" world";
+/// let default_sha224state = Sha224State::default();
+///
+/// let mut default_sha224hasher = default_sha224state.build_hasher();
+/// default_sha224hasher.write(hello);
+///
+/// let intermediate_state: Sha224State = default_sha224hasher.clone().into();
+///
+/// default_sha224hasher.write(world);
+///
+/// let mut from_sha224state: Sha224Hasher = intermediate_state.into();
+/// from_sha224state.write(world);
+///
+/// let default_hello_world_result = default_sha224hasher.finish();
+/// let from_arbitrary_state_result = from_sha224state.finish();
+/// assert_ne!(default_hello_world_result, from_arbitrary_state_result);
+/// ```
+///
+/// ## Note
+/// In this example, even though the internal state are the same between `default_sha1hasher` and `from_sha224State`
+/// before the `Hasher::finish` call, the results are different due to `from_sha224State` be instantiated with an empty
+/// pad while the `default_sha1hasher`'s pad already is populated with `b"hello"`.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Sha224State(
     pub NBitWord<u32>,
@@ -65,6 +97,21 @@ impl Default for Sha224State {
     }
 }
 
+impl From<[u8; BYTES_LEN]> for Sha224State {
+    fn from(v: [u8; BYTES_LEN]) -> Self {
+        Self(
+            NBitWord::from(u32::from_ne_bytes([v[0], v[1], v[2], v[3]])),
+            NBitWord::from(u32::from_ne_bytes([v[4], v[5], v[6], v[7]])),
+            NBitWord::from(u32::from_ne_bytes([v[8], v[9], v[10], v[11]])),
+            NBitWord::from(u32::from_ne_bytes([v[12], v[13], v[14], v[15]])),
+            NBitWord::from(u32::from_ne_bytes([v[16], v[17], v[18], v[19]])),
+            NBitWord::from(u32::from_ne_bytes([v[20], v[21], v[22], v[23]])),
+            NBitWord::from(u32::from_ne_bytes([v[24], v[25], v[26], v[27]])),
+            NBitWord::from(u32::default())
+        )
+    }
+}
+
 impl From<[u32; 8]> for Sha224State {
     fn from(v: [u32; 8]) -> Self {
         Self(
@@ -80,7 +127,7 @@ impl From<[u32; 8]> for Sha224State {
     }
 }
 
-impl From<Sha224State> for [u8; BYTES_LEN] {
+impl From<Sha224State> for ByteArrayWrapper<BYTES_LEN> {
     fn from(value: Sha224State) -> Self {
         let a = u32::to_be_bytes(value.0.into());
         let b = u32::to_be_bytes(value.1.into());
@@ -94,12 +141,13 @@ impl From<Sha224State> for [u8; BYTES_LEN] {
             a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3], c[0], c[1], c[2], c[3], d[0], d[1], d[2], d[3], e[0], e[1],
             e[2], e[3], f[0], f[1], f[2], f[3], g[0], g[1], g[2], g[3],
         ]
+        .into()
     }
 }
 
 impl HashAlgorithm for Sha224State {
     type Padding = GenericPad<U64Size, 64, 0x80>;
-    type Output = [u8; BYTES_LEN];
+    type Output = ByteArrayWrapper<BYTES_LEN>;
 
     fn hash_block(&mut self, bytes: &[u8]) {
         let mut state = Sha256BitsState(
@@ -124,29 +172,5 @@ impl HashAlgorithm for Sha224State {
 
     fn state_to_u64(&self) -> u64 {
         Into::<u64>::into(self.0) << 32 | Into::<u64>::into(self.1)
-    }
-}
-
-impl LowerHex for Sha224State {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        LowerHex::fmt(&self.0, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.1, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.2, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.3, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.4, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.5, f).expect(LOWER_HEX_ERR);
-        LowerHex::fmt(&self.6, f)
-    }
-}
-
-impl UpperHex for Sha224State {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        UpperHex::fmt(&self.0, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.1, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.2, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.3, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.4, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.5, f).expect(UPPER_HEX_ERR);
-        UpperHex::fmt(&self.6, f)
     }
 }

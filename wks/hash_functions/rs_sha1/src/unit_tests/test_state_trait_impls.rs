@@ -6,6 +6,7 @@ use core::{
     any::{Any, TypeId},
     hash::{BuildHasher, Hash},
 };
+use hash_ctx_lib::ByteArrayWrapper;
 use n_bit_words_lib::NBitWord;
 
 type U32Word = NBitWord<u32>;
@@ -36,14 +37,17 @@ fn default_sha1_state() {
 #[test]
 fn lower_hex_format() {
     let state = Sha1State::default();
+    let byte_array: ByteArrayWrapper<20> = state.into();
     let expected_result = "67452301efcdab8998badcfe10325476c3d2e1f0";
-    assert_eq!(format!("{:08x}", state), expected_result);
+
+    assert_eq!(format!("{:02x}", byte_array), expected_result);
 }
 
 #[test]
 fn upper_hex_format() {
     let state = Sha1State::default();
+    let byte_array: ByteArrayWrapper<20> = state.into();
     let expected_result = "67452301EFCDAB8998BADCFE10325476C3D2E1F0";
 
-    assert_eq!(format!("{:08X}", state), expected_result);
+    assert_eq!(format!("{:02X}", byte_array), expected_result);
 }
