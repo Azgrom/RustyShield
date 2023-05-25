@@ -28,9 +28,8 @@ const HX: [u32; 5] = [H0, H1, H2, H3, H4];
 /// # use rs_sha1::{Sha1Hasher, Sha1State};
 /// let hello = b"hello";
 /// let world = b" world";
-/// let default_sha1state = Sha1State::default();
 ///
-/// let mut default_sha1hasher = default_sha1state.build_hasher();
+/// let mut default_sha1hasher = Sha1State::default().build_hasher();
 /// default_sha1hasher.write(hello);
 ///
 /// let intermediate_state: Sha1State = default_sha1hasher.clone().into();

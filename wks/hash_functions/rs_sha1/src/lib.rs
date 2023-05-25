@@ -30,12 +30,11 @@
 //! #     collections::HashSet,
 //! #     hash::{BuildHasher, Hash, Hasher}
 //! # };
-//! # use rs_sha1::Sha1State;
+//! # use rs_sha1::Sha1Hasher;
 //! let hello = "hello";
-//! let sha1state = Sha1State::default();
-//! let mut sha1hasher1 = sha1state.build_hasher();
-//! let mut sha1hasher2 = sha1state.build_hasher();
-//! let mut sha1hasher3 = sha1state.build_hasher();
+//! let mut sha1hasher1 = Sha1Hasher::default();
+//! let mut sha1hasher2 = Sha1Hasher::default();
+//! let mut sha1hasher3 = Sha1Hasher::default();
 //!
 //! sha1hasher1.write(hello.as_bytes());
 //! hello.hash(&mut sha1hasher2);

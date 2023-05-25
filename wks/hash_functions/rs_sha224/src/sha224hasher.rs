@@ -19,21 +19,21 @@ use internal_hasher::HashAlgorithm;
 ///
 ///```rust
 /// # use std::hash::{BuildHasher, Hash, Hasher};
-/// # use rs_sha224::Sha224State;
+/// # use rs_sha224::Sha224Hasher;
 /// let data = b"hello";
 ///
 /// // Using Hash
-/// let mut sha224hasher = Sha224State::default().build_hasher();
+/// let mut sha224hasher = Sha224Hasher::default();
 /// data.hash(&mut sha224hasher);
 /// let result_via_hash = sha224hasher.finish();
 ///
 /// // Using Hasher
-/// let mut sha224hasher = Sha224State::default().build_hasher();
+/// let mut sha224hasher = Sha224Hasher::default();
 /// sha224hasher.write(data);
 /// let result_via_hasher = sha224hasher.finish();
 ///
 /// // Simulating the Hash inners
-/// let mut sha224hasher = Sha224State::default().build_hasher();
+/// let mut sha224hasher = Sha224Hasher::default();
 /// sha224hasher.write_usize(data.len());
 /// sha224hasher.write(data);
 /// let simulated_hash_result = sha224hasher.finish();

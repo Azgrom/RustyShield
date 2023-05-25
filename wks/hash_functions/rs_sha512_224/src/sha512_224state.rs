@@ -31,9 +31,8 @@ const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 /// # use rs_sha512_224::{Sha512_224Hasher, Sha512_224State};
 /// let hello = b"hello";
 /// let world = b" world";
-/// let default_sha512_224state = Sha512_224State::default();
 ///
-/// let mut default_sha512_224hasher = default_sha512_224state.build_hasher();
+/// let mut default_sha512_224hasher = Sha512_224State::default().build_hasher();
 /// default_sha512_224hasher.write(hello);
 ///
 /// let intermediate_state: Sha512_224State = default_sha512_224hasher.clone().into();

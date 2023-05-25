@@ -18,7 +18,7 @@ use internal_hasher::HashAlgorithm;
 ///
 ///```rust
 /// # use std::hash::{BuildHasher, Hash, Hasher};
-/// # use rs_sha512_224::{Sha512_224Hasher, Sha512_224State};
+/// # use rs_sha512_224::Sha512_224Hasher;
 /// let data = b"hello";
 ///
 /// // Using Hash

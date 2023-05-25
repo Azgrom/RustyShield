@@ -31,9 +31,8 @@ const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 /// # use rs_sha384::{Sha384Hasher, Sha384State};
 /// let hello = b"hello";
 /// let world = b" world";
-/// let default_sha384state = Sha384State::default();
 ///
-/// let mut default_sha384hasher = default_sha384state.build_hasher();
+/// let mut default_sha384hasher = Sha384State::default().build_hasher();
 /// default_sha384hasher.write(hello);
 ///
 /// let intermediate_state: Sha384State = default_sha384hasher.clone().into();
