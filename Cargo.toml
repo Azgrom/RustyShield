@@ -19,7 +19,7 @@ license = "GPL-2.0-only"
 readme = "README.md"
 
 [[bin]]
-name = "main"
+name = "rs_ssl_cli"
 path = "src/bin/mod.rs"
 
 [profile.release]
