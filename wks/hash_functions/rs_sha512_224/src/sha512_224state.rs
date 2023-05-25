@@ -16,6 +16,42 @@ const H7: u64 = 0x1112E6AD91D692A1;
 
 const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
+/// `Sha512_224State` represents the state of a SHA-512/224 hashing process.
+///
+/// The state holds intermediate hash calculations, allowing you to pause and resume the hashing process.
+/// This is useful when working with large data or streaming inputs. With a `Sha512_224State`, hashing can
+/// be done in chunks without having to hold all the data in memory.
+///
+/// # Example
+///
+/// This example demonstrates how to persist the state of a SHA-512/224 hash operation:
+///
+/// ```rust
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_sha512_224::{Sha512_224Hasher, Sha512_224State};
+/// let hello = b"hello";
+/// let world = b" world";
+/// let default_sha512_224state = Sha512_224State::default();
+///
+/// let mut default_sha512_224hasher = default_sha512_224state.build_hasher();
+/// default_sha512_224hasher.write(hello);
+///
+/// let intermediate_state: Sha512_224State = default_sha512_224hasher.clone().into();
+///
+/// default_sha512_224hasher.write(world);
+///
+/// let mut from_sha512_224state: Sha512_224Hasher = intermediate_state.into();
+/// from_sha512_224state.write(world);
+///
+/// let default_hello_world_result = default_sha512_224hasher.finish();
+/// let from_arbitrary_state_result = from_sha512_224state.finish();
+/// assert_ne!(default_hello_world_result, from_arbitrary_state_result);
+/// ```
+///
+/// ## Note
+/// In this example, even though the internal states are the same between `default_sha512_224hasher` and `from_sha512_224state`
+/// before the `Hasher::finish` call, the results are different. This is because `from_sha512_224state` is instantiated with an empty
+/// pad, while the `default_sha512_224hasher`'s pad already has `b"hello"` populated in it.
 #[derive(Clone, Debug)]
 pub struct Sha512_224State(
     pub NBitWord<u64>,
@@ -58,6 +94,21 @@ impl BytesLen for Sha512_224State {
 impl Default for Sha512_224State {
     fn default() -> Self {
         Self::from(HX)
+    }
+}
+
+impl From<[u8; BYTES_LEN]> for Sha512_224State {
+    fn from(v: [u8; BYTES_LEN]) -> Self {
+        Self(
+            NBitWord::from(u64::from_ne_bytes([v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]])),
+            NBitWord::from(u64::from_ne_bytes([v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]])),
+            NBitWord::from(u64::from_ne_bytes([v[16], v[17], v[18], v[19], v[20], v[21], v[22], v[23]])),
+            NBitWord::from(u64::from_ne_bytes([v[24], v[25], v[26], v[27], 0, 0, 0, 0])),
+            NBitWord::from(u64::default()),
+            NBitWord::from(u64::default()),
+            NBitWord::from(u64::default()),
+            NBitWord::from(u64::default()),
+        )
     }
 }
 
