@@ -16,7 +16,42 @@ const H7: u32 = 0x5BE0CD19;
 
 const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
-/// The state of the SHA-256 algorithm.
+/// `Sha256State` signifies the state of a SHA-256 hashing operation.
+///
+/// The state encapsulates intermediate computations, facilitating the suspension and continuation of the hashing
+/// process. This proves beneficial while handling massive data or streaming inputs. With `Sha256State`, chunk-based
+/// hashing can be executed, eliminating the need to keep all data in memory simultaneously.
+///
+/// # Example
+///
+/// The following example demonstrates the persistence of a SHA-256 hashing operation's state:
+///
+/// ```rust
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_sha256::{Sha256Hasher, Sha256State};
+/// let hello = b"hello";
+/// let world = b" world";
+/// let default_sha256state = Sha256State::default();
+///
+/// let mut default_sha256hasher = default_sha256state.build_hasher();
+/// default_sha256hasher.write(hello);
+///
+/// let intermediate_state: Sha256State = default_sha256hasher.clone().into();
+///
+/// default_sha256hasher.write(world);
+///
+/// let mut from_sha256state: Sha256Hasher = intermediate_state.into();
+/// from_sha256state.write(world);
+///
+/// let default_hello_world_result = default_sha256hasher.finish();
+/// let from_arbitrary_state_result = from_sha256state.finish();
+/// assert_ne!(default_hello_world_result, from_arbitrary_state_result);
+/// ```
+///
+/// ## Note
+/// In this example, despite the internal states of `default_sha256hasher` and `from_sha256state` being identical before
+/// the `Hasher::finish` call, the results diverge due to `from_sha256state` being initiated with an empty pad while
+/// `default_sha256hasher`'s pad is already filled with `b"hello"`.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Sha256State(
     pub NBitWord<u32>,
@@ -59,6 +94,21 @@ impl BytesLen for Sha256State {
 impl Default for Sha256State {
     fn default() -> Self {
         Self::from(HX)
+    }
+}
+
+impl From<[u8; BYTES_LEN]> for Sha256State {
+    fn from(v: [u8; BYTES_LEN]) -> Self {
+        Self(
+            NBitWord::from(u32::from_ne_bytes([v[0], v[1], v[2], v[3]])),
+            NBitWord::from(u32::from_ne_bytes([v[4], v[5], v[6], v[7]])),
+            NBitWord::from(u32::from_ne_bytes([v[8], v[9], v[10], v[11]])),
+            NBitWord::from(u32::from_ne_bytes([v[12], v[13], v[14], v[15]])),
+            NBitWord::from(u32::from_ne_bytes([v[16], v[17], v[18], v[19]])),
+            NBitWord::from(u32::from_ne_bytes([v[20], v[21], v[22], v[23]])),
+            NBitWord::from(u32::from_ne_bytes([v[24], v[25], v[26], v[27]])),
+            NBitWord::from(u32::from_ne_bytes([v[28], v[29], v[30], v[31]]))
+        )
     }
 }
 

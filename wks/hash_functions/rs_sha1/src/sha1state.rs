@@ -13,6 +13,42 @@ pub(crate) const H4: u32 = 0xC3D2E1F0;
 
 const HX: [u32; 5] = [H0, H1, H2, H3, H4];
 
+/// `Sha1State` represents the state of a SHA-1 hashing process.
+///
+/// The state holds intermediate hash calculations, allowing you to pause and resume the hashing process.
+/// This is useful when working with large data or streaming inputs. With a `Sha1State`, hashing can
+/// be done in chunks without having to hold all the data in memory.
+///
+/// # Example
+///
+/// This example demonstrates how to persist the state of a SHA-1 hash operation:
+///
+/// ```rust
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_sha1::{Sha1Hasher, Sha1State};
+/// let hello = b"hello";
+/// let world = b" world";
+/// let default_sha1state = Sha1State::default();
+///
+/// let mut default_sha1hasher = default_sha1state.build_hasher();
+/// default_sha1hasher.write(hello);
+///
+/// let intermediate_state: Sha1State = default_sha1hasher.clone().into();
+///
+/// default_sha1hasher.write(world);
+///
+/// let mut from_sha1state: Sha1Hasher = intermediate_state.into();
+/// from_sha1state.write(world);
+///
+/// let default_hello_world_result = default_sha1hasher.finish();
+/// let from_arbitrary_state_result = from_sha1state.finish();
+/// assert_ne!(default_hello_world_result, from_arbitrary_state_result);
+/// ```
+///
+/// ## Note
+/// In this example, even though the internal state are the same between `default_sha1hasher` and `from_sha1state`
+/// before the `Hasher::finish` call, the results are different due to `from_sha1state` be instantiated with an empty
+/// pad while the `default_sha1hasher`'s pad already is populated with `b"hello"`.
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Sha1State(pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>);
 
@@ -43,6 +79,18 @@ impl BytesLen for Sha1State {
 impl Default for Sha1State {
     fn default() -> Self {
         Self::from(HX)
+    }
+}
+
+impl From<[u8; BYTES_LEN]> for Sha1State {
+    fn from(v: [u8; BYTES_LEN]) -> Self {
+        Self(
+            NBitWord::from(u32::from_ne_bytes([v[0], v[1], v[2], v[3]])),
+            NBitWord::from(u32::from_ne_bytes([v[4], v[5], v[6], v[7]])),
+            NBitWord::from(u32::from_ne_bytes([v[8], v[9], v[10], v[11]])),
+            NBitWord::from(u32::from_ne_bytes([v[12], v[13], v[14], v[15]])),
+            NBitWord::from(u32::from_ne_bytes([v[16], v[17], v[18], v[19]])),
+        )
     }
 }
 
