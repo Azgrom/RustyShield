@@ -1,15 +1,15 @@
 //! # SHA-512/224 `rs-sha512_224` - Secure Hash Algorithm 512/224
 //!
-//! The SHA-512/224 hash function is part of the SHA-2 family, which was developed by the National Institute of Standards and
-//! Technology (NIST). This hash function is a variant of SHA-512 that outputs a hash value of 224 bits.
+//! The SHA-512/224 hash function is part of the SHA-2 family, which was developed by the National Institute of
+//! Standards and Technology (NIST). This hash function is a variant of SHA-512 that outputs a hash value of 224 bits.
 //!
-//! This SHA-512/224 hash function is recommended by NIST for most cryptographic functions as it is designed to provide a high level
-//! of security and resist known types of cryptographic attacks.
+//! This SHA-512/224 hash function is recommended by NIST for most cryptographic functions as it is designed to provide
+//! a high level of security and resist known types of cryptographic attacks.
 //!
 //! ## Usage
 //!
-//! The crate provides a simple and intuitive API. Users can create a new SHA-512/224 hasher instance, update it with input
-//! data, and finalize to get the resultant hash.
+//! The crate provides a simple and intuitive API. Users can create a new SHA-512/224 hasher instance, update it with
+//! input data, and finalize to get the resultant hash.
 //!
 //! ### Example
 //!
