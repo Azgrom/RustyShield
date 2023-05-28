@@ -6,11 +6,12 @@ license = "GPL-2.0-only"
 
 [workspace]
 members = [
+    "wks/ciphers/*",
     "wks/hash_ctx",
-    "wks/n_bit_words",
+    "wks/hash_functions/*",
     "wks/internal_state",
     "wks/internal_hasher",
-    "wks/hash_functions/*"
+    "wks/n_bit_words"
 ]
 
 [workspace.package]
@@ -21,6 +22,10 @@ readme = "README.md"
 [[bin]]
 name = "rs_ssl_cli"
 path = "src/bin/mod.rs"
+
+[[bench]]
+name = "benches"
+harness = false
 
 [profile.release]
 opt-level = 3
@@ -52,10 +57,6 @@ rs_sha3_384 = { path = "wks/hash_functions/rs_sha3_384" }
 rs_sha3_512 = { path = "wks/hash_functions/rs_sha3_512" }
 rs_shake128 = { path = "wks/hash_functions/rs_shake128" }
 rs_shake256 = { path = "wks/hash_functions/rs_shake256" }
-
-[[bench]]
-name = "benches"
-harness = false
 
 [dev-dependencies]
 criterion = "0.4.0"

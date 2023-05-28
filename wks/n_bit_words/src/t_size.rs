@@ -6,8 +6,8 @@ where
         + BitOr<Output = Self>
         + BitXor<Output = Self>
         + Copy
-        + Shl<u32, Output = T>
-        + Shr<u32, Output = Self>
+        + Shl<T>
+        + Shr<T>
         + Sized,
     T: BitOr<Self, Output = Self>,
     u32: Sub<Self, Output = Self>,
