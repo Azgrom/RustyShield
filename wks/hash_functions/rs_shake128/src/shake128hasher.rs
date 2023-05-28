@@ -42,9 +42,6 @@ use internal_state::ExtendedOutputFunction;
 /// assert_ne!(result_via_hash, result_via_hasher);
 /// assert_eq!(result_via_hash, simulated_hash_result);
 ///```
-///
-/// Note that the `Shake128Hasher`'s `finish` method is replaced with `finish_xof` to highlight the extendable output function
-/// nature of SHAKE128. Replace with the appropriate method for your implementation.
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Shake128Hasher<const OUTPUT_SIZE: usize>(GenericHasher<Shake128State<OUTPUT_SIZE>, OUTPUT_SIZE>);
 
