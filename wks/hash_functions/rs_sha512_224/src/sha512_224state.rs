@@ -51,7 +51,7 @@ const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 /// In this example, even though the internal states are the same between `default_sha512_224hasher` and `from_sha512_224state`
 /// before the `Hasher::finish` call, the results are different. This is because `from_sha512_224state` is instantiated with an empty
 /// pad, while the `default_sha512_224hasher`'s pad already has `b"hello"` populated in it.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Sha512_224State(
     pub NBitWord<u64>,
     pub NBitWord<u64>,

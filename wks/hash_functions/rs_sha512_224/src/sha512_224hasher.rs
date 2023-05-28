@@ -40,7 +40,7 @@ use internal_hasher::HashAlgorithm;
 /// assert_ne!(result_via_hash, result_via_hasher);
 /// assert_eq!(result_via_hash, simulated_hash_result);
 ///```
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Sha512_224Hasher(GenericHasher<Sha512_224State, BYTES_LEN>);
 
 impl From<Sha512_224Hasher> for Sha512_224State {
