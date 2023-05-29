@@ -8,7 +8,13 @@ const RATE: usize = 168;
 
 /// `Shake128State` represents the state of a SHAKE128 hashing process.
 ///
-/// The state holds intermediate hash calculations, allowing you to pause and resume the hashing process.
+/// It holds intermediate hash calculations. However, it's important to note that starting a hashing process from an
+/// arbitrary `Shake128State` is not equivalent to resuming the original process that produced that state. Instead, it
+/// begins a new hashing process with a different set of initial values.
+///
+/// Therefore, a `Shake128State` extracted from a `Shake128Hasher` should not be used with the expectation of continuing
+/// the hashing operation from where it left off in the original `Shake128Hasher`. It is  a snapshot of a particular
+/// point in the process, not a means to resume the process.
 ///
 /// # Example
 ///

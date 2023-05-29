@@ -18,9 +18,13 @@ const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
 /// `Sha512_256State` represents the state of a SHA-512/256 hashing process.
 ///
-/// The state holds intermediate hash calculations, enabling the pause and resumption of the hashing process.
-/// This proves advantageous when dealing with large data or streaming inputs. With `Sha512_256State`, hashing can
-/// be performed in chunks, negating the need to retain all data in memory simultaneously.
+/// It holds intermediate hash calculations. However, it's important to note that starting a hashing process from an
+/// arbitrary `Sha512_256State` is not equivalent to resuming the original process that produced that state. Instead, it
+/// begins a new hashing process with a different set of initial values.
+///
+/// Therefore, a `Sha512_256State` extracted from a `Sha512_256Hasher` should not be used with the expectation of
+/// continuing the hashing operation from where it left off in the original `Sha512_256Hasher`. It is  a snapshot of a
+/// particular point in the process, not a means to resume the process.
 ///
 /// # Example
 ///
