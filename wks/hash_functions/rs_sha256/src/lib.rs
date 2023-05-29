@@ -28,12 +28,11 @@
 //! #     collections::HashSet,
 //! #     hash::{BuildHasher, Hash, Hasher}
 //! # };
-//! # use rs_sha256::Sha256State;
+//! # use rs_sha256::Sha256Hasher;
 //! let hello = "hello";
-//! let sha256state = Sha256State::default();
-//! let mut sha256hasher1 = sha256state.build_hasher();
-//! let mut sha256hasher2 = sha256state.build_hasher();
-//! let mut sha256hasher3 = sha256state.build_hasher();
+//! let mut sha256hasher1 = Sha256Hasher::default();
+//! let mut sha256hasher2 = Sha256Hasher::default();
+//! let mut sha256hasher3 = Sha256Hasher::default();
 //!
 //! sha256hasher1.write(hello.as_bytes());
 //! hello.hash(&mut sha256hasher2);

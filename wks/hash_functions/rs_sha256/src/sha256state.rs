@@ -18,9 +18,13 @@ const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
 /// `Sha256State` signifies the state of a SHA-256 hashing operation.
 ///
-/// The state encapsulates intermediate computations, facilitating the suspension and continuation of the hashing
-/// process. This proves beneficial while handling massive data or streaming inputs. With `Sha256State`, chunk-based
-/// hashing can be executed, eliminating the need to keep all data in memory simultaneously.
+/// It holds intermediate hash calculations. However, it's important to note that starting a hashing process from an
+/// arbitrary `Sha256State` is not equivalent to resuming the original process that produced that state. Instead, it
+/// begins a new hashing process with a different set of initial values.
+///
+/// Therefore, a `Sha256State` extracted from a `Sha256Hasher` should not be used with the expectation of
+/// continuing the hashing operation from where it left off in the original `Sha256Hasher`. It is  a snapshot of a
+/// particular point in the process, not a means to resume the process.
 ///
 /// # Example
 ///
@@ -31,9 +35,8 @@ const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 /// # use rs_sha256::{Sha256Hasher, Sha256State};
 /// let hello = b"hello";
 /// let world = b" world";
-/// let default_sha256state = Sha256State::default();
 ///
-/// let mut default_sha256hasher = default_sha256state.build_hasher();
+/// let mut default_sha256hasher = Sha256State::default().build_hasher();
 /// default_sha256hasher.write(hello);
 ///
 /// let intermediate_state: Sha256State = default_sha256hasher.clone().into();

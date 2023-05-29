@@ -19,21 +19,21 @@ use internal_hasher::HashAlgorithm;
 ///
 ///```rust
 /// # use std::hash::{BuildHasher, Hash, Hasher};
-/// # use rs_sha256::Sha256State;
+/// # use rs_sha256::Sha256Hasher;
 /// let data = b"hello";
 ///
 /// // Using Hash
-/// let mut sha256hasher = Sha256State::default().build_hasher();
+/// let mut sha256hasher = Sha256Hasher::default();
 /// data.hash(&mut sha256hasher);
 /// let result_via_hash = sha256hasher.finish();
 ///
 /// // Using Hasher
-/// let mut sha256hasher = Sha256State::default().build_hasher();
+/// let mut sha256hasher = Sha256Hasher::default();
 /// sha256hasher.write(data);
 /// let result_via_hasher = sha256hasher.finish();
 ///
 /// // Simulating the Hash inners
-/// let mut sha256hasher = Sha256State::default().build_hasher();
+/// let mut sha256hasher = Sha256Hasher::default();
 /// sha256hasher.write_usize(data.len());
 /// sha256hasher.write(data);
 /// let simulated_hash_result = sha256hasher.finish();
