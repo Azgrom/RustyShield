@@ -18,9 +18,13 @@ const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
 /// `Sha224State` represents the state of a SHA-1 hashing process.
 ///
-/// The state holds intermediate hash calculations, allowing you to pause and resume the hashing process.
-/// This is useful when working with large data or streaming inputs. With a `Sha224State`, hashing can
-/// be done in chunks without having to hold all the data in memory.
+/// It holds intermediate hash calculations. However, it's important to note that starting a hashing process from an
+/// arbitrary `Sha224State` is not equivalent to resuming the original process that produced that state. Instead, it
+/// begins a new hashing process with a different set of initial values.
+///
+/// Therefore, a `Sha224State` extracted from a `Sha224Hasher` should not be used with the expectation of
+/// continuing the hashing operation from where it left off in the original `Sha224Hasher`. It is  a snapshot of a
+/// particular point in the process, not a means to resume the process.
 ///
 /// # Example
 ///
@@ -31,9 +35,8 @@ const HX: [u32; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 /// # use rs_sha224::{Sha224Hasher, Sha224State};
 /// let hello = b"hello";
 /// let world = b" world";
-/// let default_sha224state = Sha224State::default();
 ///
-/// let mut default_sha224hasher = default_sha224state.build_hasher();
+/// let mut default_sha224hasher = Sha224State::default().build_hasher();
 /// default_sha224hasher.write(hello);
 ///
 /// let intermediate_state: Sha224State = default_sha224hasher.clone().into();

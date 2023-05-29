@@ -15,9 +15,13 @@ const HX: [u32; 5] = [H0, H1, H2, H3, H4];
 
 /// `Sha1State` represents the state of a SHA-1 hashing process.
 ///
-/// The state holds intermediate hash calculations, allowing you to pause and resume the hashing process.
-/// This is useful when working with large data or streaming inputs. With a `Sha1State`, hashing can
-/// be done in chunks without having to hold all the data in memory.
+/// It holds intermediate hash calculations. However, it's important to note that starting a hashing process from an
+/// arbitrary `Sha1State` is not equivalent to resuming the original process that produced that state. Instead, it
+/// begins a new hashing process with a different set of initial values.
+///
+/// Therefore, a `Sha1State` extracted from a `Sha1Hasher` should not be used with the expectation of
+/// continuing the hashing operation from where it left off in the original `Sha1Hasher`. It is  a snapshot of a
+/// particular point in the process, not a means to resume the process.
 ///
 /// # Example
 ///
@@ -28,9 +32,8 @@ const HX: [u32; 5] = [H0, H1, H2, H3, H4];
 /// # use rs_sha1::{Sha1Hasher, Sha1State};
 /// let hello = b"hello";
 /// let world = b" world";
-/// let default_sha1state = Sha1State::default();
 ///
-/// let mut default_sha1hasher = default_sha1state.build_hasher();
+/// let mut default_sha1hasher = Sha1State::default().build_hasher();
 /// default_sha1hasher.write(hello);
 ///
 /// let intermediate_state: Sha1State = default_sha1hasher.clone().into();

@@ -16,7 +16,47 @@ const H7: u64 = 0x0EB72DDC81C52CA2;
 
 const HX: [u64; 8] = [H0, H1, H2, H3, H4, H5, H6, H7];
 
-#[derive(Clone, Debug)]
+/// `Sha512_256State` represents the state of a SHA-512/256 hashing process.
+///
+/// It holds intermediate hash calculations. However, it's important to note that starting a hashing process from an
+/// arbitrary `Sha512_256State` is not equivalent to resuming the original process that produced that state. Instead, it
+/// begins a new hashing process with a different set of initial values.
+///
+/// Therefore, a `Sha512_256State` extracted from a `Sha512_256Hasher` should not be used with the expectation of
+/// continuing the hashing operation from where it left off in the original `Sha512_256Hasher`. It is  a snapshot of a
+/// particular point in the process, not a means to resume the process.
+///
+/// # Example
+///
+/// This example demonstrates how to persist the state of a SHA-512/256 hash operation:
+///
+/// ```rust
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_sha512_256::{Sha512_256Hasher, Sha512_256State};
+/// let hello = b"hello";
+/// let world = b" world";
+/// let default_sha512_256state = Sha512_256State::default();
+///
+/// let mut default_sha512_256hasher = default_sha512_256state.build_hasher();
+/// default_sha512_256hasher.write(hello);
+///
+/// let intermediate_state: Sha512_256State = default_sha512_256hasher.clone().into();
+///
+/// default_sha512_256hasher.write(world);
+///
+/// let mut from_sha512_256state: Sha512_256Hasher = intermediate_state.into();
+/// from_sha512_256state.write(world);
+///
+/// let default_hello_world_result = default_sha512_256hasher.finish();
+/// let from_arbitrary_state_result = from_sha512_256state.finish();
+/// assert_ne!(default_hello_world_result, from_arbitrary_state_result);
+/// ```
+///
+/// ## Note
+/// In this example, despite the internal states being identical between `default_sha512_256hasher` and `from_sha512_256state`
+/// prior to the `Hasher::finish` call, the resultant hashes differ. This is because `from_sha512_256state` is instantiated
+/// with an empty pad, whereas `default_sha512_256hasher`'s pad has already been populated with `b"hello"`.
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Sha512_256State(
     pub NBitWord<u64>,
     pub NBitWord<u64>,
@@ -58,6 +98,21 @@ impl BytesLen for Sha512_256State {
 impl Default for Sha512_256State {
     fn default() -> Self {
         Self::from(HX)
+    }
+}
+
+impl From<[u8; BYTES_LEN]> for Sha512_256State {
+    fn from(v: [u8; BYTES_LEN]) -> Self {
+        Self(
+            NBitWord::from(u64::from_ne_bytes([v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]])),
+            NBitWord::from(u64::from_ne_bytes([v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]])),
+            NBitWord::from(u64::from_ne_bytes([v[16], v[17], v[18], v[19], v[20], v[21], v[22], v[23]])),
+            NBitWord::from(u64::from_ne_bytes([v[24], v[25], v[26], v[27], v[28], v[29], v[30], v[31]])),
+            NBitWord::from(u64::default()),
+            NBitWord::from(u64::default()),
+            NBitWord::from(u64::default()),
+            NBitWord::from(u64::default()),
+        )
     }
 }
 

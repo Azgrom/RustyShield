@@ -29,12 +29,11 @@
 //! #     collections::HashSet,
 //! #     hash::{BuildHasher, Hash, Hasher}
 //! # };
-//! # use rs_sha224::Sha224State;
+//! # use rs_sha224::Sha224Hasher;
 //! let hello = "hello";
-//! let sha224state = Sha224State::default();
-//! let mut sha224hasher1 = sha224state.build_hasher();
-//! let mut sha224hasher2 = sha224state.build_hasher();
-//! let mut sha224hasher3 = sha224state.build_hasher();
+//! let mut sha224hasher1 = Sha224Hasher::default();
+//! let mut sha224hasher2 = Sha224Hasher::default();
+//! let mut sha224hasher3 = Sha224Hasher::default();
 //!
 //! sha224hasher1.write(hello.as_bytes());
 //! hello.hash(&mut sha224hasher2);
