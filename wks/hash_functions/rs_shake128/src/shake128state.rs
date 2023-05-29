@@ -6,8 +6,47 @@ use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
 
 const RATE: usize = 168;
 
-// Example of how to use KeccakSponge in SHAKE128
-#[derive(Clone, Debug, Default)]
+/// `Shake128State` represents the state of a SHAKE128 hashing process.
+///
+/// It holds intermediate hash calculations. However, it's important to note that starting a hashing process from an
+/// arbitrary `Shake128State` is not equivalent to resuming the original process that produced that state. Instead, it
+/// begins a new hashing process with a different set of initial values.
+///
+/// Therefore, a `Shake128State` extracted from a `Shake128Hasher` should not be used with the expectation of continuing
+/// the hashing operation from where it left off in the original `Shake128Hasher`. It is  a snapshot of a particular
+/// point in the process, not a means to resume the process.
+///
+/// # Example
+///
+/// This example demonstrates how to persist the state of a SHAKE128 hash operation:
+///
+/// ```rust
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_shake128::{Shake128Hasher, Shake128State};
+/// let hello = b"hello";
+/// let world = b" world";
+/// let default_shake128state = Shake128State::<20>::default();
+///
+/// let mut default_shake128hasher = default_shake128state.build_hasher();
+/// default_shake128hasher.write(hello);
+///
+/// let intermediate_state: Shake128State<20> = default_shake128hasher.clone().into();
+///
+/// default_shake128hasher.write(world);
+///
+/// let mut from_shake128state: Shake128Hasher<20> = intermediate_state.into();
+/// from_shake128state.write(world);
+///
+/// let default_hello_world_result = default_shake128hasher.finish();
+/// let from_arbitrary_state_result = from_shake128state.finish();
+/// assert_ne!(default_hello_world_result, from_arbitrary_state_result);
+/// ```
+///
+/// ## Note
+/// In this example, even though the internal states are the same between `default_shake128hasher` and `from_shake128state`
+/// before the `Hasher::finish_xof` call, the results are different due to `from_shake128state` being instantiated with an empty
+/// pad while the `default_shake128hasher`'s pad is already populated with `b"hello"`.
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Shake128State<const OUTPUT_SIZE: usize> {
     sponge: KeccakSponge<u64, RATE, OUTPUT_SIZE>,
 }

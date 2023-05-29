@@ -29,12 +29,11 @@
 //! #     collections::HashSet,
 //! #     hash::{BuildHasher, Hash, Hasher}
 //! # };
-//! # use rs_sha384::Sha384State;
+//! # use rs_sha384::Sha384Hasher;
 //! let hello = "hello";
-//! let sha384state = Sha384State::default();
-//! let mut sha384hasher1 = sha384state.build_hasher();
-//! let mut sha384hasher2 = sha384state.build_hasher();
-//! let mut sha384hasher3 = sha384state.build_hasher();
+//! let mut sha384hasher1 = Sha384Hasher::default();
+//! let mut sha384hasher2 = Sha384Hasher::default();
+//! let mut sha384hasher3 = Sha384Hasher::default();
 //!
 //! sha384hasher1.write(hello.as_bytes());
 //! hello.hash(&mut sha384hasher2);
