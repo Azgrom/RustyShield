@@ -19,7 +19,7 @@
 //! ```rust
 //! # use std::hash::{BuildHasher, Hasher};
 //! # use rs_shake128::Shake128State;
-//! let mut shake128hasher = Shake128State::default().build_hasher();
+//! let mut shake128hasher = Shake128State::<20>::default().build_hasher();
 //! shake128hasher.write(b"hello world");
 //! let result = shake128hasher.finish();
 //! assert_eq!(result, 0x1CDDE471F059913A)
@@ -34,7 +34,7 @@
 //! # };
 //! # use rs_shake128::Shake128State;
 //! let hello = "hello";
-//! let shake128state = Shake128State::default();
+//! let shake128state = Shake128State::<20>::default();
 //! let mut shake128hasher1 = shake128state.build_hasher();
 //! let mut shake128hasher2 = shake128state.build_hasher();
 //! let mut shake128hasher3 = shake128state.build_hasher();
