@@ -3,7 +3,7 @@ use core::hash::Hasher;
 use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
 
-/// `Sha224Hasher` is a type that provides the SHA-224 hashing algorithm in RustSSL.
+/// `Sha224Hasher` is a type that provides the SHA-224 hashing algorithm in RustySSL.
 ///
 /// A "Hasher" in the context of cryptographic hashing refers to the object that manages the process of converting input
 /// data into a fixed-size sequence of bytes. The Hasher is responsible for maintaining the internal state of the

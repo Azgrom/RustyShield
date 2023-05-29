@@ -1,16 +1,16 @@
 use core::ops::{BitAnd, BitOr, BitXor, Shl, Shr, Sub};
 
 pub trait TSize<T>
-where
-    Self: BitAnd<Output = Self>
+    where
+        Self: BitAnd<Output = Self>
         + BitOr<Output = Self>
         + BitXor<Output = Self>
         + Copy
         + Shl<T>
         + Shr<T>
         + Sized,
-    T: BitOr<Self, Output = Self>,
-    u32: Sub<Self, Output = Self>,
+        T: BitOr<Self, Output = Self>,
+        u32: Sub<Self, Output = Self>,
 {
     const BITS: u32;
     const SIZE: usize;
