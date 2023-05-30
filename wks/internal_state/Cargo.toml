@@ -8,4 +8,4 @@ license.workspace = true
 name = "internal_state"
 
 [dependencies]
-n_bit_words = { git = "https://github.com/Azgrom/RustySSL.git/" }
+n_bit_words = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
