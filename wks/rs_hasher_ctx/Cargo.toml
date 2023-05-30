@@ -1,9 +1,10 @@
 [package]
 name = "rs_hasher_ctx"
-version = "0.1.0"
 description = "A straight forward overload abstraction of `Hasher::finish` with some helper types"
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+version = "0.1.0"
 
 [lib]
 name = "rs_hasher_ctx_lib"

@@ -1,8 +1,14 @@
 [package]
 name = "rs_ssl"
+categories = [
+    "authentication", "development-tools", "embedded", "cryptography", "no-std", "no-std::no-alloc", "security",
+    "algorithm", "hash-functions"]
+description = "A comprehensive Rust library providing robust and efficient implementations of cryptographic hash functions including SHA and Keccak families, and HMAC, suitable for no_std environments. Compliant with the GPL-2.0-only license."
+edition.workspace = true
+license.workspace = true
+keywords = ["cryptography", "hashing", "SHA", "Keccak", "HMAC", "no_std", "security", "SSL", "opensource"]
+readme.workspace = true
 version = "0.1.0"
-edition = "2021"
-license = "GPL-2.0-only"
 
 [workspace]
 members = [
@@ -18,6 +24,7 @@ members = [
 [workspace.package]
 edition = "2021"
 license = "GPL-2.0-only"
+repository = "https://github.com/Azgrom/RustySSL"
 readme = "README.md"
 
 [[bin]]
@@ -44,57 +51,57 @@ debug = false
 [dependencies]
 rs_hasher_ctx = { path = "wks/rs_hasher_ctx", version = "0.1.0" }
 
-rs_aes = { path = "wks/ciphers/rs_aes" }
-rs_blowfish = { path = "wks/ciphers/rs_blowfish" }
-rs_camellia = { path = "wks/ciphers/rs_camellia" }
-rs_cast_128 = { path = "wks/ciphers/rs_cast_128" }
-rs_chacha20 = { path = "wks/ciphers/rs_chacha20" }
-rs_des = { path = "wks/ciphers/rs_des" }
-rs_gost_28147_89 = { path = "wks/ciphers/rs_gost_28147_89" }
-rs_idea = { path = "wks/ciphers/rs_idea" }
-rs_poly1305 = { path = "wks/ciphers/rs_poly1305" }
-rs_rc2 = { path = "wks/ciphers/rs_rc2" }
-rs_rc4 = { path = "wks/ciphers/rs_rc4" }
-rs_rc5 = { path = "wks/ciphers/rs_rc5" }
-rs_seed = { path = "wks/ciphers/rs_seed" }
-rs_sm4 = { path = "wks/ciphers/rs_sm4" }
-rs_triple_des = { path = "wks/ciphers/rs_triple_des" }
+rs_aes = { path = "wks/ciphers/rs_aes", version = "0.1.0" }
+rs_blowfish = { path = "wks/ciphers/rs_blowfish", version = "0.1.0" }
+rs_camellia = { path = "wks/ciphers/rs_camellia", version = "0.1.0" }
+rs_cast_128 = { path = "wks/ciphers/rs_cast_128", version = "0.1.0" }
+rs_chacha20 = { path = "wks/ciphers/rs_chacha20", version = "0.1.0" }
+rs_des = { path = "wks/ciphers/rs_des", version = "0.1.0" }
+rs_gost_28147_89 = { path = "wks/ciphers/rs_gost_28147_89", version = "0.1.0" }
+rs_idea = { path = "wks/ciphers/rs_idea", version = "0.1.0" }
+rs_poly1305 = { path = "wks/ciphers/rs_poly1305", version = "0.1.0" }
+rs_rc2 = { path = "wks/ciphers/rs_rc2", version = "0.1.0" }
+rs_rc4 = { path = "wks/ciphers/rs_rc4", version = "0.1.0" }
+rs_rc5 = { path = "wks/ciphers/rs_rc5", version = "0.1.0" }
+rs_seed = { path = "wks/ciphers/rs_seed", version = "0.1.0" }
+rs_sm4 = { path = "wks/ciphers/rs_sm4", version = "0.1.0" }
+rs_triple_des = { path = "wks/ciphers/rs_triple_des", version = "0.1.0" }
 
-rs_blake2 = { path = "wks/hash_functions/rs_blake2" }
-rs_gost_r34_11_94 = { path = "wks/hash_functions/rs_gost_r34_11_94" }
-rs_hmac = { path = "wks/hash_functions/rs_hmac" }
-rs_keccak_nbits = { path = "wks/hash_functions/rs_keccak_nbits" }
-rs_md2 = { path = "wks/hash_functions/rs_md2" }
-rs_md4 = { path = "wks/hash_functions/rs_md4" }
-rs_md5 = { path = "wks/hash_functions/rs_md5" }
-rs_mdc_2 = { path = "wks/hash_functions/rs_mdc_2" }
-rs_ripemd_160 = { path = "wks/hash_functions/rs_ripemd_160" }
-rs_sha1 = { path = "wks/hash_functions/rs_sha1" }
-rs_sha224 = { path = "wks/hash_functions/rs_sha224" }
-rs_sha256 = { path = "wks/hash_functions/rs_sha256" }
-rs_sha384 = { path = "wks/hash_functions/rs_sha384" }
-rs_sha512 = { path = "wks/hash_functions/rs_sha512" }
-rs_sha512_224 = { path = "wks/hash_functions/rs_sha512_224" }
-rs_sha512_256 = { path = "wks/hash_functions/rs_sha512_256" }
-rs_sha3_224 = { path = "wks/hash_functions/rs_sha3_224" }
-rs_sha3_256 = { path = "wks/hash_functions/rs_sha3_256" }
-rs_sha3_384 = { path = "wks/hash_functions/rs_sha3_384" }
-rs_sha3_512 = { path = "wks/hash_functions/rs_sha3_512" }
-rs_shake128 = { path = "wks/hash_functions/rs_shake128" }
-rs_shake256 = { path = "wks/hash_functions/rs_shake256" }
-rs_sm3 = { path = "wks/hash_functions/rs_sm3" }
-rs_whirlpool = { path = "wks/hash_functions/rs_whirlpool" }
+rs_blake2 = { path = "wks/hash_functions/rs_blake2", version = "0.1.0" }
+rs_gost_r34_11_94 = { path = "wks/hash_functions/rs_gost_r34_11_94", version = "0.1.0" }
+rs_hmac = { path = "wks/hash_functions/rs_hmac", version = "0.1.0" }
+rs_keccak_nbits = { path = "wks/hash_functions/rs_keccak_nbits", version = "0.1.0" }
+rs_md2 = { path = "wks/hash_functions/rs_md2", version = "0.1.0" }
+rs_md4 = { path = "wks/hash_functions/rs_md4", version = "0.1.0" }
+rs_md5 = { path = "wks/hash_functions/rs_md5", version = "0.1.0" }
+rs_mdc_2 = { path = "wks/hash_functions/rs_mdc_2", version = "0.1.0" }
+rs_ripemd_160 = { path = "wks/hash_functions/rs_ripemd_160", version = "0.1.0" }
+rs_sha1 = { path = "wks/hash_functions/rs_sha1", version = "0.1.0" }
+rs_sha224 = { path = "wks/hash_functions/rs_sha224", version = "0.1.0" }
+rs_sha256 = { path = "wks/hash_functions/rs_sha256", version = "0.1.0" }
+rs_sha384 = { path = "wks/hash_functions/rs_sha384", version = "0.1.0" }
+rs_sha512 = { path = "wks/hash_functions/rs_sha512", version = "0.1.0" }
+rs_sha512_224 = { path = "wks/hash_functions/rs_sha512_224", version = "0.1.0" }
+rs_sha512_256 = { path = "wks/hash_functions/rs_sha512_256", version = "0.1.0" }
+rs_sha3_224 = { path = "wks/hash_functions/rs_sha3_224", version = "0.1.0" }
+rs_sha3_256 = { path = "wks/hash_functions/rs_sha3_256", version = "0.1.0" }
+rs_sha3_384 = { path = "wks/hash_functions/rs_sha3_384", version = "0.1.0" }
+rs_sha3_512 = { path = "wks/hash_functions/rs_sha3_512", version = "0.1.0" }
+rs_shake128 = { path = "wks/hash_functions/rs_shake128", version = "0.1.0" }
+rs_shake256 = { path = "wks/hash_functions/rs_shake256", version = "0.1.0" }
+rs_sm3 = { path = "wks/hash_functions/rs_sm3", version = "0.1.0" }
+rs_whirlpool = { path = "wks/hash_functions/rs_whirlpool", version = "0.1.0" }
 
-rs_diffie_hellman = { path = "wks/public_key/rs_diffie_hellman" }
-rs_dsa = { path = "wks/public_key/rs_dsa" }
-rs_ed448 = { path = "wks/public_key/rs_ed448" }
-rs_ed25519 = { path = "wks/public_key/rs_ed25519" }
-rs_elliptic_curve = { path = "wks/public_key/rs_elliptic_curve" }
-rs_gost_r34_10_2001 = { path = "wks/public_key/rs_gost_r34_10_2001" }
-rs_rsa = { path = "wks/public_key/rs_rsa" }
-rs_sm2 = { path = "wks/public_key/rs_sm2" }
-rs_x448 = { path = "wks/public_key/rs_x448" }
-rs_x25519 = { path = "wks/public_key/rs_x25519" }
+rs_diffie_hellman = { path = "wks/public_key/rs_diffie_hellman", version = "0.1.0" }
+rs_dsa = { path = "wks/public_key/rs_dsa", version = "0.1.0" }
+rs_ed448 = { path = "wks/public_key/rs_ed448", version = "0.1.0" }
+rs_ed25519 = { path = "wks/public_key/rs_ed25519", version = "0.1.0" }
+rs_elliptic_curve = { path = "wks/public_key/rs_elliptic_curve", version = "0.1.0" }
+rs_gost_r34_10_2001 = { path = "wks/public_key/rs_gost_r34_10_2001", version = "0.1.0" }
+rs_rsa = { path = "wks/public_key/rs_rsa", version = "0.1.0" }
+rs_sm2 = { path = "wks/public_key/rs_sm2", version = "0.1.0" }
+rs_x448 = { path = "wks/public_key/rs_x448", version = "0.1.0" }
+rs_x25519 = { path = "wks/public_key/rs_x25519", version = "0.1.0" }
 
 [dev-dependencies]
 criterion = "0.4.0"

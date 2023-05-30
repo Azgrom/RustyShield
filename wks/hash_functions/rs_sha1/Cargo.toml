@@ -4,9 +4,10 @@ description = "A git and openssl based implementation SHA-1 library , but faster
 categories = ["data-structures", "development-tools"]
 keywords = ["sha", "sha_1", "sha-1"]
 name = "rs_sha1"
-version = "0.1.0"
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+version = "0.1.0"
 
 [dependencies]
 rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.0" }

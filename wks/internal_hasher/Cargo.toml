@@ -1,9 +1,10 @@
 [package]
 name = "internal_hasher"
-version = "0.1.0"
 description = "A library providing generic abstractions of a hasher adherent type"
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+version = "0.1.0"
 
 [dependencies]
 internal_state = { path = "../internal_state", version = "0.1.0" }
