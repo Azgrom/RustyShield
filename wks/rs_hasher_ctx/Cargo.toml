@@ -8,6 +8,6 @@ license.workspace = true
 name = "rs_hasher_ctx_lib"
 
 [dependencies]
-internal_hasher = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
-internal_state = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
-n_bit_words = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
+internal_hasher = { path = "../internal_hasher", version = "0.1.0" }
+internal_state = { path = "../internal_state", version = "0.1.0" }
+n_bit_words = { path = "../n_bit_words", version = "0.1.0" }

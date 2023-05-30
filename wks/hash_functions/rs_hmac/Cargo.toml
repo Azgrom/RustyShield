@@ -6,8 +6,8 @@ license.workspace = true
 
 [dependencies]
 rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.0" }
-internal_hasher = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
-internal_state = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
+internal_hasher = { path = "../../internal_hasher", version = "0.1.0" }
+internal_state = { path = "../../internal_state", version = "0.1.0" }
 
 [dev-dependencies]
 rs_sha1 = { path = "../rs_sha1" }
