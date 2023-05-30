@@ -1,6 +1,6 @@
 use crate::Shake128State;
 use core::hash::Hasher;
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
 use internal_state::ExtendedOutputFunction;
 

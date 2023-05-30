@@ -1,6 +1,6 @@
 use crate::{Sha512Hasher, BYTES_LEN};
 use core::{hash::BuildHasher, ops::AddAssign};
-use hash_ctx_lib::ByteArrayWrapper;
+use rs_hasher_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, U128Size};
 use internal_state::{BytesLen, DWords, GenericStateHasher, Sha512BitsState};
 use n_bit_words_lib::NBitWord;

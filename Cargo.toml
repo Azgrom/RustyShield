@@ -6,7 +6,7 @@ license = "GPL-2.0-only"
 
 [workspace]
 members = [
-    "wks/hash_ctx",
+    "wks/rs_hasher_ctx",
     "wks/n_bit_words",
     "wks/internal_state",
     "wks/internal_hasher",
@@ -36,7 +36,7 @@ strip = false
 debug = false
 
 [dependencies]
-hash_ctx = { path = "wks/hash_ctx" }
+rs_hasher_ctx = { path = "wks/rs_hasher_ctx" }
 rs_hmac = { path = "wks/hash_functions/rs_hmac" }
 rs_keccak_nbits = { path = "wks/hash_functions/rs_keccak_nbits" }
 rs_sha1 = { path = "wks/hash_functions/rs_sha1" }
