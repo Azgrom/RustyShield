@@ -82,11 +82,15 @@ Inspired by the Unix philosophy, but adapting to the purpose of this project:
 
 ## Contributing
 
-Contributions will very much welcomed contributions from everyone. 
+Contributions are very much welcomed from everyone.
 
 If you have a suggestion of an algorithm that you want to see included in this project, please open an issue proposing it.
 
 To contribute, please follow the [contribution guidelines](./CONTRIBUTING.md).
+
+## Code of Conduct
+
+The participation of each member of the Rust community is valued, and everyone is expected to have an enjoyable and fulfilling experience. For this reason, all participants, maintainers, and contributors must abide by the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## License
 
