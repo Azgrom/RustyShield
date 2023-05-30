@@ -109,13 +109,15 @@ where
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     pub fn apply_f(&mut self) {
-        for i in 0..24 {
-            self.theta();
-            self.rho();
-            self.pi();
-            self.chi();
-            self.iota(i);
-        }
+        (0..24).fold(self, |state, i| {
+            state.theta();
+            state.rho();
+            state.pi();
+            state.chi();
+            state.iota(i);
+
+            state
+        });
     }
 }
 
@@ -125,7 +127,7 @@ where
     NBitWord<T>: BitAnd<Output = NBitWord<T>> + BitXorAssign + Not<Output = NBitWord<T>>,
 {
     fn chi(&mut self) {
-        self.planes = (0..5).fold(self.planes, |mut planes, x| {
+        (0..5).fold(&mut self.planes, |planes, x| {
             let lane0: NBitWord<T> = planes[x][0];
             let lane1: NBitWord<T> = planes[x][1];
             let lane2: NBitWord<T> = planes[x][2];
@@ -138,7 +140,7 @@ where
             planes[x][3] ^= !lane4 & lane0;
             planes[x][4] ^= !lane0 & lane1;
 
-            return planes;
+            planes
         });
     }
 }
@@ -257,7 +259,7 @@ where
             self.bit_xor_lanes(4),
         ];
 
-        self.planes = (0..5).fold(self.planes, |mut planes, y| {
+        (0..5).fold(&mut self.planes, |planes, y| {
             let t: NBitWord<T> = c[(y + 4) % 5] ^ c[(y + 1) % 5].rotate_left(1);
 
             planes[0][y] ^= t;
@@ -266,7 +268,7 @@ where
             planes[3][y] ^= t;
             planes[4][y] ^= t;
 
-            return planes;
+            planes
         });
     }
 }
