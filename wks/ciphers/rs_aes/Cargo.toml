@@ -9,10 +9,10 @@ name = "benches"
 harness = false
 
 [dependencies]
-hash_ctx = { path = "../../hash_ctx" }
-internal_hasher = { path = "../../internal_hasher" }
-internal_state = { path = "../../internal_state" }
-n_bit_words = { path = "../../n_bit_words" }
+rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.0" }
+internal_hasher = { git = "https://github.com/Azgrom/RustySSL.git/" }
+internal_state = { git = "https://github.com/Azgrom/RustySSL.git/" }
+n_bit_words = { git = "https://github.com/Azgrom/RustySSL.git/" }
 
 [dev-dependencies]
 criterion = "0.4.0"
