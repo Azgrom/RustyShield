@@ -7,7 +7,7 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
-n_bit_words = { git = "https://github.com/Azgrom/RustySSL.git/" }
-internal_hasher = { git = "https://github.com/Azgrom/RustySSL.git/" }
-internal_state = { git = "https://github.com/Azgrom/RustySSL.git/" }
+n_bit_words = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
+internal_hasher = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
+internal_state = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
 rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.0" }
