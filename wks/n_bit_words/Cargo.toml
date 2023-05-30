@@ -1,6 +1,7 @@
 [package]
 name = "n_bit_words"
 version = "0.1.0"
+description = "Just a generic wrapper over primitive unsigned integers designed for hashing calculations"
 edition.workspace = true
 license.workspace = true
 

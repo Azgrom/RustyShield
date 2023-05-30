@@ -1,6 +1,7 @@
 [package]
 name = "rs_sha512"
 version = "0.1.0"
+description = "SHA-512"
 edition.workspace = true
 license.workspace = true
 

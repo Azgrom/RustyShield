@@ -1,5 +1,6 @@
 [package]
 authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
+description = "SHA-256"
 keywords = ["sha", "sha_2", "sha_256"]
 name = "rs_sha256"
 version = "0.1.0"

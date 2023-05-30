@@ -1,5 +1,6 @@
 [package]
 name = "rs_gost_28147_89"
+description = "GOST 28147-89"
 version = "0.1.0"
 edition.workspace = true
 license.workspace = true

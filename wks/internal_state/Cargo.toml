@@ -1,6 +1,7 @@
 [package]
 name = "internal_state"
 version = "0.1.0"
+description = "A library providing generic abstractions of a state representation of a hash process"
 edition.workspace = true
 license.workspace = true
 
