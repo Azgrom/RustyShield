@@ -1,6 +1,6 @@
 use crate::{Sha3_224State, OUTPUT_SIZE};
 use core::hash::{Hash, Hasher};
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
 use internal_state::ExtendedOutputFunction;
 

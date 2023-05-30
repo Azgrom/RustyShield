@@ -1,7 +1,7 @@
 use crate::NBitKeccakState;
 use core::hash::Hasher;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_state::ExtendedOutputFunction;
 use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
 
