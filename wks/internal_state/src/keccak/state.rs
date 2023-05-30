@@ -109,7 +109,6 @@ where
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     pub fn apply_f(&mut self) {
-
         // *self = (0..24).fold(self, |mut state, i| {
         //     state.theta();
         //     state.rho();

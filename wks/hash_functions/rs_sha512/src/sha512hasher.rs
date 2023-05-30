@@ -1,7 +1,7 @@
 use crate::{Sha512State, BYTES_LEN};
 use core::hash::Hasher;
-use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
+use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Sha512Hasher` is a type that provides the SHA-512 hashing algorithm in RustySSL.
 ///
@@ -54,7 +54,7 @@ impl From<Sha512State> for Sha512Hasher {
     fn from(value: Sha512State) -> Self {
         Self(GenericHasher {
             padding: <Sha512State as HashAlgorithm>::Padding::default(),
-            state: value
+            state: value,
         })
     }
 }

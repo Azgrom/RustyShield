@@ -1,9 +1,9 @@
 use crate::{Sha256Hasher, BYTES_LEN};
 use core::{hash::BuildHasher, ops::AddAssign};
-use rs_hasher_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, U64Size};
 use internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState};
 use n_bit_words_lib::NBitWord;
+use rs_hasher_ctx_lib::ByteArrayWrapper;
 
 const H0: u32 = 0x6A09E667;
 const H1: u32 = 0xBB67AE85;
@@ -110,7 +110,7 @@ impl From<[u8; BYTES_LEN]> for Sha256State {
             NBitWord::from(u32::from_ne_bytes([v[16], v[17], v[18], v[19]])),
             NBitWord::from(u32::from_ne_bytes([v[20], v[21], v[22], v[23]])),
             NBitWord::from(u32::from_ne_bytes([v[24], v[25], v[26], v[27]])),
-            NBitWord::from(u32::from_ne_bytes([v[28], v[29], v[30], v[31]]))
+            NBitWord::from(u32::from_ne_bytes([v[28], v[29], v[30], v[31]])),
         )
     }
 }

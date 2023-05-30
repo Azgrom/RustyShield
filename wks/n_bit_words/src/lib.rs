@@ -145,18 +145,19 @@ where
 }
 
 impl<T> BitXor<T> for NBitWord<T>
-where T: BitXor<Output = T>
+where
+    T: BitXor<Output = T>,
 {
-    type Output = Self<>;
+    type Output = Self;
 
     fn bitxor(self, rhs: T) -> Self::Output {
-        Self(Wrapping(self.0.0 ^ rhs))
+        Self(Wrapping(self.0 .0 ^ rhs))
     }
 }
 
 impl BitXorAssign<NBitWord<u8>> for u8 {
     fn bitxor_assign(&mut self, rhs: NBitWord<u8>) {
-        *self ^= rhs.0.0
+        *self ^= rhs.0 .0
     }
 }
 
@@ -177,7 +178,7 @@ impl<T: Default> Default for NBitWord<T> {
 
 impl From<NBitWord<u8>> for u8 {
     fn from(value: NBitWord<u8>) -> Self {
-        value.0.0
+        value.0 .0
     }
 }
 
@@ -320,7 +321,7 @@ where
 
 impl PartialEq<u8> for NBitWord<u8> {
     fn eq(&self, other: &u8) -> bool {
-        self.0.0 == *other
+        self.0 .0 == *other
     }
 }
 
@@ -395,8 +396,8 @@ impl Shl<u32> for NBitWord<u64> {
 }
 
 impl<T> Shl for NBitWord<T>
-    where
-        T: Shl<Output = T>,
+where
+    T: Shl<Output = T>,
 {
     type Output = Self;
 
@@ -406,12 +407,13 @@ impl<T> Shl for NBitWord<T>
 }
 
 impl<T> Shl<T> for NBitWord<T>
-    where T: Shl<Output = T>
+where
+    T: Shl<Output = T>,
 {
     type Output = Self;
 
     fn shl(self, rhs: T) -> Self::Output {
-        Self(Wrapping(self.0.0 << rhs))
+        Self(Wrapping(self.0 .0 << rhs))
     }
 }
 
@@ -440,8 +442,8 @@ impl Shr<u32> for NBitWord<u64> {
 }
 
 impl<T> Shr for NBitWord<T>
-    where
-        T: Shr<Output = T>,
+where
+    T: Shr<Output = T>,
 {
     type Output = Self;
 
@@ -451,11 +453,13 @@ impl<T> Shr for NBitWord<T>
 }
 
 impl<T> Shr<T> for NBitWord<T>
-    where T: Shr<Output = T>{
+where
+    T: Shr<Output = T>,
+{
     type Output = Self;
 
     fn shr(self, rhs: T) -> Self::Output {
-        Self(Wrapping(self.0.0 >> rhs))
+        Self(Wrapping(self.0 .0 >> rhs))
     }
 }
 

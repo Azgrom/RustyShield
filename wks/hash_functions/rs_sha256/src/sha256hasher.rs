@@ -1,7 +1,7 @@
 use crate::{Sha256State, BYTES_LEN};
 use core::hash::Hasher;
-use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
+use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Sha256Hasher` is a type in RustySSL that facilitates the SHA-256 hashing algorithm.
 ///
@@ -54,7 +54,7 @@ impl From<Sha256State> for Sha256Hasher {
     fn from(value: Sha256State) -> Self {
         Self(GenericHasher {
             padding: <Sha256State as HashAlgorithm>::Padding::default(),
-            state: value
+            state: value,
         })
     }
 }

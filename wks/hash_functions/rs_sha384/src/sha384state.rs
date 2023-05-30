@@ -1,9 +1,9 @@
 use crate::{Sha384Hasher, BYTES_LEN};
 use core::{hash::BuildHasher, ops::AddAssign};
-use rs_hasher_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, U128Size};
 use internal_state::{BytesLen, DWords, GenericStateHasher, Sha512BitsState};
 use n_bit_words_lib::NBitWord;
+use rs_hasher_ctx_lib::ByteArrayWrapper;
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;
 const H1: u64 = 0x629A292A367CD507;
@@ -110,7 +110,7 @@ impl From<[u8; BYTES_LEN]> for Sha384State {
             NBitWord::from(u64::from_ne_bytes([v[32], v[33], v[34], v[35], v[36], v[37], v[38], v[39]])),
             NBitWord::from(u64::from_ne_bytes([v[40], v[41], v[42], v[43], v[44], v[45], v[46], v[47]])),
             NBitWord::from(u64::default()),
-            NBitWord::from(u64::default())
+            NBitWord::from(u64::default()),
         )
     }
 }
