@@ -1,6 +1,6 @@
 use crate::{Sha512State, BYTES_LEN};
 use core::hash::Hasher;
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
 
 /// `Sha512Hasher` is a type that provides the SHA-512 hashing algorithm in RustySSL.

@@ -3,7 +3,7 @@ use crate::sha1state::{H0, H1, H2, H3, H4};
 use crate::Sha1State;
 use alloc::vec;
 use core::hash::Hasher;
-use hash_ctx_lib::GenericHasher;
+use rs_hasher_ctx_lib::GenericHasher;
 use internal_hasher::{BigEndianBytes, BytePad};
 use internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
 

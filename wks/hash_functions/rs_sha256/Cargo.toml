@@ -10,4 +10,4 @@ license.workspace = true
 n_bit_words = { path = "../../n_bit_words" }
 internal_hasher = { path = "../../internal_hasher" }
 internal_state = { path = "../../internal_state" }
-hash_ctx = { path = "../../hash_ctx" }
+rs_hasher_ctx = { path = "../../rs_hasher_ctx" }

@@ -144,6 +144,22 @@ where
     }
 }
 
+impl<T> BitXor<T> for NBitWord<T>
+where T: BitXor<Output = T>
+{
+    type Output = Self<>;
+
+    fn bitxor(self, rhs: T) -> Self::Output {
+        Self(Wrapping(self.0.0 ^ rhs))
+    }
+}
+
+impl BitXorAssign<NBitWord<u8>> for u8 {
+    fn bitxor_assign(&mut self, rhs: NBitWord<u8>) {
+        *self ^= rhs.0.0
+    }
+}
+
 impl<T> BitXorAssign for NBitWord<T>
 where
     T: BitXorAssign,
@@ -159,9 +175,9 @@ impl<T: Default> Default for NBitWord<T> {
     }
 }
 
-impl<T> From<T> for NBitWord<T> {
-    fn from(value: T) -> Self {
-        Self(Wrapping(value))
+impl From<NBitWord<u8>> for u8 {
+    fn from(value: NBitWord<u8>) -> Self {
+        value.0.0
     }
 }
 
@@ -216,6 +232,12 @@ impl From<NBitWord<u64>> for u64 {
 impl From<[u8; 8]> for NBitWord<u64> {
     fn from(value: [u8; 8]) -> Self {
         u64::from_be_bytes([value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7]]).into()
+    }
+}
+
+impl<T> From<T> for NBitWord<T> {
+    fn from(value: T) -> Self {
+        Self(Wrapping(value))
     }
 }
 
@@ -296,6 +318,12 @@ where
     }
 }
 
+impl PartialEq<u8> for NBitWord<u8> {
+    fn eq(&self, other: &u8) -> bool {
+        self.0.0 == *other
+    }
+}
+
 impl PartialEq<u32> for NBitWord<u32> {
     fn eq(&self, other: &u32) -> bool {
         self.0 .0 == *other
@@ -342,17 +370,6 @@ impl Rotate for NBitWord<u64> {
     }
 }
 
-impl<T> Shl for NBitWord<T>
-where
-    T: Shl<Output = T>,
-{
-    type Output = Self;
-
-    fn shl(self, rhs: Self) -> Self::Output {
-        Self(Wrapping(self.0 .0 << rhs.0 .0))
-    }
-}
-
 impl Shl<u32> for NBitWord<u8> {
     type Output = u8;
 
@@ -369,14 +386,6 @@ impl Shl<u32> for NBitWord<u16> {
     }
 }
 
-impl Shl<u32> for NBitWord<u32> {
-    type Output = u32;
-
-    fn shl(self, rhs: u32) -> Self::Output {
-        self.0 .0 << rhs
-    }
-}
-
 impl Shl<u32> for NBitWord<u64> {
     type Output = u64;
 
@@ -385,14 +394,24 @@ impl Shl<u32> for NBitWord<u64> {
     }
 }
 
-impl<T> Shr for NBitWord<T>
-where
-    T: Shr<Output = T>,
+impl<T> Shl for NBitWord<T>
+    where
+        T: Shl<Output = T>,
 {
     type Output = Self;
 
-    fn shr(self, rhs: Self) -> Self::Output {
-        Self(Wrapping(self.0 .0 >> rhs.0 .0))
+    fn shl(self, rhs: Self) -> Self::Output {
+        Self(Wrapping(self.0 .0 << rhs.0 .0))
+    }
+}
+
+impl<T> Shl<T> for NBitWord<T>
+    where T: Shl<Output = T>
+{
+    type Output = Self;
+
+    fn shl(self, rhs: T) -> Self::Output {
+        Self(Wrapping(self.0.0 << rhs))
     }
 }
 
@@ -412,19 +431,31 @@ impl Shr<u32> for NBitWord<u16> {
     }
 }
 
-impl Shr<u32> for NBitWord<u32> {
-    type Output = NBitWord<u32>;
+impl Shr<u32> for NBitWord<u64> {
+    type Output = NBitWord<u64>;
 
     fn shr(self, rhs: u32) -> Self::Output {
         Self(Wrapping(self.0 .0 >> rhs))
     }
 }
 
-impl Shr<u32> for NBitWord<u64> {
-    type Output = NBitWord<u64>;
+impl<T> Shr for NBitWord<T>
+    where
+        T: Shr<Output = T>,
+{
+    type Output = Self;
 
-    fn shr(self, rhs: u32) -> Self::Output {
-        Self(Wrapping(self.0 .0 >> rhs))
+    fn shr(self, rhs: Self) -> Self::Output {
+        Self(Wrapping(self.0 .0 >> rhs.0 .0))
+    }
+}
+
+impl<T> Shr<T> for NBitWord<T>
+    where T: Shr<Output = T>{
+    type Output = Self;
+
+    fn shr(self, rhs: T) -> Self::Output {
+        Self(Wrapping(self.0.0 >> rhs))
     }
 }
 
@@ -507,11 +538,11 @@ impl TSize<u32> for NBitWord<u32> {
     const SIZE: usize = 4;
 
     fn gamma0(&self) -> Self {
-        (self.rotate_right(7)) ^ (self.rotate_right(18)) ^ (*self >> Self(Wrapping(3)))
+        (self.rotate_right(7)) ^ (self.rotate_right(18)) ^ (*self >> 3)
     }
 
     fn gamma1(&self) -> Self {
-        (self.rotate_right(17)) ^ (self.rotate_right(19)) ^ (*self >> Self(Wrapping(10)))
+        (self.rotate_right(17)) ^ (self.rotate_right(19)) ^ (*self >> 10)
     }
 
     fn sigma0(&self) -> Self {
@@ -528,11 +559,11 @@ impl TSize<u64> for NBitWord<u64> {
     const SIZE: usize = 8;
 
     fn gamma0(&self) -> Self {
-        self.rotate_right(1) ^ self.rotate_right(8) ^ (*self >> Self(Wrapping(7)))
+        self.rotate_right(1) ^ self.rotate_right(8) ^ (*self >> 7u32)
     }
 
     fn gamma1(&self) -> Self {
-        self.rotate_right(19) ^ self.rotate_right(61) ^ (*self >> Self(Wrapping(6)))
+        self.rotate_right(19) ^ self.rotate_right(61) ^ (*self >> 6u32)
     }
 
     fn sigma0(&self) -> Self {

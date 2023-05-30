@@ -1,6 +1,6 @@
 use crate::{Sha3_384Hasher, OUTPUT_SIZE};
 use core::hash::BuildHasher;
-use hash_ctx_lib::ByteArrayWrapper;
+use rs_hasher_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
 use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
 
