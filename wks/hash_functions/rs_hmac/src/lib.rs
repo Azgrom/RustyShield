@@ -45,7 +45,7 @@
 #![no_std]
 
 use core::hash::{Hash, Hasher};
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::{HashAlgorithm, LenPad};
 use internal_state::BytesLen;
 
@@ -130,7 +130,7 @@ where
     ///
     /// ```
     /// # use std::hash::Hasher;
-    /// use hash_ctx_lib::HasherContext;
+    /// use rs_hasher_ctx_lib::HasherContext;
     /// use rs_hmac::Hmac;
     /// use rs_sha3_384::Sha3_384State;
     ///

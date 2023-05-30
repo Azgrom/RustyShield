@@ -2,7 +2,7 @@ extern crate alloc;
 use crate::sha384state::Sha384State;
 use alloc::format;
 use core::hash::{BuildHasher, Hash, Hasher};
-use hash_ctx_lib::HasherContext;
+use rs_hasher_ctx_lib::HasherContext;
 
 #[test]
 fn sha384_empty_string_prefix_collision_resiliency() {

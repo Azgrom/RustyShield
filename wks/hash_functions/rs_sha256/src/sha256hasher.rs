@@ -1,6 +1,6 @@
 use crate::{Sha256State, BYTES_LEN};
 use core::hash::Hasher;
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
 
 /// `Sha256Hasher` is a type in RustySSL that facilitates the SHA-256 hashing algorithm.
