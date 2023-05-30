@@ -5,5 +5,5 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
-internal_state = { git = "https://github.com/Azgrom/RustySSL.git/" }
-n_bit_words = { git = "https://github.com/Azgrom/RustySSL.git/" }
+internal_state = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
+n_bit_words = { git = "https://github.com/Azgrom/RustySSL.git/", version = "0.1.0" }
