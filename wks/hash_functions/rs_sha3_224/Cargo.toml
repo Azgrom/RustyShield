@@ -1,6 +1,7 @@
 [package]
 name = "rs_sha3_224"
 version = "0.1.0"
+description = "SHA3-224"
 edition.workspace = true
 license.workspace = true
 

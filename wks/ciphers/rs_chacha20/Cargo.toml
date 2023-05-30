@@ -1,5 +1,6 @@
 [package]
 name = "rs_chacha20"
+description = "A pure Rust implementation of the ChaCha20 stream cipher."
 version = "0.1.0"
 edition.workspace = true
 license.workspace = true

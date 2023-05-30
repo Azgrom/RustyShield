@@ -1,5 +1,6 @@
 [package]
 name = "rs_triple_des"
+description = "Triple DES implementation in Rust"
 version = "0.1.0"
 edition.workspace = true
 license.workspace = true
