@@ -1,7 +1,7 @@
 use crate::NBitKeccakHasher;
 use core::hash::BuildHasher;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
-use hash_ctx_lib::ByteArrayWrapper;
+use rs_hasher_ctx_lib::ByteArrayWrapper;
 use internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
 use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
 use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};

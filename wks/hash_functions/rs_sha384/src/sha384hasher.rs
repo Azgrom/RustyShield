@@ -1,6 +1,6 @@
 use crate::{Sha384State, BYTES_LEN};
 use core::hash::Hasher;
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 use internal_hasher::HashAlgorithm;
 
 /// `Sha384Hasher` is a type that provides the SHA-384 hashing algorithm in RustySSL.

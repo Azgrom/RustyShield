@@ -2,7 +2,7 @@ extern crate alloc;
 use crate::Shake128Hasher;
 use alloc::format;
 use core::hash::Hasher;
-use hash_ctx_lib::HasherContext;
+use rs_hasher_ctx_lib::HasherContext;
 
 const MSG: &[u8; 43] = b"The quick brown fox jumps over the lazy dog";
 
