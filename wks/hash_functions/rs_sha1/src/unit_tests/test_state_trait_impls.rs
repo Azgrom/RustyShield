@@ -6,7 +6,7 @@ use core::{
     any::{Any, TypeId},
     hash::{BuildHasher, Hash},
 };
-use n_bit_words_lib::NBitWord;
+use rs_n_bit_words::NBitWord;
 use rs_hasher_ctx_lib::ByteArrayWrapper;
 
 type U32Word = NBitWord<u32>;

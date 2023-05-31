@@ -2,8 +2,8 @@ use core::{
     fmt::{Formatter, LowerHex, UpperHex},
     ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Index, Not, Sub},
 };
-use internal_state::{ExtendedOutputFunction, KeccakSponge};
-use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
+use rs_internal_state::{ExtendedOutputFunction, KeccakSponge};
+use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
 
 pub const LOWER_HEX_ERR: &str = "Error trying to format lower hex string";
 pub const UPPER_HEX_ERR: &str = "Error trying to format upper hex string";

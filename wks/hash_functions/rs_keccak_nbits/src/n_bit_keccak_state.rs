@@ -1,9 +1,9 @@
 use crate::NBitKeccakHasher;
 use core::hash::BuildHasher;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
-use internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
-use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
-use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
+use rs_internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
+use rs_internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
+use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
 use rs_hasher_ctx_lib::ByteArrayWrapper;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]

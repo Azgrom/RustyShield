@@ -1,13 +1,12 @@
 [package]
-name = "rs_seed"
+authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
 description = """The rs_seed crate is currently a placeholder for an upcoming cryptographic hashing algorithm
 implementation in Rust. This algorithm is currently under development and will be released as soon as possible. Please
 note that until it is available, the code will be configured to panic by default."""
 edition.workspace = true
+homepage.workspace = true
 license.workspace = true
+name = "rs_seed"
+readme.workspace = true
 repository.workspace = true
-version = "0.1.0"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+version = "0.1.1"

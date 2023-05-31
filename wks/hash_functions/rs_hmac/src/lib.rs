@@ -45,8 +45,8 @@
 #![no_std]
 
 use core::hash::{Hash, Hasher};
-use internal_hasher::{HashAlgorithm, LenPad};
-use internal_state::BytesLen;
+use rs_internal_hasher::{HashAlgorithm, LenPad};
+use rs_internal_state::BytesLen;
 use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 const INNER_PAD: u8 = 0x36;

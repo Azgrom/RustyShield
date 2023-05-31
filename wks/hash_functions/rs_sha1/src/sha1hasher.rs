@@ -1,6 +1,6 @@
 use crate::{Sha1State, BYTES_LEN};
 use core::hash::Hasher;
-use internal_hasher::HashAlgorithm;
+use rs_internal_hasher::HashAlgorithm;
 use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Sha1Hasher` is a type that provides the SHA-1 hashing algorithm in RustySSL.

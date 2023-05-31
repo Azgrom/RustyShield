@@ -1,13 +1,20 @@
 [package]
-name = "rs_sha3_256"
-description = "SHA3-256"
+authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
+description = """`rs_sha3_256` is a Rust implementation of the SHA3-256 cryptographic hash algorithm, part of the larger
+ `rs_ssl` project. This package provides SHA3-256 hashing functionality in a standalone manner, ideal for when only
+ SHA3-256 is required. Alternatively, for those seeking a comprehensive set of cryptographic functions, this same
+ algorithm is included within the broader `rs_ssl` library bundle. The focus of `rs_sha3_256` and the larger project is
+  on performance, safety, and openness, with a commitment to ongoing maintenance and enhancement."""
 edition.workspace = true
+homepage.workspace = true
 license.workspace = true
+name = "rs_sha3_256"
+readme.workspace = true
 repository.workspace = true
-version = "0.1.0"
+version = "0.1.1"
 
 [dependencies]
 rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.0" }
-internal_hasher = { path = "../../internal_hasher", version = "0.1.0" }
-internal_state = { path = "../../internal_state", version = "0.1.0" }
-n_bit_words = { path = "../../n_bit_words", version = "0.1.0" }
+rs_internal_hasher = { path = "../../rs_internal_hasher", version = "0.1.0" }
+rs_internal_state = { path = "../../rs_internal_state", version = "0.1.0" }
+rs_n_bit_words = { path = "../../rs_n_bit_words", version = "0.1.0" }

@@ -1,7 +1,7 @@
 #![no_std]
 
 use core::ops::{Add, AddAssign, BitAnd, BitXor, Mul, Shl, Shr};
-use n_bit_words_lib::NBitWord;
+use rs_n_bit_words::NBitWord;
 
 /// `GF2ToThe8` represents a Galois Field with 2^8 (256) elements.
 ///

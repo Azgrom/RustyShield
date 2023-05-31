@@ -1,6 +1,6 @@
 use crate::{Sha224State, BYTES_LEN};
 use core::hash::Hasher;
-use internal_hasher::HashAlgorithm;
+use rs_internal_hasher::HashAlgorithm;
 use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Sha224Hasher` is a type that provides the SHA-224 hashing algorithm in RustySSL.

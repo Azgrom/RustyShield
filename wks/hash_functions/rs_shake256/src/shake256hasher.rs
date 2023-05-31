@@ -1,7 +1,7 @@
 use crate::Shake256State;
 use core::hash::Hasher;
-use internal_hasher::HashAlgorithm;
-use internal_state::ExtendedOutputFunction;
+use rs_internal_hasher::HashAlgorithm;
+use rs_internal_state::ExtendedOutputFunction;
 use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Shake256Hasher` is a type that provides the SHAKE256 hashing algorithm in Rust.

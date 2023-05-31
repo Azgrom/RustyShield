@@ -12,7 +12,7 @@
 
 **An OpenSSL inspired Rust based encryption library** 
 
-[![Documentation](https://img.shields.io/badge/docs-API-blue)](https://crates.io/)
+[![Documentation](https://img.shields.io/badge/docs-API-blue)](https://docs.rs/rs_ssl/latest/rs_ssl/)
 [![GitHub Workflow Status](https://github.com/Azgrom/RustySSL/workflows/Cargo%20Build%20&%20Test/badge.svg?branch=master)](https://github.com/Azgrom/RustySSL/actions)
 
 </div>
@@ -23,7 +23,7 @@ RustySSL seeks to establish the Rust language self-sufficency by offering an API
 
 ## How To Use
 
-See the implementation documentation for examples.
+See the [implementation documentation](https://docs.rs/rs_ssl/latest/rs_ssl/) for examples.
 
 ## RoadMap
 
@@ -86,7 +86,7 @@ Contributions are very much welcomed from everyone.
 
 If you have a suggestion of an algorithm that you want to see included in this project, please open an issue proposing it.
 
-To contribute, please follow the [contribution guidelines](./CONTRIBUTING.md).
+To contribute, please follow the [contribution guidelines](https://github.com/Azgrom/RustySSL/blob/master/CONTRIBUTING.md).
 
 ## Code of Conduct
 

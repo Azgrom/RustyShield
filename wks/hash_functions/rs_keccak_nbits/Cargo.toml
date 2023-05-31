@@ -1,13 +1,22 @@
 [package]
-name = "rs_keccak_nbits"
-description = "Keccak hash function implementation for Rust"
+authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
+categories = ["algorithms", "cryptography", "development-tools", "no-std",  "no-std::no-alloc" ]
+description = """`rs_keccak_nbits` is a Rust implementation of the variable-output-length Keccak cryptographic hash
+algorithm, part of the larger `rs_ssl` project. This package provides Keccak hashing functionality in a standalone
+manner, ideal for when only Keccak with custom output length is required. Alternatively, for those seeking a
+comprehensive set of cryptographic functions, this same algorithm is included within the broader `rs_ssl` library
+bundle. The focus of `rs_keccak_nbits` and the larger project is on performance, safety, and openness, with a commitment
+to ongoing maintenance and enhancement."""
 edition.workspace = true
+homepage.workspace = true
 license.workspace = true
+name = "rs_keccak_nbits"
+readme.workspace = true
 repository.workspace = true
-version = "0.1.0"
+version = "0.1.1"
 
 [dependencies]
-rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.0" }
-internal_hasher = { path = "../../internal_hasher", version = "0.1.0" }
-internal_state = { path = "../../internal_state", version = "0.1.0" }
-n_bit_words = { path = "../../n_bit_words", version = "0.1.0" }
+rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.*" }
+rs_internal_state = { path = "../../rs_internal_state", version = "0.1.*" }
+rs_internal_hasher = { path = "../../rs_internal_hasher", version = "0.1.*" }
+rs_n_bit_words = { path = "../../rs_n_bit_words", version = "0.1.*" }

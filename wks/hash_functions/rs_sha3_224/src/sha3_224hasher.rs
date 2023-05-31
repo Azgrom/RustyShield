@@ -1,7 +1,7 @@
 use crate::{Sha3_224State, OUTPUT_SIZE};
 use core::hash::{Hash, Hasher};
-use internal_hasher::HashAlgorithm;
-use internal_state::ExtendedOutputFunction;
+use rs_internal_hasher::HashAlgorithm;
+use rs_internal_state::ExtendedOutputFunction;
 use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Sha3_224Hasher` is a type that provides the SHA3-224 hashing algorithm in Rust.

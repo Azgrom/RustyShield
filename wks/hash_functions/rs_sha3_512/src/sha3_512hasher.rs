@@ -1,7 +1,7 @@
 use crate::{Sha3_512State, OUTPUT_SIZE};
 use core::hash::Hasher;
-use internal_hasher::HashAlgorithm;
-use internal_state::ExtendedOutputFunction;
+use rs_internal_hasher::HashAlgorithm;
+use rs_internal_state::ExtendedOutputFunction;
 use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Sha3_512Hasher` is a type that provides the SHA3-512 hashing algorithm in Rust.

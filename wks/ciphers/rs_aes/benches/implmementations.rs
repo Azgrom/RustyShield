@@ -1,4 +1,4 @@
-use n_bit_words_lib::NBitWord;
+use rs_n_bit_words::NBitWord;
 use std::ops::{Add, AddAssign, Mul};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

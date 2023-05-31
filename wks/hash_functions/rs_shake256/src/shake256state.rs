@@ -1,7 +1,7 @@
 use crate::Shake256Hasher;
 use core::hash::BuildHasher;
-use internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
-use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
+use rs_internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
+use rs_internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
 use rs_hasher_ctx_lib::ByteArrayWrapper;
 
 const RATE: usize = 136;

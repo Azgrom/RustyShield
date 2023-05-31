@@ -1,8 +1,8 @@
 use crate::{Sha224Hasher, BYTES_LEN};
 use core::{hash::BuildHasher, ops::AddAssign};
-use internal_hasher::{GenericPad, HashAlgorithm, U64Size};
-use internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState};
-use n_bit_words_lib::NBitWord;
+use rs_internal_hasher::{GenericPad, HashAlgorithm, U64Size};
+use rs_internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState};
+use rs_n_bit_words::NBitWord;
 use rs_hasher_ctx_lib::ByteArrayWrapper;
 
 const H0: u32 = 0xC1059ED8;
