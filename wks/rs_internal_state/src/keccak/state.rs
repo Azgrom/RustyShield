@@ -109,38 +109,15 @@ where
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     pub fn apply_f(&mut self) {
-        // *self = (0..24).fold(self, |mut state, i| {
-        //     state.theta();
-        //     state.rho();
-        //     state.pi();
-        //     state.chi();
-        //     state.iota(i);
-        //
-        //     state
-        // });
-        for i in 0..24 {
-            self.theta();
-            self.rho();
-            self.pi();
-            self.chi();
-            self.iota(i);
-        }
-    }
-}
+        (0..24).fold(self, |state, i| {
+            state.theta();
+            state.rho();
+            state.pi();
+            state.chi();
+            state.iota(i);
 
-impl<T> Chi for Plane<T>
-where
-    T: Copy,
-    NBitWord<T>: BitAnd<Output = NBitWord<T>> + BitXorAssign + Not<Output = NBitWord<T>>,
-{
-    fn chi(&mut self) {
-        let [lane0, lane1, lane2, lane3, lane4] = self.deconstruct();
-
-        self[0] ^= !lane1 & lane2;
-        self[1] ^= !lane2 & lane3;
-        self[2] ^= !lane3 & lane4;
-        self[3] ^= !lane4 & lane0;
-        self[4] ^= !lane0 & lane1;
+            state
+        });
     }
 }
 
@@ -150,25 +127,21 @@ where
     NBitWord<T>: BitAnd<Output = NBitWord<T>> + BitXorAssign + Not<Output = NBitWord<T>>,
 {
     fn chi(&mut self) {
-        let mut lane0: NBitWord<T>;
-        let mut lane1: NBitWord<T>;
-        let mut lane2: NBitWord<T>;
-        let mut lane3: NBitWord<T>;
-        let mut lane4: NBitWord<T>;
+        (0..5).fold(&mut self.planes, |planes, x| {
+            let lane0: NBitWord<T> = planes[x][0];
+            let lane1: NBitWord<T> = planes[x][1];
+            let lane2: NBitWord<T> = planes[x][2];
+            let lane3: NBitWord<T> = planes[x][3];
+            let lane4: NBitWord<T> = planes[x][4];
 
-        for x in 0..5 {
-            lane0 = self.planes[x][0];
-            lane1 = self.planes[x][1];
-            lane2 = self.planes[x][2];
-            lane3 = self.planes[x][3];
-            lane4 = self.planes[x][4];
+            planes[x][0] ^= !lane1 & lane2;
+            planes[x][1] ^= !lane2 & lane3;
+            planes[x][2] ^= !lane3 & lane4;
+            planes[x][3] ^= !lane4 & lane0;
+            planes[x][4] ^= !lane0 & lane1;
 
-            self.planes[x][0] ^= !lane1 & lane2;
-            self.planes[x][1] ^= !lane2 & lane3;
-            self.planes[x][2] ^= !lane3 & lane4;
-            self.planes[x][3] ^= !lane4 & lane0;
-            self.planes[x][4] ^= !lane0 & lane1;
-        }
+            planes
+        });
     }
 }
 
@@ -286,15 +259,16 @@ where
             self.bit_xor_lanes(4),
         ];
 
-        let mut t: NBitWord<T>;
-        for y in 0..5 {
-            t = c[(y + 4) % 5] ^ c[(y + 1) % 5].rotate_left(1);
+        (0..5).fold(&mut self.planes, |planes, y| {
+            let t: NBitWord<T> = c[(y + 4) % 5] ^ c[(y + 1) % 5].rotate_left(1);
 
-            self.planes[0][y] ^= t;
-            self.planes[1][y] ^= t;
-            self.planes[2][y] ^= t;
-            self.planes[3][y] ^= t;
-            self.planes[4][y] ^= t;
-        }
+            planes[0][y] ^= t;
+            planes[1][y] ^= t;
+            planes[2][y] ^= t;
+            planes[3][y] ^= t;
+            planes[4][y] ^= t;
+
+            planes
+        });
     }
 }

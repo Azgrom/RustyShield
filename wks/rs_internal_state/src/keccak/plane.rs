@@ -8,12 +8,6 @@ pub(crate) struct Plane<T> {
     lanes: [NBitWord<T>; WIDTH],
 }
 
-impl<T: Copy> Plane<T> {
-    pub(crate) fn deconstruct(&self) -> [NBitWord<T>; WIDTH] {
-        self.lanes
-    }
-}
-
 impl<T> Index<usize> for Plane<T> {
     type Output = NBitWord<T>;
 
