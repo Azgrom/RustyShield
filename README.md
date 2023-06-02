@@ -8,7 +8,7 @@
 
 <div align="center">
 
-# RustySSL `rs-ssl`
+# RustySSL `rs_ssl`
 
 **An OpenSSL inspired Rust based encryption library** 
 
