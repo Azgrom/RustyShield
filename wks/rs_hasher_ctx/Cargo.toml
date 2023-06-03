@@ -9,9 +9,6 @@ readme.workspace = true
 repository.workspace = true
 version = "0.1.1"
 
-[lib]
-name = "rs_hasher_ctx_lib"
-
 [dependencies]
 rs_internal_hasher = { path = "../rs_internal_hasher", version = "0.1.1" }
 rs_internal_state = { path = "../rs_internal_state", version = "0.1.1" }

@@ -65,7 +65,7 @@
 
 #![no_std]
 
-pub use rs_hasher_ctx_lib::HasherContext;
+pub use rs_hasher_ctx::HasherContext;
 pub use shake256hasher::Shake256Hasher;
 pub use shake256state::Shake256State;
 

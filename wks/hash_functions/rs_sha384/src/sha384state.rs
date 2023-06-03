@@ -3,7 +3,7 @@ use core::{hash::BuildHasher, ops::AddAssign};
 use rs_internal_hasher::{GenericPad, HashAlgorithm, U128Size};
 use rs_internal_state::{BytesLen, DWords, GenericStateHasher, Sha512BitsState};
 use rs_n_bit_words::NBitWord;
-use rs_hasher_ctx_lib::ByteArrayWrapper;
+use rs_hasher_ctx::ByteArrayWrapper;
 
 const H0: u64 = 0xCBBB9D5DC1059ED8;
 const H1: u64 = 0x629A292A367CD507;

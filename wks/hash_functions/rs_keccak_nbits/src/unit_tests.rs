@@ -3,7 +3,7 @@ extern crate alloc;
 use crate::NBitKeccakState;
 use alloc::format;
 use core::hash::{BuildHasher, Hasher};
-use rs_hasher_ctx_lib::HasherContext;
+use rs_hasher_ctx::HasherContext;
 
 #[test]
 fn test() {

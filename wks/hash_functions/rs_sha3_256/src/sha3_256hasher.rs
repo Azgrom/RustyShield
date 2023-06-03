@@ -2,7 +2,7 @@ use crate::{Sha3_256State, OUTPUT_SIZE};
 use core::hash::Hasher;
 use rs_internal_hasher::HashAlgorithm;
 use rs_internal_state::ExtendedOutputFunction;
-use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Sha3_256Hasher` is a type that implements the SHA3-256 hashing algorithm in Rust.
 ///

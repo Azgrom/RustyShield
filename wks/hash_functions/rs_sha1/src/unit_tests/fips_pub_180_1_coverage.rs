@@ -5,7 +5,7 @@ use alloc::vec;
 use core::hash::Hasher;
 use rs_internal_hasher::{BigEndianBytes, BytePad};
 use rs_internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
-use rs_hasher_ctx_lib::GenericHasher;
+use rs_hasher_ctx::GenericHasher;
 
 const MESSAGE: &str = "abc";
 

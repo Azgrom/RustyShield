@@ -91,7 +91,7 @@
 
 #![no_std]
 
-pub use rs_hasher_ctx_lib::HasherContext;
+pub use rs_hasher_ctx::HasherContext;
 pub use rs_hmac::Hmac;
 pub use rs_keccak_nbits::{NBitKeccakHasher, NBitKeccakState};
 pub use rs_sha1::{Sha1Hasher, Sha1State};

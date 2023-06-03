@@ -67,7 +67,7 @@
 
 #![no_std]
 
-pub use rs_hasher_ctx_lib::HasherContext;
+pub use rs_hasher_ctx::HasherContext;
 pub use sha512_224hasher::Sha512_224Hasher;
 pub use sha512_224state::Sha512_224State;
 

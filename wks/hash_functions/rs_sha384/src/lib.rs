@@ -63,7 +63,7 @@
 
 #![no_std]
 
-pub use rs_hasher_ctx_lib::HasherContext;
+pub use rs_hasher_ctx::HasherContext;
 pub use sha384hasher::Sha384Hasher;
 pub use sha384state::Sha384State;
 
