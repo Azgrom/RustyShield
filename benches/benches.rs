@@ -2,8 +2,8 @@ use core::hash::{Hash, Hasher};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 use rs_ssl::{
-    Sha1Hasher, Sha224Hasher, Sha256Hasher, Sha384Hasher, Sha3_224Hasher, Sha3_256Hasher, Sha512Hasher,
-    Sha512_224Hasher, Sha3_384Hasher, Sha3_512Hasher, Shake128Hasher, Shake256Hasher
+    Sha1Hasher, Sha224Hasher, Sha256Hasher, Sha384Hasher, Sha3_224Hasher, Sha3_256Hasher, Sha3_384Hasher,
+    Sha3_512Hasher, Sha512Hasher, Sha512_224Hasher, Sha512_256Hasher, Shake128Hasher, Shake256Hasher,
 };
 
 const FUNCTIONS_BENCH_COMPARISON: &str = "Compare different SHA functions execution time";
@@ -61,7 +61,7 @@ fn compare_sha_impls(c: &mut Criterion) {
 
     b_group.bench_function("SHA-512/256", |b| {
         b.iter(|| {
-            let mut sha512_256hasher = Sha3_256Hasher::default();
+            let mut sha512_256hasher = Sha512_256Hasher::default();
             black_box(FUNCTIONS_BENCH_COMPARISON).hash(&mut sha512_256hasher);
             let _ = sha512_256hasher.finish();
         })
