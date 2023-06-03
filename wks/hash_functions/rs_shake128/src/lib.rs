@@ -22,7 +22,7 @@
 //! let mut shake128hasher = Shake128State::<20>::default().build_hasher();
 //! shake128hasher.write(b"hello world");
 //! let result = shake128hasher.finish();
-//! assert_eq!(result, 0x1CDDE471F059913A)
+//! assert_eq!(result, 0x3A9159F071E4DD1C);
 //! ```
 //!
 //! As a `HashSet`:
@@ -48,8 +48,8 @@
 //! let u64result2 = shake128hasher2.finish();
 //! let u64result3 = shake128hasher3.finish();
 //!
-//! assert_eq!(u64result1, 0x3380F232A9B6B48E);
-//! assert_eq!(u64result2, 0x394C353CD8BE8D35);
+//! assert_eq!(u64result1, 0x8EB4B6A932F28033);
+//! assert_eq!(u64result2, 0x358DBED83C354C39);
 //! assert_eq!(u64result2, u64result3);
 //! assert_ne!(u64result1, u64result2);
 //! ```

@@ -27,7 +27,7 @@
 //! let mut hmac = Hmac::<Sha3_256State, 32>::new(b"my secret and secure key");
 //! hmac.write(b"hello world");
 //! let result = hmac.finish();
-//! assert_eq!(result, 0xF9C0C982D2F30FE5);
+//! assert_eq!(result, 0xE50FF3D282C9C0F9);
 //! ```
 //!
 //! ## Use Cases
@@ -142,7 +142,7 @@ where
     /// let u64result = hmac.finish();
     /// let bytes_result = HasherContext::finish(&mut hmac);
     ///
-    /// assert_eq!(u64result, 0x122C8376A6EB06CD);
+    /// assert_eq!(u64result, 0xCD06EBA676832C12);
     /// assert_eq!(
     ///     bytes_result,
     ///     [

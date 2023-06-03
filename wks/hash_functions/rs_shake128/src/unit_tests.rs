@@ -16,7 +16,8 @@ fn test() {
     shake128hasher.write(MSG);
     shake128hasher.write(MSG);
 
-    assert_eq!(shake128hasher.finish(), 0x250A744200F33112)
+    let u64result = shake128hasher.finish();
+    assert_eq!(u64result, 0x1231F30042740A25)
 }
 
 #[test]

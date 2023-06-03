@@ -14,7 +14,8 @@ fn test() {
 
     hasher.write(quick_fox);
 
-    assert_eq!(hasher.finish(), 0x1807f8fb6db9ef32);
+    assert_eq!(hasher.finish(), 0x32efb96dfbf80718);
     let context = HasherContext::finish(&mut hasher);
     assert_eq!(format!("{context:02x}"), "32efb96dfbf807182d277c3d908062e41b2b01a93c029eed");
+    assert_eq!(format!("{context:02X}"), "32EFB96DFBF807182D277C3D908062E41B2B01A93C029EED");
 }

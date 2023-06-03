@@ -20,7 +20,7 @@
 //! let mut sha3_512hasher = Sha3_512State::default().build_hasher();
 //! sha3_512hasher.write(b"hello world");
 //! let result = sha3_512hasher.finish();
-//! assert_eq!(result, 0xE9C99A3E65060084);
+//! assert_eq!(result, 0x840006653E9AC9E9);
 //! ```
 //!
 //! Or, as a `HashSet`:
@@ -46,8 +46,8 @@
 //! let u64result2 = sha3_512hasher2.finish();
 //! let u64result3 = sha3_512hasher3.finish();
 //!
-//! assert_eq!(u64result1, 0xE8EFF268C327D575);
-//! assert_eq!(u64result2, 0xF8258215F0232EC7);
+//! assert_eq!(u64result1, 0x75D527C368F2EFE8);
+//! assert_eq!(u64result2, 0xC72E23F0158225F8);
 //! assert_eq!(u64result2, u64result3);
 //! assert_ne!(u64result1, u64result2);
 //! ```

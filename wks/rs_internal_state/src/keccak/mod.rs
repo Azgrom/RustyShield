@@ -127,7 +127,7 @@ where
             }
         }
 
-        u64::from_le_bytes(u64_le_bytes)
+        u64::from_be_bytes(u64_le_bytes)
     }
 
     fn squeeze(&mut self) -> [u8; OUTPUT_SIZE] {
