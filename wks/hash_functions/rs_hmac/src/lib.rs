@@ -45,13 +45,10 @@
 #![no_std]
 
 use core::hash::{Hash, Hasher};
+pub use rs_hasher_ctx::HasherContext;
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher};
 use rs_internal_hasher::{HashAlgorithm, LenPad};
 use rs_internal_state::BytesLen;
-use rs_hasher_ctx::{
-    ByteArrayWrapper,
-    GenericHasher
-};
-pub use rs_hasher_ctx::HasherContext;
 
 const INNER_PAD: u8 = 0x36;
 const OUTER_PAD: u8 = 0x5c;

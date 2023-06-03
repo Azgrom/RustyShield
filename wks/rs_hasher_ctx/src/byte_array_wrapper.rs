@@ -1,6 +1,8 @@
 use core::{
+    array::IntoIter,
+    ops::{Range, RangeFrom, RangeFull, RangeTo},
     fmt::{Formatter, LowerHex, UpperHex},
-    ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Index, Not, Sub},
+    ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Index, Not, Sub}
 };
 use rs_internal_state::{ExtendedOutputFunction, KeccakSponge};
 use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
@@ -59,6 +61,47 @@ impl<const LEN: usize> Index<usize> for ByteArrayWrapper<LEN> {
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.0[index]
+    }
+}
+
+impl<const LEN: usize> Index<Range<usize>> for ByteArrayWrapper<LEN> {
+    type Output = [u8];
+
+    fn index(&self, range: Range<usize>) -> &Self::Output {
+        &self.0[range]
+    }
+}
+
+impl<const LEN: usize> Index<RangeFrom<usize>> for ByteArrayWrapper<LEN> {
+    type Output = [u8];
+
+    fn index(&self, range: RangeFrom<usize>) -> &Self::Output {
+        &self.0[range]
+    }
+}
+
+impl<const LEN: usize> Index<RangeTo<usize>> for ByteArrayWrapper<LEN> {
+    type Output = [u8];
+
+    fn index(&self, range: RangeTo<usize>) -> &Self::Output {
+        &self.0[range]
+    }
+}
+
+impl<const LEN: usize> Index<RangeFull> for ByteArrayWrapper<LEN> {
+    type Output = [u8];
+
+    fn index(&self, range: RangeFull) -> &Self::Output {
+        &self.0[range]
+    }
+}
+
+impl<const LEN: usize> IntoIterator for ByteArrayWrapper<LEN> {
+    type Item = u8;
+    type IntoIter = IntoIter<u8, LEN>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
     }
 }
 

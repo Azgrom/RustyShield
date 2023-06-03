@@ -1,9 +1,9 @@
 use crate::{Sha512_256Hasher, BYTES_LEN};
 use core::{hash::BuildHasher, ops::AddAssign};
+use rs_hasher_ctx::ByteArrayWrapper;
 use rs_internal_hasher::{GenericPad, HashAlgorithm, U128Size};
 use rs_internal_state::{BytesLen, DWords, GenericStateHasher, Sha512BitsState};
 use rs_n_bit_words::NBitWord;
-use rs_hasher_ctx::ByteArrayWrapper;
 
 const H0: u64 = 0x22312194FC2BF72C;
 const H1: u64 = 0x9F555FA3C84C64C2;

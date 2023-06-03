@@ -3,9 +3,9 @@ use crate::sha1state::{H0, H1, H2, H3, H4};
 use crate::Sha1State;
 use alloc::vec;
 use core::hash::Hasher;
+use rs_hasher_ctx::GenericHasher;
 use rs_internal_hasher::{BigEndianBytes, BytePad};
 use rs_internal_state::{DWords, GenericStateHasher, Sha160BitsState, Sha160Rotor as Rnd};
-use rs_hasher_ctx::GenericHasher;
 
 const MESSAGE: &str = "abc";
 

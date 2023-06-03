@@ -1,8 +1,8 @@
 use crate::Shake128State;
 use core::hash::Hasher;
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
 use rs_internal_hasher::HashAlgorithm;
 use rs_internal_state::ExtendedOutputFunction;
-use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Shake128Hasher` is a type that provides the SHAKE128 hashing algorithm in Rust.
 ///

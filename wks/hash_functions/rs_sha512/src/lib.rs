@@ -64,9 +64,9 @@
 
 #![no_std]
 
-pub use rs_hasher_ctx::HasherContext;
 pub use crate::sha512hasher::Sha512Hasher;
 pub use crate::sha512state::Sha512State;
+pub use rs_hasher_ctx::HasherContext;
 
 mod sha512hasher;
 mod sha512state;

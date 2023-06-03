@@ -1,10 +1,10 @@
 use crate::NBitKeccakHasher;
 use core::hash::BuildHasher;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
+use rs_hasher_ctx::ByteArrayWrapper;
 use rs_internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
 use rs_internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
 use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
-use rs_hasher_ctx::ByteArrayWrapper;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct NBitKeccakState<T, const RATE: usize, const OUTPUT_SIZE: usize>

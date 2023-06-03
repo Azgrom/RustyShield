@@ -1,8 +1,8 @@
 use crate::{Sha3_384State, OUTPUT_SIZE};
 use core::hash::Hasher;
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
 use rs_internal_hasher::HashAlgorithm;
 use rs_internal_state::ExtendedOutputFunction;
-use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
 
 /// `Sha3_384Hasher` is a type that provides the SHA3-384 hashing algorithm in Rust.
 ///

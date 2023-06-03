@@ -1,8 +1,8 @@
 use crate::{Sha3_512Hasher, OUTPUT_SIZE};
 use core::hash::BuildHasher;
+use rs_hasher_ctx::ByteArrayWrapper;
 use rs_internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
 use rs_internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
-use rs_hasher_ctx::ByteArrayWrapper;
 
 const RATE: usize = 72;
 
