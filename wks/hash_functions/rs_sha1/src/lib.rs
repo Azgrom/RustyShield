@@ -66,8 +66,9 @@
 
 #![no_std]
 
-pub use crate::sha1hasher::Sha1Hasher;
-pub use crate::sha1state::Sha1State;
+pub use rs_hasher_ctx_lib::HasherContext;
+pub use sha1hasher::Sha1Hasher;
+pub use sha1state::Sha1State;
 
 mod sha1hasher;
 mod sha1state;

@@ -1,26 +1,69 @@
 # `rs_sha3_256`
 
-`rs_sha3_256` is a Rust crate offering the SHA-3 (256-bit variant) cryptographic hash algorithm. This package is designed to function in a `#![no_std]` context, compatible with Rust's libcore, and caters to applications where the exclusive use of SHA3-256 is desired. Furthermore, it is suitable for a `#![no_std]`, `#![no_alloc]` environment, making it ideal for systems where dynamic memory allocation is not an option.
+`rs_sha3_256` is a Rust crate implementing the SHA-3_256 cryptographic hash algorithm. This permutation-based hash algorithm is designed for compatibility with Rust's libcore in a `#![no_std]` context, allowing it to operate as a standalone crate for specialized use cases and also function within a `#![no_std]`, `#![no_alloc]` environment, rendering it suitable for systems where dynamic memory allocation is not feasible.
 
-In accordance with the Federal Information Processing Standards (FIPS) 202, which defines the permutation-based hash and extendable-output functions (SHAKE), the SHA3-256 implementation provided here is endorsed by NIST for a variety of applications:
+This implementation of SHA-3_256 is compliant with the Federal Information Processing Standards (FIPS) Publication 202[^1]. As per the National Institute of Standards and Technology (NIST) guidelines, SHA-3_256 is recommended for several use cases:
 
-- Hash functions for Hash-based Quantum-resistant Cryptography ([source](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-208.pdf)).
-- Computation of a hash-based message authentication code (HMAC) ([source](https://tools.ietf.org/html/rfc2104)).
-- Random bit generation ([source](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf)).
-- Digital signatures, including the RSA signature scheme with Appendix – Probabilistic Signature Scheme (RSASSA-PSS) ([source](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-107r1.pdf)).
-- Key derivation functions, such as those used in the generation and management of symmetric keys ([source](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Cr1.pdf)).
-- Data integrity verification and password storage, for instance, in PBKDF2 ([source](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-132.pdf)).
+> "SHA-3 provides security strengths against preimage, second preimage and collision attacks [...] at the 128-bit security level."
 
-`rs_sha3_256` is also integrated into the `rs_ssl` library bundle, where it is available in combination with a wide range of cryptographic functions.
+Given this advice, NIST recommendations imply that SHA-3_256 is suitable for the following contexts:
 
-As projected by the NIST, SHA3-256 is anticipated to remain suitable for most cryptographic applications beyond the year 2030.
+- Digital signatures that require 128 bits of security.
+- Cryptographic hash functions in systems and protocols requiring 128 bits of security.
+- Authentication methods that necessitate 128 bits of security.
+
+Beyond these specific recommendations, SHA-3_256 could also find application in:
+
+- Data integrity checks in Merkle Trees[^4].
+- Version control systems for the generation of commit identifiers[^2].
+- Hash-based message authentication codes (HMACs), when collision resistance is necessary[^3].
+- As a randomized hash function in Bloom filters[^5].
+- Key derivation functions or in generation of random numbers[^6].
+
+These points should be carefully considered, given your overall security objectives and risk tolerance.
+
+For access to a comprehensive range of cryptographic functions, `rs_sha3_256` can be utilized as part of the `rs_ssl` library bundle.
+
+## How To Use
+
+Below are steps to use the `rs_sha3_256` crate in your Rust projects:
+
+1. Add the following line to your `Cargo.toml` under the `[dependencies]` section:
+
+    ```toml
+    rs_sha3_256 = "0.1.*"
+    ```
+   _Please replace `"0.1"` with the version number you intend to use._
+
+2. Import `rs_sha3_256` in your Rust source file:
+
+    ```rust
+    extern crate rs_sha3_256;
+    ```
+
+3. Use the functions provided by the `rs_sha3_256` module in your code. Here's an example of how to create a SHA-3_256 hash from a string:
+
+    ```rust
+    use rs_sha3_256::{HasherContext, Sha3_256Hasher};
+
+    let mut sha3_256hasher = Sha3_256Hasher::default();
+    sha3_256hasher.write(b"your string here");
+
+    let output = HasherContext::finish(&mut sha3_256hasher);
+    println!("{:x}", output);
+    ```
 
 ## More Information
 
-For more detailed information about `rs_sha3_256`, the spectrum of cryptographic functions provided, and the wider `rs_ssl` project, visit the [RustySSL project page on GitHub](https://github.com/RustySSL/rs_ssl) or the [RustySSL crate on crates.io](https://crates.io/crates/rs_ssl).
+For a more detailed exploration of `rs_sha3_256`, an overview of other available cryptographic functions, and an introduction to the broader `rs_ssl` project, please consult the [RustySSL project page on crates.io](https://crates.io/crates/rs_ssl).
 
 ## Contributions
-Interested contributors are encouraged to follow the [contribution guidelines](https://github.com/RustySSL/rs_ssl/CONTRIBUTING.md) available on the project's GitHub page.
+Potential contributors are encouraged to consult the [contribution guidelines](https://github.com/RustySSL/rs_ssl/CONTRIBUTING.md) on our GitHub page.
 
 ## License
+
 This project is licensed under GPL-2.0-only.
+
+## References
+
+[^1]: National Institute of Standards and Technology. (2015). SHA-3 Standard: Permutation-Based Hash and Extendable-

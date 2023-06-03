@@ -65,7 +65,9 @@
 
 #![no_std]
 
-pub use crate::{shake256hasher::Shake256Hasher, shake256state::Shake256State};
+pub use rs_hasher_ctx_lib::HasherContext;
+pub use shake256hasher::Shake256Hasher;
+pub use shake256state::Shake256State;
 
 mod shake256hasher;
 mod shake256state;

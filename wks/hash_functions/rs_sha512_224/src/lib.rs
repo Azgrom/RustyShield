@@ -67,7 +67,9 @@
 
 #![no_std]
 
-pub use crate::{sha512_224hasher::Sha512_224Hasher, sha512_224state::Sha512_224State};
+pub use rs_hasher_ctx_lib::HasherContext;
+pub use sha512_224hasher::Sha512_224Hasher;
+pub use sha512_224state::Sha512_224State;
 
 mod sha512_224hasher;
 mod sha512_224state;

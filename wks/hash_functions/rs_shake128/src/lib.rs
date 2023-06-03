@@ -68,6 +68,7 @@
 
 #![no_std]
 
+pub use rs_hasher_ctx_lib::HasherContext;
 pub use shake128hasher::Shake128Hasher;
 pub use shake128state::Shake128State;
 

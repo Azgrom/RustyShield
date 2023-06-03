@@ -65,7 +65,9 @@
 
 #![no_std]
 
-pub use crate::{sha3_384hasher::Sha3_384Hasher, sha3_384state::Sha3_384State};
+pub use rs_hasher_ctx_lib::HasherContext;
+pub use sha3_384hasher::Sha3_384Hasher;
+pub use sha3_384state::Sha3_384State;
 
 mod sha3_384hasher;
 mod sha3_384state;
