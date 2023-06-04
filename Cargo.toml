@@ -49,7 +49,7 @@ strip = false
 debug = false
 
 [dependencies]
-rs_hasher_ctx = { path = "wks/rs_hasher_ctx", version = "0.1.0" }
+rs_hasher_ctx = { path = "wks/rs_hasher_ctx", version = "0.1.*" }
 
 rs_aes = { path = "wks/ciphers/rs_aes", version = "0.1.*" }
 rs_blowfish = { path = "wks/ciphers/rs_blowfish", version = "0.1.*" }
