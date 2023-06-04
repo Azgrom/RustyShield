@@ -147,7 +147,7 @@ where
 
     fn squeeze(&mut self) -> [u8; OUTPUT_SIZE] {
         let t_size = size_of::<T>();
-        let mut words_to_tale = KeccakSponge::<T, RATE, OUTPUT_SIZE>::words_to_take(t_size);
+        let words_to_tale = KeccakSponge::<T, RATE, OUTPUT_SIZE>::words_to_take(t_size);
         let mut output = [0u8; OUTPUT_SIZE];
         let mut completed_bytes = 0;
 

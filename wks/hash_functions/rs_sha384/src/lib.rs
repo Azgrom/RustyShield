@@ -61,8 +61,8 @@
 //! let u64result2 = sha384hasher2.finish();
 //! let u64result3 = sha384hasher3.finish();
 //!
-//! assert_eq!(u64result1, 0xFF6F8C6D7A33BBFB);
-//! assert_eq!(u64result2, 0xF7FBF5FBC24F22D3);
+//! assert_eq!(u64result1, 0x59E1748777448c69);
+//! assert_eq!(u64result2, 0x133C4471D73375AB);
 //! assert_eq!(u64result2, u64result3);
 //! assert_ne!(u64result1, u64result2);
 //! ```

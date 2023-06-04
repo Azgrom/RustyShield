@@ -2,7 +2,7 @@ extern crate alloc;
 
 use crate::{Sha3_384Hasher, Sha3_384State};
 use alloc::format;
-use core::hash::{BuildHasher, Hash, Hasher};
+use core::hash::{BuildHasher, Hasher};
 use rs_hasher_ctx::HasherContext;
 
 #[test]
