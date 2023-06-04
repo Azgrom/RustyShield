@@ -34,6 +34,7 @@ impl GF2ToThe8 {
 impl Add for GF2ToThe8 {
     type Output = Self;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn add(self, rhs: Self) -> Self::Output {
         GF2ToThe8(self.0 ^ rhs.0)
     }

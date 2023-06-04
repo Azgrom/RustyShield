@@ -95,11 +95,11 @@ where
     }
 
     fn words_to_take(t_size: usize) -> usize {
-        return if RATE % t_size != 0 {
+        if RATE % t_size != 0 {
             1 + RATE / t_size
         } else {
             RATE / t_size
-        };
+        }
     }
 }
 
