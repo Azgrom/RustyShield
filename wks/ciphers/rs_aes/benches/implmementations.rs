@@ -1,5 +1,5 @@
+use rs_n_bit_words::NBitWord;
 use std::ops::{Add, AddAssign, Mul};
-use n_bit_words_lib::NBitWord;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct FirstImplementationOfGF2ToThe8(NBitWord<u8>);

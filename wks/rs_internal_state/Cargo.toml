@@ -1,0 +1,18 @@
+[package]
+authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
+description = """This package serves as an essential building block within the `rs_ssl` cryptographic library. It is
+focused on providing foundational functionality and infrastructure for various cryptographic operations within the
+larger project. While this package has been made publicly available to satisfy the dependency requirements of Rust's
+cargo system, its utility is predominantly realized in the context of the `rs_ssl` project. Unless you are developing or
+ maintaining a component of the `rs_ssl` project, this package might offer limited direct utility. For access to a full
+ suite of cryptographic functionalities, consider using the `rs_ssl` library bundle."""
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+name = "rs_internal_state"
+readme.workspace = true
+repository.workspace = true
+version = "0.1.1"
+
+[dependencies]
+rs_n_bit_words = { path = "../rs_n_bit_words", version = "0.1.1" }

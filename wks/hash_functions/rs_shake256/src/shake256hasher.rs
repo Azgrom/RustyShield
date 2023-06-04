@@ -1,8 +1,8 @@
 use crate::Shake256State;
 use core::hash::Hasher;
-use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
-use internal_hasher::HashAlgorithm;
-use internal_state::ExtendedOutputFunction;
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_internal_hasher::HashAlgorithm;
+use rs_internal_state::ExtendedOutputFunction;
 
 /// `Shake256Hasher` is a type that provides the SHAKE256 hashing algorithm in Rust.
 ///
@@ -53,9 +53,9 @@ impl<const OUTPUT_SIZE: usize> From<Shake256Hasher<OUTPUT_SIZE>> for Shake256Sta
 
 impl<const OUTPUT_SIZE: usize> From<Shake256State<OUTPUT_SIZE>> for Shake256Hasher<OUTPUT_SIZE> {
     fn from(value: Shake256State<OUTPUT_SIZE>) -> Self {
-        Self(GenericHasher{
+        Self(GenericHasher {
             padding: <Shake256State<OUTPUT_SIZE> as HashAlgorithm>::Padding::default(),
-            state: value
+            state: value,
         })
     }
 }

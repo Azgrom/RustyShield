@@ -1,9 +1,9 @@
 use crate::{Sha512Hasher, BYTES_LEN};
 use core::{hash::BuildHasher, ops::AddAssign};
-use rs_hasher_ctx_lib::ByteArrayWrapper;
-use internal_hasher::{GenericPad, HashAlgorithm, U128Size};
-use internal_state::{BytesLen, DWords, GenericStateHasher, Sha512BitsState};
-use n_bit_words_lib::NBitWord;
+use rs_hasher_ctx::ByteArrayWrapper;
+use rs_internal_hasher::{GenericPad, HashAlgorithm, U128Size};
+use rs_internal_state::{BytesLen, DWords, GenericStateHasher, Sha512BitsState};
+use rs_n_bit_words::NBitWord;
 
 const H0: u64 = 0x6A09E667F3BCC908;
 const H1: u64 = 0xBB67AE8584CAA73B;
@@ -178,6 +178,6 @@ impl HashAlgorithm for Sha512State {
     }
 
     fn state_to_u64(&self) -> u64 {
-        Into::<u64>::into(self.0) << 32 | Into::<u64>::into(self.1)
+        self.0.into()
     }
 }
