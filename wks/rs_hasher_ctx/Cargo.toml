@@ -1,6 +1,9 @@
 [package]
 authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
-description = "A straight forward overload abstraction of `Hasher::finish` with some helper types"
+description = """rs_hasher_ctx is an internal crate of the RustySSL library. It provides the HasherContext trait used
+across various cryptographic hash function implementations within RustySSL. The trait overloads the `Hasher::finish()`
+function, unifying the approach to obtaining hash results. While primarily intended for use within RustySSL,
+rs_hasher_ctx can aid in minimizing dependency entries in external crates leveraging RustySSL's hashing capabilities."""
 edition.workspace = true
 homepage.workspace = true
 license.workspace = true
