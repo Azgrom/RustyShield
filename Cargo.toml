@@ -26,7 +26,7 @@ edition = "2021"
 license = "GPL-2.0-only"
 repository = "https://github.com/Azgrom/RustySSL"
 homepage = "https://docs.rs/rs_ssl/latest/rs_ssl/"
-readme = "README.md"
+readme = "./README.md"
 
 [[bin]]
 name = "rs_ssl_cli"
