@@ -6,9 +6,11 @@ functions including SHA and Keccak families, and HMAC, suitable for no_std envir
 license."""
 edition.workspace = true
 license.workspace = true
+homepage.workspace = true
 keywords = ["cryptography", "hashing", "no_std", "security", "SSL"]
 readme = "./README.md"
-version = "0.1.1"
+repository.workspace = true
+version = "0.1.2"
 
 [workspace]
 members = [
