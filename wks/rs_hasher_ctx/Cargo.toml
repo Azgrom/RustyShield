@@ -10,7 +10,7 @@ license.workspace = true
 name = "rs_hasher_ctx"
 readme = "./README.md"
 repository.workspace = true
-version = "0.1.1"
+version = "0.1.2"
 
 [dependencies]
 rs_internal_hasher = { path = "../rs_internal_hasher", version = "0.1.1" }

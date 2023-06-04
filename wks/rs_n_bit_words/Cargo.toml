@@ -12,4 +12,4 @@ license.workspace = true
 name = "rs_n_bit_words"
 readme = "./README.md"
 repository.workspace = true
-version = "0.1.1"
+version = "0.1.2"
