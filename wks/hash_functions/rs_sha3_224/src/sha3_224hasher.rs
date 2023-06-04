@@ -1,8 +1,8 @@
 use crate::{Sha3_224State, OUTPUT_SIZE};
 use core::hash::{Hash, Hasher};
-use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
-use internal_hasher::HashAlgorithm;
-use internal_state::ExtendedOutputFunction;
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_internal_hasher::HashAlgorithm;
+use rs_internal_state::ExtendedOutputFunction;
 
 /// `Sha3_224Hasher` is a type that provides the SHA3-224 hashing algorithm in Rust.
 ///
@@ -53,9 +53,9 @@ impl From<Sha3_224Hasher> for Sha3_224State {
 
 impl From<Sha3_224State> for Sha3_224Hasher {
     fn from(value: Sha3_224State) -> Self {
-        Self(GenericHasher{
+        Self(GenericHasher {
             padding: <Sha3_224State as HashAlgorithm>::Padding::default(),
-            state: value
+            state: value,
         })
     }
 }
