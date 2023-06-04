@@ -25,13 +25,17 @@ RustySSL seeks to establish the Rust language self-sufficency by offering an API
 
 See the [implementation documentation](https://docs.rs/rs_ssl/latest/rs_ssl/) for examples.
 
+## Testing against NIST Test Vectors
+
+All the NIST-approved and published algorithms implemented in RustySSL are thoroughly tested against the respective NIST test vectors. This rigorous testing assures the correctness and reliability of our implementations, providing a robust security foundation for any application built using RustySSL.
+
 ## RoadMap
 
 1. The initial objective of RustySSL is to port all OpenSSL algorithms to the Rust ecosystem.
 2. Following the port, RustySSL will continue to expand and incorporate additional cryptographic algorithms.
-3. Although the current implementations are not the fastest, there is considerable room for improvement.  There will probably a competitive performance boost once the [SIMD module](https://doc.rust-lang.org/core/simd/index.html) stabilizes;
+3. Although the current implementations are not the fastest, there is considerable room for improvement. There will probably a competitive performance boost once the [SIMD module](https://doc.rust-lang.org/core/simd/index.html) stabilizes;
 
-At this moment the objective is to provide all OpenSSL's current set of algorithms. After that I plan to implement some cryptocurrencies hashing algorithms like [Equihash](https://en.wikipedia.org/wiki/Equihash), [Ethereum's Keccak-256](https://ethereum.org/en/developers/docs/consensus-mechanisms/pow/mining-algorithms/ethash/) and others.
+After that the plan will be to implement some cryptocurrencies hashing algorithms like [Equihash](https://en.wikipedia.org/wiki/Equihash), [Ethereum's Keccak-256](https://ethereum.org/en/developers/docs/consensus-mechanisms/pow/mining-algorithms/ethash/) and others.
 
 ## Why This Project?
 
@@ -53,32 +57,32 @@ Inspired by the Unix philosophy, but adapting to the purpose of this project:
 
 ## Supported Algorithms
 
-| Ciphers                       | Hashing Functions                                        | Public-key                                  |
-| :---------------------------- | :------------------------------------------------------- | :------------------------------------------ |
-| AES - `coming soon`           | SHA-1 - `rs_sha1`                                        | RSA - `coming soon`                         |
-| Blowfish - `coming soon`      | SHA-224  - `rs_sha224`                                   | DSA - `coming soon`                         |
-| Camellia - `coming soon`      | SHA-256 - `rs_sha256`                                    | Diffie-Hellman key exchange - `coming soon` |
-| Chacha20 - `coming soon`      | SHA-384 - `rs_sha384`                                    | Elliptic curve - `coming soon`              |
-| Poly1305 - `coming soon`      | SHA-512 - `rs_sha512`                                    | X25519 - `coming soon`                      |
-| SEED - `coming soon`          | SHA-512/224 - `rs_sha512_224`                            | Ed25519 - `coming soon`                     |
-| CAST-128 - `coming soon`      | SHA-512/256 - `rs_sha512_256`                            | X448 - `coming soon`                        |
-| DES - `coming soon`           | SHA3-224 - `rs_sha3_224`                                 | Ed448 - `coming soon`                       |
-| IDEA - `coming soon`          | SHA3-256 - `rs_sha3_256`                                 | GOST R 34.10-2001 - `coming soon`           |
-| RC2 - `coming soon`           | SHA3-384 - `rs_sha3_384`                                 | SM2 - `coming soon`                         |
-| RC4 - `coming soon`           | SHA3-512 - `rs_sha3_512`                                 |                                             |
-| RC5 - `coming soon`           | SHAKE128 - `rs_shake128`                                 |                                             |
-| Triple DES - `coming soon`    | SHAKE256 - `rs_shake256`                                 |                                             |
-| GOST 28147-89 - `coming soon` | HMAC - `rs_hmac`                                         |                                             |
-| SM4 - `coming soon`           | Generic Keccak {200, 400, 800, 1600} - `rs_keccak_nbits` |                                             |
-|                               | BLAKE2 - `coming soon`                                   |                                             |
-|                               | GOST R 34.11-94 - `coming soon`                          |                                             |
-|                               | MD2 - `coming soon`                                      |                                             |
-|                               | MD4 - `coming soon`                                      |                                             |
-|                               | MD5 - `coming soon`                                      |                                             |
-|                               | MDC-2 - `coming soon`                                    |                                             |
-|                               | RIPEMD-160 - `coming soon`                               |                                             |
-|                               | SM3 - `coming soon`                                      |                                             |
-|                               | Whirlpool - `coming soon`                                |                                             |
+| Ciphers                       | Hashing Functions                                                                 | Public-key                                  |
+| :---------------------------- | :-------------------------------------------------------------------------------- | :------------------------------------------ |
+| AES - `coming soon`           | BLAKE2 - `coming soon`                                                           | DSA - `coming soon`                         |
+| Blowfish - `coming soon`      | [Generic Keccak {200, 400, 800, 1600}](https://docs.rs/rs_keccak_nbits/latest/rs_keccak_nbits/) - [`rs_keccak_nbits`](https://crates.io/crates/rs_keccak_nbits) | Diffie-Hellman key exchange - `coming soon` |
+| Camellia - `coming soon`      | GOST R 34.11-94 - `coming soon`                                                 | Ed25519 - `coming soon`                     |
+| CAST-128 - `coming soon`      | [HMAC](https://docs.rs/rs_hmac/latest/rs_hmac/) - [`rs_hmac`](https://crates.io/crates/rs_hmac) | Ed448 - `coming soon`                       |
+| Chacha20 - `coming soon`      | MD2 - `coming soon`                                                             | Elliptic curve - `coming soon`              |
+| DES - `coming soon`           | MD4 - `coming soon`                                                             | GOST R 34.10-2001 - `coming soon`           |
+| GOST 28147-89 - `coming soon` | MD5 - `coming soon`                                                             | RSA - `coming soon`                         |
+| IDEA - `coming soon`          | MDC-2 - `coming soon`                                                           | SM2 - `coming soon`                         |
+| Poly1305 - `coming soon`      | RIPEMD-160 - `coming soon`                                                      | X25519 - `coming soon`                      |
+| RC2 - `coming soon`           | [SHA-1](https://docs.rs/rs_sha1/latest/rs_sha1/) - [`rs_sha1`](https://crates.io/crates/rs_sha1) | X448 - `coming soon`                        |
+| RC4 - `coming soon`           | [SHA-224](https://docs.rs/rs_sha224/latest/rs_sha224/) - [`rs_sha224`](https://crates.io/crates/rs_sha224) |                                             |
+| RC5 - `coming soon`           | [SHA-256](https://docs.rs/rs_sha256/latest/rs_sha256/) - [`rs_sha256`](https://crates.io/crates/rs_sha256) |                                             |
+| SEED - `coming soon`          | [SHA-384](https://docs.rs/rs_sha384/latest/rs_sha384/) - [`rs_sha384`](https://crates.io/crates/rs_sha384) |                                             |
+| SM4 - `coming soon`           | [SHA-512](https://docs.rs/rs_sha512/latest/rs_sha512/) - [`rs_sha512`](https://crates.io/crates/rs_sha512) |                                             |
+| Triple DES - `coming soon`    | [SHA-512/224](https://docs.rs/rs_sha512_224/latest/rs_sha512_224/) - [`rs_sha512_224`](https://crates.io/crates/rs_sha512_224) |                                             |
+|                               | [SHA-512/256](https://docs.rs/rs_sha512_256/latest/rs_sha512_256/) - [`rs_sha512_256`](https://crates.io/crates/rs_sha512_256) |                                             |
+|                               | [SHA3-224](https://docs.rs/rs_sha3_224/latest/rs_sha3_224/) - [`rs_sha3_224`](https://crates.io/crates/rs_sha3_224) |                                             |
+|                               | [SHA3-256](https://docs.rs/rs_sha3_256/latest/rs_sha3_256/) - [`rs_sha3_256`](https://crates.io/crates/rs_sha3_256) |                                             |
+|                               | [SHA3-384](https://docs.rs/rs_sha3_384/latest/rs_sha3_384/) - [`rs_sha3_384`](https://crates.io/crates/rs_sha3_384) |                                             |
+|                               | [SHA3-512](https://docs.rs/rs_sha3_512/latest/rs_sha3_512/) - [`rs_sha3_512`](https://crates.io/crates/rs_sha3_512) |                                             |
+|                               | [SHAKE128](https://docs.rs/rs_shake128/latest/rs_shake128/) - [`rs_shake128`](https://crates.io/crates/rs_shake128) |                                             |
+|                               | [SHAKE256](https://docs.rs/rs_shake256/latest/rs_shake256/) - [`rs_shake256`](https://crates.io/crates/rs_shake256) |                                             |
+|                               | SM3 - `coming soon`                                                             |                                             |
+|                               | Whirlpool - `coming soon`                                                       |                                             |
 
 ## Contributing
 
