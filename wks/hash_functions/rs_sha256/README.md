@@ -32,24 +32,27 @@ Below are steps to use the `rs_sha256` crate in your Rust projects:
     ```toml
     rs_sha256 = "0.1.*"
     ```
-   _Please replace `"0.1"` with the version number you intend to use._
-
-2. Import `rs_sha256` in your Rust source file:
-
-    ```rust
-    extern crate rs_sha256;
-    ```
-
+   
 3. Use the functions provided by the `rs_sha256` module in your code. Here's an example of how to create a SHA-256 hash from a string:
 
     ```rust
     use rs_sha256::{HasherContext, Sha256Hasher};
-
+    
     let mut sha256hasher = Sha256Hasher::default();
     sha256hasher.write(b"your string here");
-
-    let output = HasherContext::finish(&mut sha256hasher);
-    println!("{:x}", output);
+    
+    let u64result = sha256hasher.finish();
+    let bytes_result = HasherContext::finish(&mut sha256hasher);
+    assert_eq!(u64result, 0xEBEA8483C5B21AE6);
+    assert_eq!(format!("{bytes_result:02x}"), "ebea8483c5b21ae61081786be10f9704ce8975e1e5b505c03f6ab8514ecc5c0c");
+    assert_eq!(format!("{bytes_result:02X}"), "EBEA8483C5B21AE61081786BE10F9704CE8975E1E5B505C03F6AB8514ECC5C0C");
+    assert_eq!(
+        bytes_result,
+        [
+            0xEB, 0xEA, 0x84, 0x83, 0xC5, 0xB2, 0x1A, 0xE6, 0x10, 0x81, 0x78, 0x6B, 0xE1, 0x0F, 0x97, 0x04, 0xCE, 0x89,
+            0x75, 0xE1, 0xE5, 0xB5, 0x05, 0xC0, 0x3F, 0x6A, 0xB8, 0x51, 0x4E, 0xCC, 0x5C, 0x0C
+        ]
+    )
     ```
 
 ## More Information

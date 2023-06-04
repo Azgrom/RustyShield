@@ -1,8 +1,8 @@
 use core::{
     array::IntoIter,
-    ops::{Range, RangeFrom, RangeFull, RangeTo},
     fmt::{Formatter, LowerHex, UpperHex},
-    ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Index, Not, Sub}
+    ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Index, Not, Sub},
+    ops::{Range, RangeFrom, RangeFull, RangeTo},
 };
 use rs_internal_state::{ExtendedOutputFunction, KeccakSponge};
 use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
@@ -41,8 +41,15 @@ impl<const LEN: usize> From<[u8; LEN]> for ByteArrayWrapper<LEN> {
 impl<T, const RATE: usize, const OUTPUT_SIZE: usize> From<KeccakSponge<T, RATE, OUTPUT_SIZE>>
     for ByteArrayWrapper<OUTPUT_SIZE>
 where
-    T: BitAnd + BitAndAssign + BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor + BitXorAssign + Copy + Default + Not,
-    NBitWord<T>: From<u64> + LittleEndianBytes + Not<Output = NBitWord<T>> + Rotate + TSize<T>,
+    T: BitAnd
+        + BitAndAssign
+        + BitOr<NBitWord<T>, Output = NBitWord<T>>
+        + BitXor<Output = T>
+        + BitXorAssign
+        + Copy
+        + Default
+        + Not<Output = T>,
+    NBitWord<T>: From<u64> + LittleEndianBytes + Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     fn from(mut value: KeccakSponge<T, RATE, OUTPUT_SIZE>) -> Self {

@@ -15,11 +15,28 @@
 //!
 //! ```rust
 //! # use std::hash::{BuildHasher, Hasher};
-//! # use rs_sha384::Sha384State;
+//! # use rs_sha384::{HasherContext, Sha384State};
 //! let mut sha384hasher = Sha384State::default().build_hasher();
 //! sha384hasher.write(b"hello world");
-//! let result = sha384hasher.finish();
-//! assert_eq!(result, 0xA7FFE9F7385E2E23);
+//! let u64result = sha384hasher.finish();
+//! let bytes_result = HasherContext::finish(&mut sha384hasher);
+//! assert_eq!(u64result, 0xFDBD8E75A67F29F7);
+//! assert_eq!(
+//!     format!("{bytes_result:02x}"),
+//!     "fdbd8e75a67f29f701a4e040385e2e23986303ea10239211af907fcbb83578b3e417cb71ce646efd0819dd8c088de1bd"
+//! );
+//! assert_eq!(
+//!     format!("{bytes_result:02X}"),
+//!     "FDBD8E75A67F29F701A4E040385E2E23986303EA10239211AF907FCBB83578B3E417CB71CE646EFD0819DD8C088DE1BD"
+//! );
+//! assert_eq!(
+//!     bytes_result,
+//!     [
+//!         0xFD, 0xBD, 0x8E, 0x75, 0xA6, 0x7F, 0x29, 0xF7, 0x01, 0xA4, 0xE0, 0x40, 0x38, 0x5E, 0x2E, 0x23, 0x98, 0x63,
+//!         0x03, 0xEA, 0x10, 0x23, 0x92, 0x11, 0xAF, 0x90, 0x7F, 0xCB, 0xB8, 0x35, 0x78, 0xB3, 0xE4, 0x17, 0xCB, 0x71,
+//!         0xCE, 0x64, 0x6E, 0xFD, 0x08, 0x19, 0xDD, 0x8C, 0x08, 0x8D, 0xE1, 0xBD
+//!     ]
+//! )
 //! ```
 //!
 //! Or, as a `HashSet`:

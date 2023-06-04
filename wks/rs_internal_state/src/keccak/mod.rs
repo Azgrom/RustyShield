@@ -93,13 +93,28 @@ where
 
         self.state.apply_f();
     }
+
+    fn words_to_take(t_size: usize) -> usize {
+        return if RATE % t_size != 0 {
+            1 + RATE / t_size
+        } else {
+            RATE / t_size
+        };
+    }
 }
 
 impl<T, const RATE: usize, const OUTPUT_SIZE: usize> ExtendedOutputFunction<OUTPUT_SIZE>
     for KeccakSponge<T, RATE, OUTPUT_SIZE>
 where
-    T: BitAnd + BitAndAssign + BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor + BitXorAssign + Copy + Default + Not,
-    NBitWord<T>: From<u64> + LittleEndianBytes + Not<Output = NBitWord<T>> + Rotate + TSize<T>,
+    T: BitAnd
+        + BitAndAssign
+        + BitOr<NBitWord<T>, Output = NBitWord<T>>
+        + BitXor<Output = T>
+        + BitXorAssign
+        + Copy
+        + Default
+        + Not<Output = T>,
+    NBitWord<T>: From<u64> + LittleEndianBytes + Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     fn squeeze_u64(&self) -> u64 {
@@ -132,20 +147,20 @@ where
 
     fn squeeze(&mut self) -> [u8; OUTPUT_SIZE] {
         let t_size = size_of::<T>();
-        let bytes_to_copy = RATE;
+        let mut words_to_tale = KeccakSponge::<T, RATE, OUTPUT_SIZE>::words_to_take(t_size);
         let mut output = [0u8; OUTPUT_SIZE];
         let mut completed_bytes = 0;
 
         while OUTPUT_SIZE > completed_bytes {
             for (le_bytes, lane) in output
                 .chunks_mut(t_size)
-                .skip(completed_bytes)
-                .zip(KeccakStateIter::new(&self.state).take(bytes_to_copy / t_size))
+                .skip(completed_bytes / t_size)
+                .zip(KeccakStateIter::new(&self.state).take(words_to_tale))
             {
                 le_bytes.clone_from_slice(&lane.to_le_bytes().as_ref()[..le_bytes.len()])
             }
 
-            completed_bytes += bytes_to_copy;
+            completed_bytes += RATE;
 
             if OUTPUT_SIZE > completed_bytes {
                 self.state.apply_f();

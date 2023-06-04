@@ -33,24 +33,27 @@ Below are steps to use the `rs_shake256` crate in your Rust projects:
     ```toml
     rs_shake256 = "0.1.*"
     ```
-   _Please replace `"0.1"` with the version number you intend to use.
-
-2. Import `rs_shake256` in your Rust source file:
-
-    ```rust
-    extern crate rs_shake256;
-    ```
-
+   
 3. Use the functions provided by the `rs_shake256` module in your code. Here's an example of how to create a SHAKE256 hash from a string:
 
     ```rust
     use rs_shake256::{HasherContext, Shake256Hasher};
-
-    let mut shake256hasher = Shake256Hasher::default();
-    shake256hasher.write(b"your string here");
-
-    let output = HasherContext::finish(& mut shake256hasher);
-    println!("{:x}", output);
+    
+    let mut sha512_256hasher = Shake256Hasher::<20>::default();
+    sha512_256hasher.write(b"your string here");
+    
+    let u64result = sha512_256hasher.finish();
+    let bytes_result = HasherContext::finish(&mut sha512_256hasher);
+    assert_eq!(u64result, 0x97E1C052B5574F11);
+    assert_eq!(format!("{bytes_result:02x}"), "97e1c052b5574f117b3fb13f26865fb4eec4a473");
+    assert_eq!(format!("{bytes_result:02X}"), "97E1C052B5574F117B3FB13F26865FB4EEC4A473");
+    assert_eq!(
+        bytes_result,
+        [
+            0x97, 0xE1, 0xC0, 0x52, 0xB5, 0x57, 0x4F, 0x11, 0x7B, 0x3F, 0xB1, 0x3F, 0x26, 0x86, 0x5F, 0xB4, 0xEE, 0xC4,
+            0xA4, 0x73
+        ]
+    )
     ```
 
 ## More Information

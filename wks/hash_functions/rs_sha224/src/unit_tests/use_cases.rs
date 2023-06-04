@@ -1,6 +1,7 @@
 extern crate alloc;
 
 use crate::sha224state::Sha224State;
+use crate::Sha224Hasher;
 use alloc::format;
 use core::hash::{BuildHasher, Hash, Hasher};
 use rs_hasher_ctx::HasherContext;

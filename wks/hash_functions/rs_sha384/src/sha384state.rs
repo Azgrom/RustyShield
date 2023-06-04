@@ -175,6 +175,6 @@ impl HashAlgorithm for Sha384State {
     }
 
     fn state_to_u64(&self) -> u64 {
-        Into::<u64>::into(self.0) << 32 | Into::<u64>::into(self.1)
+        self.0.into()
     }
 }

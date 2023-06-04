@@ -32,24 +32,27 @@ Below are steps to use the `rs_sha224` crate in your Rust projects:
     ```toml
     rs_sha224 = "0.1.*"
     ```
-   _Please replace `"0.1"` with the version number you intend to use._
-
-2. Import `rs_sha224` in your Rust source file:
-
-    ```rust
-    extern crate rs_sha224;
-    ```
-
+   
 3. Use the functions provided by the `rs_sha224` module in your code. Here's an example of how to create a SHA-224 hash from a string:
 
     ```rust
     use rs_sha224::{HasherContext, Sha224Hasher};
-
+    
     let mut sha224hasher = Sha224Hasher::default();
     sha224hasher.write(b"your string here");
-
-    let output = HasherContext::finish(&mut sha224hasher);
-    println!("{:x}", output);
+    
+    let u64result = sha224hasher.finish();
+    let bytes_result = HasherContext::finish(&mut sha224hasher);
+    assert_eq!(u64result, 0xC8DA90DF20FC1F9C);
+    assert_eq!(format!("{bytes_result:02x}"), "c8da90df20fc1f9cad8bec106821904e8a27b9bcc79d954f1fa01b83");
+    assert_eq!(format!("{bytes_result:02X}"), "C8DA90DF20FC1F9CAD8BEC106821904E8A27B9BCC79D954F1FA01B83");
+    assert_eq!(
+        bytes_result,
+        [
+            0xC8, 0xDA, 0x90, 0xDF, 0x20, 0xFC, 0x1F, 0x9C, 0xAD, 0x8B, 0xEC, 0x10, 0x68, 0x21, 0x90, 0x4E, 0x8A, 0x27,
+            0xB9, 0xBC, 0xC7, 0x9D, 0x95, 0x4F, 0x1F, 0xA0, 0x1B, 0x83
+        ]
+    )
     ```
 
 ## More Information

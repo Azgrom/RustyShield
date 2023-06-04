@@ -74,4 +74,7 @@ pub use sha512_224state::Sha512_224State;
 mod sha512_224hasher;
 mod sha512_224state;
 
+#[cfg(test)]
+mod unit_tests;
+
 const BYTES_LEN: usize = 28;

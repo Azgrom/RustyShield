@@ -29,27 +29,30 @@ Below are steps to use the `rs_sha1` crate in your Rust projects:
 
 1. Add the following line to your `Cargo.toml` under the `[dependencies]` section:
 
-    ```toml
-    rs_sha1 = "0.1.*"
-    ```
-   _Please replace `"0.1"` with the version number you intend to use._
-
-2. Import `rs_sha1` in your Rust source file:
-
-    ```rust
-    extern crate rs_sha1;
-    ```
+   ```toml
+   rs_sha1 = "0.1.*"
+   ```
 
 3. Use the functions provided by the `rs_sha1` module in your code. Here's an example of how to create a SHA-1 hash from a string:
 
     ```rust
     use rs_sha1::{HasherContext, Sha1Hasher};
-
+    
     let mut sha1hasher = Sha1Hasher::default();
+    
     sha1hasher.write(b"your string here");
-
-    let output = HasherContext::finish(&mut sha1hasher);
-    println!("{:x}", output);
+    
+    let u64result = sha1hasher.finish();
+    let bytes_result = HasherContext::finish(&mut sha1hasher);
+    assert_eq!(u64result, 0x7D2C170805790AFA);
+    assert_eq!(format!("{bytes_result:02x}"), "7d2c170805790afac408349a9c266a123d1961be");
+    assert_eq!(format!("{bytes_result:02X}"), "7D2C170805790AFAC408349A9C266A123D1961BE");
+    assert_eq!(
+        bytes_result,
+        [
+            0x7D, 0x2C, 0x17, 0x08, 0x05, 0x79, 0x0A, 0xFA, 0xC4, 0x08, 0x34, 0x9A, 0x9C, 0x26, 0x6A, 0x12, 0x3D, 0x19, 0x61, 0xBE
+        ]
+    )
     ```
 
 ## More Information

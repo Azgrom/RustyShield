@@ -30,27 +30,30 @@ Below are steps to use the `rs_sha3_224` crate in your Rust projects:
 
 1. Add the following line to your `Cargo.toml` under the `[dependencies]` section:
 
-    ```toml
-    rs_sha3_224 = "0.1.*"
-    ```
-   _Please replace `"0.1"` with the version number you intend to use._
-
-2. Import `rs_sha3_224` in your Rust source file:
-
-    ```rust
-    extern crate rs_sha3_224;
-    ```
+   ```toml
+   rs_sha3_224 = "0.1.*"
+   ```
 
 3. Use the functions provided by the `rs_sha3_224` module in your code. Here's an example of how to create a SHA-3_224 hash from a string:
 
     ```rust
     use rs_sha3_224::{HasherContext, Sha3_224Hasher};
-
+    
     let mut sha3_224hasher = Sha3_224Hasher::default();
     sha3_224hasher.write(b"your string here");
-
-    let output = HasherContext::finish(&mut sha3_224hasher);
-    println!("{:x}", output);
+    
+    let u64result = sha3_224hasher.finish();
+    let bytes_result = HasherContext::finish(&mut sha3_224hasher);
+    assert_eq!(u64result, 0xDDF2FCD38ED7C536);
+    assert_eq!(format!("{bytes_result:02x}"), "ddf2fcd38ed7c536146be476795619b9232eee08d83a94d40ebd9f79");
+    assert_eq!(format!("{bytes_result:02X}"), "DDF2FCD38ED7C536146BE476795619B9232EEE08D83A94D40EBD9F79");
+    assert_eq!(
+        bytes_result,
+        [
+            0xDD, 0xF2, 0xFC, 0xD3, 0x8E, 0xD7, 0xC5, 0x36, 0x14, 0x6B, 0xE4, 0x76, 0x79, 0x56,
+            0x19, 0xB9, 0x23, 0x2E, 0xEE, 0x08, 0xD8, 0x3A, 0x94, 0xD4, 0x0E, 0xBD, 0x9F, 0x79
+        ]
+    )
     ```
 
 ## More Information

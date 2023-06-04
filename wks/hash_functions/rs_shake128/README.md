@@ -33,24 +33,27 @@ Below are steps to use the `rs_shake128` crate in your Rust projects:
     ```toml
     rs_shake128 = "0.1.*"
     ```
-   _Please replace `"0.1"` with the version number you intend to use._
-
-2. Import `rs_shake128` in your Rust source file:
-
-    ```rust
-    extern crate rs_shake128;
-    ```
-
+   
 3. Use the functions provided by the `rs_shake128` module in your code. Here's an example of how to create a SHAKE128 hash from a string:
 
     ```rust
     use rs_shake128::{HasherContext, Shake128Hasher};
-
-    let mut shake128hasher = Shake128Hasher::default();
-    shake128hasher.write(b"your string here");
-
-    let output = HasherContext::finish(&mut shake128hasher);
-    println!("{:x}", output);
+    
+    let mut sha512_256hasher = Shake128Hasher::<20>::default();
+    sha512_256hasher.write(b"your string here");
+    
+    let u64result = sha512_256hasher.finish();
+    let bytes_result = HasherContext::finish(&mut sha512_256hasher);
+    assert_eq!(u64result, 0x9105E04821D530DE);
+    assert_eq!(format!("{bytes_result:02x}"), "9105e04821d530de80ff68fac42a0fe164c744dd");
+    assert_eq!(format!("{bytes_result:02X}"), "9105E04821D530DE80FF68FAC42A0FE164C744DD");
+    assert_eq!(
+        bytes_result,
+        [
+            0x91, 0x05, 0xE0, 0x48, 0x21, 0xD5, 0x30, 0xDE, 0x80, 0xFF, 0x68, 0xFA, 0xC4, 0x2A, 0x0F, 0xE1, 0x64, 0xC7,
+            0x44, 0xDD
+        ]
+    )
     ```
 
 ## More Information

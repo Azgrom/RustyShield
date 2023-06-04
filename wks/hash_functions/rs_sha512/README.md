@@ -32,24 +32,35 @@ Below are steps to use the `rs_sha512` crate in your Rust projects:
     ```toml
     rs_sha512 = "0.1.*"
     ```
-   _Please replace `"0.1"` with the version number you intend to use._
-
-2. Import `rs_sha512` in your Rust source file:
-
-    ```rust
-    extern crate rs_sha512;
-    ```
-
+   
 3. Use the functions provided by the `rs_sha512` module in your code. Here's an example of how to create a SHA-512 hash from a string:
 
     ```rust
     use rs_sha512::{HasherContext, Sha512Hasher};
-
+    
     let mut sha512hasher = Sha512Hasher::default();
     sha512hasher.write(b"your string here");
-
-    let output = HasherContext::finish(&mut sha512hasher);
-    println!("{:x}", output);
+    
+    let u64result = sha512hasher.finish();
+    let bytes_result = HasherContext::finish(&mut sha512hasher);
+    assert_eq!(u64result, 0x3B9147CC94F9A792);
+    assert_eq!(
+        format!("{bytes_result:02x}"),
+        "3b9147cc94f9a7926fd175a4f7292adca33c467d94a0c9890e6ff581433e03fcb17f4874eb53876874c4d262baeb49decae0492dd19e37ef76d345926ff66744"
+    );
+    assert_eq!(
+        format!("{bytes_result:02X}"),
+        "3B9147CC94F9A7926FD175A4F7292ADCA33C467D94A0C9890E6FF581433E03FCB17F4874EB53876874C4D262BAEB49DECAE0492DD19E37EF76D345926FF66744"
+    );
+    assert_eq!(
+        bytes_result,
+        [
+            0x3B, 0x91, 0x47, 0xCC, 0x94, 0xF9, 0xA7, 0x92, 0x6F, 0xD1, 0x75, 0xA4, 0xF7, 0x29, 0x2A, 0xDC, 0xA3, 0x3C,
+            0x46, 0x7D, 0x94, 0xA0, 0xC9, 0x89, 0x0E, 0x6F, 0xF5, 0x81, 0x43, 0x3E, 0x03, 0xFC, 0xB1, 0x7F, 0x48, 0x74,
+            0xEB, 0x53, 0x87, 0x68, 0x74, 0xC4, 0xD2, 0x62, 0xBA, 0xEB, 0x49, 0xDE, 0xCA, 0xE0, 0x49, 0x2D, 0xD1, 0x9E,
+            0x37, 0xEF, 0x76, 0xD3, 0x45, 0x92, 0x6F, 0xF6, 0x67, 0x44
+        ]
+    )
     ```
 
 ## More Information

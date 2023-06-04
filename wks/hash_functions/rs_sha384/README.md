@@ -32,24 +32,34 @@ Below are steps to use the `rs_sha384` crate in your Rust projects:
     ```toml
     rs_sha384 = "0.1.*"
     ```
-   _Please replace `"0.1"` with the version number you intend to use._
-
-2. Import `rs_sha384` in your Rust source file:
-
-    ```rust
-    extern crate rs_sha384;
-    ```
-
+   
 3. Use the functions provided by the `rs_sha384` module in your code. Here's an example of how to create a SHA-384 hash from a string:
 
     ```rust
     use rs_sha384::{HasherContext, Sha384Hasher};
-
-    let mut sha384hasher = Sha384Hasher::default();
-    sha384hasher.write(b"your string here");
-
-    let output = HasherContext::finish(&mut sha384hasher);
-    println!("{:x}", output);
+    
+    let mut sha512hasher = Sha384Hasher::default();
+    sha512hasher.write(b"your string here");
+    
+    let u64result = sha512hasher.finish();
+    let bytes_result = HasherContext::finish(&mut sha512hasher);
+    assert_eq!(u64result, 0x27C3D7DA682CF0AB);
+    assert_eq!(
+        format!("{bytes_result:02x}"),
+        "27c3d7da682cf0ab27648e1f5da0a6c18ea13d9629e1ce7d9df1f38b1ee7dfb6ebf5aede6f8ddc9f8c2b9e96d29e4e63"
+    );
+    assert_eq!(
+        format!("{bytes_result:02X}"),
+        "27C3D7DA682CF0AB27648E1F5DA0A6C18EA13D9629E1CE7D9DF1F38B1EE7DFB6EBF5AEDE6F8DDC9F8C2B9E96D29E4E63"
+    );
+    assert_eq!(
+        bytes_result,
+        [
+            0x27, 0xC3, 0xD7, 0xDA, 0x68, 0x2C, 0xF0, 0xAB, 0x27, 0x64, 0x8E, 0x1F, 0x5D, 0xA0, 0xA6, 0xC1, 0x8E, 0xA1,
+            0x3D, 0x96, 0x29, 0xE1, 0xCE, 0x7D, 0x9D, 0xF1, 0xF3, 0x8B, 0x1E, 0xE7, 0xDF, 0xB6, 0xEB, 0xF5, 0xAE, 0xDE,
+            0x6F, 0x8D, 0xDC, 0x9F, 0x8C, 0x2B, 0x9E, 0x96, 0xD2, 0x9E, 0x4E, 0x63
+        ]
+    )
     ```
 
 ## More Information
@@ -57,6 +67,7 @@ Below are steps to use the `rs_sha384` crate in your Rust projects:
 For a more detailed exploration of `rs_sha384`, an overview of other available cryptographic functions, and an introduction to the broader `rs_ssl` project, please consult the [RustySSL project page on crates.io](https://crates.io/crates/rs_ssl).
 
 ## Contributions
+
 Potential contributors are encouraged to consult the [contribution guidelines](https://github.com/RustySSL/rs_ssl/CONTRIBUTING.md) on our GitHub page.
 
 ## License
