@@ -22,7 +22,7 @@
 //! let mut sha3_224hasher = Sha3_224State::default().build_hasher();
 //! sha3_224hasher.write(b"hello world");
 //! let result = sha3_224hasher.finish();
-//! assert_eq!(result, 0xBB28E9778CF1B7DF);
+//! assert_eq!(result, 0xDFB7F18C77E928BB);
 //! ```
 //!
 //! Or, as a `HashSet`:
@@ -48,8 +48,8 @@
 //! let u64result2 = sha3_224hasher2.finish();
 //! let u64result3 = sha3_224hasher3.finish();
 //!
-//! assert_eq!(u64result1, 0xF1FF0227C7887FB8);
-//! assert_eq!(u64result2, 0x1B446C59745E8379);
+//! assert_eq!(u64result1, 0xB87F88C72702FFF1);
+//! assert_eq!(u64result2, 0x79835E74596C441B);
 //! assert_eq!(u64result2, u64result3);
 //! assert_ne!(u64result1, u64result2);
 //! ```
@@ -65,6 +65,7 @@
 //!
 #![no_std]
 
+pub use rs_hasher_ctx::HasherContext;
 pub use sha3_224hasher::Sha3_224Hasher;
 pub use sha3_224state::Sha3_224State;
 

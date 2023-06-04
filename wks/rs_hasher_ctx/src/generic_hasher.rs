@@ -1,6 +1,6 @@
 use crate::{ByteArrayWrapper, HasherContext};
 use core::hash::Hasher;
-use internal_hasher::{DigestThroughPad, HashAlgorithm};
+use rs_internal_hasher::{DigestThroughPad, HashAlgorithm};
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct GenericHasher<H: Default + HashAlgorithm, const OUTPUT_LEN: usize> {

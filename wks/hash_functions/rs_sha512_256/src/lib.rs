@@ -17,11 +17,27 @@
 //!
 //! ```rust
 //! # use std::hash::{BuildHasher, Hasher};
-//! # use rs_sha512_256::Sha512_256State;
+//! # use rs_sha512_256::{HasherContext, Sha512_256State};
 //! let mut sha512_256hasher = Sha512_256State::default().build_hasher();
 //! sha512_256hasher.write(b"hello world");
-//! let result = sha512_256hasher.finish();
-//! assert_eq!(result, 0xFF3E5ADF07B4BEE3)
+//! let u64result = sha512_256hasher.finish();
+//! let bytes_result = HasherContext::finish(&mut sha512_256hasher);
+//! assert_eq!(u64result, 0x0AC561FAC838104E);
+//! assert_eq!(
+//!     format!("{bytes_result:02x}"),
+//!     "0ac561fac838104e3f2e4ad107b4bee3e938bf15f2b15f009ccccd61a913f017"
+//! );
+//! assert_eq!(
+//!     format!("{bytes_result:02X}"),
+//!     "0AC561FAC838104E3F2E4AD107B4BEE3E938BF15F2B15F009CCCCD61A913F017"
+//! );
+//! assert_eq!(
+//!     bytes_result,
+//!     [
+//!         0x0A, 0xC5, 0x61, 0xFA, 0xC8, 0x38, 0x10, 0x4E, 0x3F, 0x2E, 0x4A, 0xD1, 0x07, 0xB4, 0xBE, 0xE3, 0xE9, 0x38, 0xBF,
+//!         0x15, 0xF2, 0xB1, 0x5F, 0x00, 0x9C, 0xCC, 0xCD, 0x61, 0xA9, 0x13, 0xF0, 0x17
+//!     ]
+//! )
 //! ```
 //!
 //! Or, using a `HashSet`:
@@ -47,8 +63,8 @@
 //! let u64result2 = sha512_256hasher2.finish();
 //! let u64result3 = sha512_256hasher3.finish();
 //!
-//! assert_eq!(u64result1, 0xE7EFDDF71BAF9703);
-//! assert_eq!(u64result2, 0xE996EDF76043D00D);
+//! assert_eq!(u64result1, 0xE30D87CFA2A75DB5);
+//! assert_eq!(u64result2, 0xB4840548C986E994);
 //! assert_eq!(u64result2, u64result3);
 //! assert_ne!(u64result1, u64result2);
 //! ```
@@ -67,7 +83,9 @@
 
 #![no_std]
 
-pub use crate::{sha512_256hasher::Sha512_256Hasher, sha512_256state::Sha512_256State};
+pub use rs_hasher_ctx::HasherContext;
+pub use sha512_256hasher::Sha512_256Hasher;
+pub use sha512_256state::Sha512_256State;
 
 mod sha512_256hasher;
 mod sha512_256state;

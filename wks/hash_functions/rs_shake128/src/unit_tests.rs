@@ -2,7 +2,7 @@ extern crate alloc;
 use crate::Shake128Hasher;
 use alloc::format;
 use core::hash::Hasher;
-use rs_hasher_ctx_lib::HasherContext;
+use rs_hasher_ctx::HasherContext;
 
 const MSG: &[u8; 43] = b"The quick brown fox jumps over the lazy dog";
 
@@ -16,7 +16,8 @@ fn test() {
     shake128hasher.write(MSG);
     shake128hasher.write(MSG);
 
-    assert_eq!(shake128hasher.finish(), 0x250A744200F33112)
+    let u64result = shake128hasher.finish();
+    assert_eq!(u64result, 0x1231F30042740A25)
 }
 
 #[test]

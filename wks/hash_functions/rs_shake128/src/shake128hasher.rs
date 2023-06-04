@@ -1,8 +1,8 @@
 use crate::Shake128State;
 use core::hash::Hasher;
-use rs_hasher_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
-use internal_hasher::HashAlgorithm;
-use internal_state::ExtendedOutputFunction;
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_internal_hasher::HashAlgorithm;
+use rs_internal_state::ExtendedOutputFunction;
 
 /// `Shake128Hasher` is a type that provides the SHAKE128 hashing algorithm in Rust.
 ///
@@ -53,9 +53,9 @@ impl<const OUTPUT_SIZE: usize> From<Shake128Hasher<OUTPUT_SIZE>> for Shake128Sta
 
 impl<const OUTPUT_SIZE: usize> From<Shake128State<OUTPUT_SIZE>> for Shake128Hasher<OUTPUT_SIZE> {
     fn from(value: Shake128State<OUTPUT_SIZE>) -> Self {
-        Self(GenericHasher{
+        Self(GenericHasher {
             padding: <Shake128State<OUTPUT_SIZE> as HashAlgorithm>::Padding::default(),
-            state: value
+            state: value,
         })
     }
 }

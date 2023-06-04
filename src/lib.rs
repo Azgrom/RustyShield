@@ -22,8 +22,7 @@
 //!
 //! ```rust
 //! # use std::hash::{BuildHasher, Hasher};
-//! # use rs_hasher_ctx_lib::HasherContext;
-//! # use rs_ssl::Sha1State;
+//! # use rs_ssl::{Sha1State, HasherContext};
 //! let mut sha1hasher = Sha1State::default().build_hasher();
 //! sha1hasher.write(b"hello");
 //! let u64result = sha1hasher.finish();
@@ -91,7 +90,7 @@
 
 #![no_std]
 
-pub use rs_hasher_ctx_lib::HasherContext;
+pub use rs_hasher_ctx::HasherContext;
 pub use rs_hmac::Hmac;
 pub use rs_keccak_nbits::{NBitKeccakHasher, NBitKeccakState};
 pub use rs_sha1::{Sha1Hasher, Sha1State};

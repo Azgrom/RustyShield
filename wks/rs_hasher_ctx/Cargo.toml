@@ -1,14 +1,15 @@
 [package]
-name = "rs_hasher_ctx"
-version = "0.1.0"
+authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
 description = "A straight forward overload abstraction of `Hasher::finish` with some helper types"
 edition.workspace = true
+homepage.workspace = true
 license.workspace = true
-
-[lib]
-name = "rs_hasher_ctx_lib"
+name = "rs_hasher_ctx"
+readme.workspace = true
+repository.workspace = true
+version = "0.1.1"
 
 [dependencies]
-internal_hasher = { path = "../internal_hasher", version = "0.1.0" }
-internal_state = { path = "../internal_state", version = "0.1.0" }
-n_bit_words = { path = "../n_bit_words", version = "0.1.0" }
+rs_internal_hasher = { path = "../rs_internal_hasher", version = "0.1.1" }
+rs_internal_state = { path = "../rs_internal_state", version = "0.1.1" }
+rs_n_bit_words = { path = "../rs_n_bit_words", version = "0.1.1" }
