@@ -9,7 +9,7 @@ ongoing maintenance and enhancement."""
 edition.workspace = true
 license.workspace = true
 name = "rs_hmac"
-readme.workspace = true
+readme = "./README.md"
 repository.workspace = true
 version = "0.1.1"
 

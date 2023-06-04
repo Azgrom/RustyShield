@@ -7,7 +7,7 @@ license."""
 edition.workspace = true
 license.workspace = true
 keywords = ["cryptography", "hashing", "no_std", "security", "SSL"]
-readme.workspace = true
+readme = "./README.md"
 version = "0.1.1"
 
 [workspace]
@@ -26,7 +26,6 @@ edition = "2021"
 license = "GPL-2.0-only"
 repository = "https://github.com/Azgrom/RustySSL"
 homepage = "https://docs.rs/rs_ssl/latest/rs_ssl/"
-readme = "./README.md"
 
 [[bin]]
 name = "rs_ssl_cli"

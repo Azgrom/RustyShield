@@ -7,6 +7,6 @@ edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 name = "rs_gost_28147_89"
-readme.workspace = true
+readme = "./README.md"
 repository.workspace = true
 version = "0.1.1"

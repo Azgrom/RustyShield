@@ -5,7 +5,7 @@ edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 name = "rs_hasher_ctx"
-readme.workspace = true
+readme = "./README.md"
 repository.workspace = true
 version = "0.1.1"
 
