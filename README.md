@@ -27,7 +27,7 @@ See the [implementation documentation](https://docs.rs/rs_ssl/latest/rs_ssl/) fo
 
 ## Testing against NIST Test Vectors
 
-All the NIST-approved and published algorithms implemented in RustySSL are thoroughly tested against the respective NIST test vectors. This rigorous testing assures the correctness and reliability of our implementations, providing a robust security foundation for any application built using RustySSL.
+All NIST-approved and published algorithms implemented in RustySSL undergo thorough testing against the respective NIST test vectors. Such rigorous testing guarantees the correctness and reliability of the implementations, offering a robust security foundation for any application built using RustySSL.
 
 ## RoadMap
 
@@ -56,6 +56,43 @@ Inspired by the Unix philosophy, but adapting to the purpose of this project:
 4. **Clarity Over Efficiency**: Clear, understandable code is prioritized over highly optimized but obscure solutions.
 
 ## Supported Algorithms
+
+```mermaid
+graph TB
+
+    subgraph RustySSL["RustySSL"]
+        rs_ssl["rs_ssl"]
+        HashingFunctions["Hashing Functions"]
+        Ciphers["Ciphers"]
+        PublicKey["Public Key Functions"]
+    end
+
+    rs_ssl -->|Provides| HashingFunctions
+    rs_ssl -->|Provides| Ciphers
+    rs_ssl -->|Provides| PublicKey
+```
+```mermaid
+graph LR
+
+    subgraph HashingFunctions["Hashing Functions"]
+        sha_families["SHA Families 1, 2 and 3"]
+        permutation_ext_output["Permutation Based and Extended Output Hash Functions"]
+        rs_hmac["HMAC"]
+        other_hash["Other Hashing Algorithms"]
+    end
+
+    subgraph Ciphers["Ciphers"]
+        symmetric_ciphers["Symmetric Ciphers"]
+        asymmetric_ciphers["Asymmetric Ciphers"]
+    end
+
+    subgraph PublicKey["Public Key Functions"]
+        rsa_dsa["RSA & DSA"]
+        diffie_hellman["Diffie-Hellman key exchange"]
+        elliptic_curve["Elliptic curve cryptography"]
+        other_pub_key["Other Public-key Algorithms"]
+    end
+```
 
 | Ciphers                       | Hashing Functions                                                                 | Public-key                                  |
 | :---------------------------- | :-------------------------------------------------------------------------------- | :------------------------------------------ |
