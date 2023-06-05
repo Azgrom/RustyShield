@@ -6,9 +6,11 @@ functions including SHA and Keccak families, and HMAC, suitable for no_std envir
 license."""
 edition.workspace = true
 license.workspace = true
+homepage.workspace = true
 keywords = ["cryptography", "hashing", "no_std", "security", "SSL"]
-readme.workspace = true
-version = "0.1.1"
+readme = "./README.md"
+repository.workspace = true
+version = "0.1.2"
 
 [workspace]
 members = [
@@ -26,7 +28,6 @@ edition = "2021"
 license = "GPL-2.0-only"
 repository = "https://github.com/Azgrom/RustySSL"
 homepage = "https://docs.rs/rs_ssl/latest/rs_ssl/"
-readme = "README.md"
 
 [[bin]]
 name = "rs_ssl_cli"
@@ -50,7 +51,7 @@ strip = false
 debug = false
 
 [dependencies]
-rs_hasher_ctx = { path = "wks/rs_hasher_ctx", version = "0.1.0" }
+rs_hasher_ctx = { path = "wks/rs_hasher_ctx", version = "0.1.*" }
 
 rs_aes = { path = "wks/ciphers/rs_aes", version = "0.1.*" }
 rs_blowfish = { path = "wks/ciphers/rs_blowfish", version = "0.1.*" }

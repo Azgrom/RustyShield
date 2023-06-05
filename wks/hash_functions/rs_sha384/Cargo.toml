@@ -9,12 +9,12 @@ edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 name = "rs_sha384"
-readme.workspace = true
+readme = "./README.md"
 repository.workspace = true
-version = "0.1.1"
+version = "0.1.2"
 
 [dependencies]
-rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.0" }
-rs_internal_hasher = { path = "../../rs_internal_hasher", version = "0.1.0" }
-rs_internal_state = { path = "../../rs_internal_state", version = "0.1.0" }
-rs_n_bit_words = { path = "../../rs_n_bit_words", version = "0.1.0" }
+rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.*" }
+rs_internal_hasher = { path = "../../rs_internal_hasher", version = "0.1.*" }
+rs_internal_state = { path = "../../rs_internal_state", version = "0.1.*" }
+rs_n_bit_words = { path = "../../rs_n_bit_words", version = "0.1.*" }

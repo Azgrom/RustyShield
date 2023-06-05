@@ -10,9 +10,9 @@ edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 name = "rs_internal_state"
-readme.workspace = true
+readme = "./README.md"
 repository.workspace = true
-version = "0.1.1"
+version = "0.1.2"
 
 [dependencies]
 rs_n_bit_words = { path = "../rs_n_bit_words", version = "0.1.1" }
