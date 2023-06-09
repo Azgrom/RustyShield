@@ -1,4 +1,4 @@
-//! # HMAC `rs-hmac` - Hash-based Message Authentication Code
+//! # HMAC `rs_hmac` - Hash-based Message Authentication Code
 //!
 //! This HMAC implementation is a specific type of message authentication code (MAC) involving a cryptographic hash
 //! function in combination with a secret cryptographic key. It was developed by the National Institute of Standards and

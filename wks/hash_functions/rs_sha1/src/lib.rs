@@ -1,4 +1,4 @@
-//! # SHA-1 `rs-sha1` - Secure Hash Algorithm 1
+//! # SHA-1 `rs_sha1` - Secure Hash Algorithm 1
 //!
 //! The SHA-1 hash function is part of the SHA family, which was developed by the National Institute of Standards and
 //! Technology (NIST).

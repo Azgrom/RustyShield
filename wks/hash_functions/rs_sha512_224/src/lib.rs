@@ -1,4 +1,4 @@
-//! # SHA-512/224 `rs-sha512_224` - Secure Hash Algorithm 512/224
+//! # SHA-512/224 `rs_sha512_224` - Secure Hash Algorithm 512/224
 //!
 //! The SHA-512/224 hash function is part of the SHA-2 family, which was developed by the National Institute of
 //! Standards and Technology (NIST). This hash function is a variant of SHA-512 that outputs a hash value of 224 bits.

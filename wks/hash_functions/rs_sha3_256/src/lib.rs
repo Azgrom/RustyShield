@@ -1,4 +1,4 @@
-//! # SHA3-256 `rs-sha3-256` - Secure Hash Algorithm 3 variant
+//! # SHA3-256 `rs_sha3_256` - Secure Hash Algorithm 3 variant
 //!
 //! The SHA3-256 hash function is a member of the SHA-3 family, crafted by the National Institute of Standards and
 //! Technology (NIST). Unlike SHAKE256, SHA3-256 generates a fixed-size hash output of 256 bits, making it an ideal candidate for tasks requiring consistent, known-length hash values.

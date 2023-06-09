@@ -1,4 +1,4 @@
-//! # SHAKE256 `rs-shake256` - Secure Hash Algorithm KECCAK-based variant
+//! # SHAKE256 `rs_shake256` - Secure Hash Algorithm KECCAK-based variant
 //!
 //! The SHAKE256 hash function is part of the SHA-3 family, which was developed by the National Institute of Standards and
 //! Technology (NIST). It's an Extendable Output Function (XOF), meaning it can generate a hash value of any length.

@@ -1,4 +1,4 @@
-//! # SHA-512 `rs-sha512` - Secure Hash Algorithm 512
+//! # SHA-512 `rs_sha512` - Secure Hash Algorithm 512
 //!
 //! The SHA-512 hash function is part of the SHA-2 family, which was developed by the National Institute of Standards and
 //! Technology (NIST). It is commonly used for cryptographic security, providing a significantly higher security margin
