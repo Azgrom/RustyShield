@@ -81,6 +81,7 @@
 //!
 
 #![no_std]
+#![no_main]
 
 pub use crate::sha512hasher::Sha512Hasher;
 pub use crate::sha512state::Sha512State;

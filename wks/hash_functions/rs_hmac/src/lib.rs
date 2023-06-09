@@ -43,6 +43,7 @@
 //!
 
 #![no_std]
+#![no_main]
 
 use core::hash::{Hash, Hasher};
 pub use rs_hasher_ctx::HasherContext;

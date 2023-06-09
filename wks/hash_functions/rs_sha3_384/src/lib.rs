@@ -64,6 +64,7 @@
 //!
 
 #![no_std]
+#![no_main]
 
 pub use rs_hasher_ctx::HasherContext;
 pub use sha3_384hasher::Sha3_384Hasher;

@@ -64,6 +64,7 @@
 //!
 
 #![no_std]
+#![no_main]
 
 pub use rs_hasher_ctx::HasherContext;
 pub use sha3_512hasher::Sha3_512Hasher;

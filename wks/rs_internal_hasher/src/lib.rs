@@ -1,4 +1,5 @@
 #![no_std]
+#![no_main]
 
 pub use crate::{
     be_bytes::BigEndianBytes, byte_pad::BytePad, digest_through_pad::DigestThroughPad, generic_pad::GenericPad,

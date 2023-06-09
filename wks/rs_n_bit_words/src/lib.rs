@@ -1,4 +1,5 @@
 #![no_std]
+#![no_main]
 
 pub use crate::{little_endian::LittleEndianBytes, rotate::Rotate, t_size::TSize};
 use core::fmt::Debug;

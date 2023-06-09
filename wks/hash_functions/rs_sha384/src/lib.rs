@@ -79,6 +79,7 @@
 //! safe for cryptographic and even most non-cryptographic functions
 
 #![no_std]
+#![no_main]
 
 pub use rs_hasher_ctx::HasherContext;
 pub use sha384hasher::Sha384Hasher;

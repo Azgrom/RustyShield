@@ -63,7 +63,9 @@
 //!
 //! [NIST](https://www.nist.gov/) recommends SHA3-224 for cryptographic purposes due to its robust security and reliable performance. Its 224-bit output is large enough to resist all known practical collision attacks, making it an ideal choice for many applications.
 //!
+
 #![no_std]
+#![no_main]
 
 pub use rs_hasher_ctx::HasherContext;
 pub use sha3_224hasher::Sha3_224Hasher;

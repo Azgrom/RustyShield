@@ -1,3 +1,6 @@
+#![no_std]
+#![no_main]
+
 pub fn add(left: usize, right: usize) -> usize {
     left + right
 }

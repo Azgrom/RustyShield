@@ -1,4 +1,5 @@
 #![no_std]
+#![no_main]
 
 pub use crate::{n_bit_keccak_hasher::NBitKeccakHasher, n_bit_keccak_state::NBitKeccakState};
 

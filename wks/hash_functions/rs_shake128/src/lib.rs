@@ -67,6 +67,7 @@
 //!
 
 #![no_std]
+#![no_main]
 
 pub use rs_hasher_ctx::HasherContext;
 pub use shake128hasher::Shake128Hasher;

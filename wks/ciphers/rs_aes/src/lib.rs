@@ -1,4 +1,20 @@
+//! # AES - `rs_aes` - Advanced Encryption Standard
+//!
+//! **Important Note: This crate is still a work in progress and is not ready for consumption.**
+//!
+//! This crate, `rs_aes`, is part of the RustyShield project. The intent of the RustyShield project
+//! is to provide comprehensive cryptographic functionality for the Rust programming language,
+//! expanding upon Rust's core library abstractions.
+//!
+//! The `rs_aes` crate specifically aims to implement the Advanced Encryption Standard (AES), a
+//! specification for the encryption of electronic data established by the U.S. National Institute
+//! of Standards and Technology (NIST).
+//!
+//! AES is a symmetric key algorithm, which means the same key is used for encrypting and decrypting
+//! the data. AES has been adopted by the U.S. government and is now used worldwide.
+
 #![no_std]
+#![no_main]
 
 use core::ops::{Add, AddAssign, BitAnd, BitXor, Mul, Shl, Shr};
 use rs_n_bit_words::NBitWord;

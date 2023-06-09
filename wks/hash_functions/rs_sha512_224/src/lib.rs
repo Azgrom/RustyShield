@@ -82,6 +82,7 @@
 //!
 
 #![no_std]
+#![no_main]
 
 pub use rs_hasher_ctx::HasherContext;
 pub use sha512_224hasher::Sha512_224Hasher;

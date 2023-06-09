@@ -1,4 +1,5 @@
 #![no_std]
+#![no_main]
 
 pub use byte_array_wrapper::ByteArrayWrapper;
 pub use generic_hasher::GenericHasher;
