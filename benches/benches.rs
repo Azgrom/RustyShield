@@ -1,7 +1,7 @@
 use core::hash::{Hash, Hasher};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
-use rs_ssl::{
+use rs_shield::{
     Sha1Hasher, Sha224Hasher, Sha256Hasher, Sha384Hasher, Sha3_224Hasher, Sha3_256Hasher, Sha3_384Hasher,
     Sha3_512Hasher, Sha512Hasher, Sha512_224Hasher, Sha512_256Hasher, Shake128Hasher, Shake256Hasher,
 };

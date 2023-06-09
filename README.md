@@ -8,41 +8,41 @@
 
 <div align="center">
 
-# RustySSL `rs_ssl`
+# RustyShield `rs_shield`
 
 **An OpenSSL inspired Rust based encryption library** 
 
-[![Documentation](https://img.shields.io/badge/docs-API-blue)](https://docs.rs/rs_ssl/latest/rs_ssl/)
-[![GitHub Workflow Status](https://github.com/Azgrom/RustySSL/workflows/Cargo%20Build%20&%20Test/badge.svg?branch=master)](https://github.com/Azgrom/RustySSL/actions)
+[![Documentation](https://img.shields.io/badge/docs-API-blue)](https://docs.rs/rs_shield/latest/rs_shield/)
+[![GitHub Workflow Status](https://github.com/Azgrom/RustyShield/workflows/Cargo%20Build%20&%20Test/badge.svg?branch=master)](https://github.com/Azgrom/RustyShield/actions)
 
 </div>
 
 ## Vision
 
-RustySSL seeks to establish the Rust language self-sufficency by offering an API that is fully compatible with [*Rust's core library*](https://doc.rust-lang.org/stable/core/index.html) , although not restricted to it. RustySSL aims to provide a reliable, user-friendly, standards-compliant, and platform-agnostic suite of  encryption tools.
+RustyShield seeks to establish the Rust language self-sufficency by offering an API that is fully compatible with [*Rust's core library*](https://doc.rust-lang.org/stable/core/index.html) , although not restricted to it. RustyShield aims to provide a reliable, user-friendly, standards-compliant, and platform-agnostic suite of encryption tools.
 
 ## How To Use
 
-See the [implementation documentation](https://docs.rs/rs_ssl/latest/rs_ssl/) for examples.
+See the [implementation documentation](https://docs.rs/rs_shield/latest/rs_shield/) for examples.
 
 ## Testing against NIST Test Vectors
 
-All NIST-approved and published algorithms implemented in RustySSL undergo thorough testing against the respective NIST test vectors. Such rigorous testing guarantees the correctness and reliability of the implementations, offering a robust security foundation for any application built using RustySSL.
+All NIST-approved and published algorithms implemented in RustyShield undergo thorough testing against the respective NIST test vectors. Such rigorous testing guarantees the correctness and reliability of the implementations, offering a robust security foundation for any application built using RustyShield.
 
 ## RoadMap
 
-1. The initial objective of RustySSL is to port all OpenSSL algorithms to the Rust ecosystem.
-2. Following the port, RustySSL will continue to expand and incorporate additional cryptographic algorithms.
+1. The initial objective of RustyShield is to port all OpenSSL algorithms to the Rust ecosystem.
+2. Following the port, RustyShield will continue to expand and incorporate additional cryptographic algorithms.
 3. Although the current implementations are not the fastest, there is considerable room for improvement. There will probably a competitive performance boost once the [SIMD module](https://doc.rust-lang.org/core/simd/index.html) stabilizes;
 
 After that the plan will be to implement some cryptocurrencies hashing algorithms like [Equihash](https://en.wikipedia.org/wiki/Equihash), [Ethereum's Keccak-256](https://ethereum.org/en/developers/docs/consensus-mechanisms/pow/mining-algorithms/ethash/) and others.
 
 ## Why This Project?
 
-The benefits of RustySSL include:
+The benefits of RustyShield include:
 
-- **Minimal Dependencies and Supply Chain Security**: By relying solely on Rust's core library, RustySSL minimizes the risk of dependency-related issues and provides an increased level of supply chain security. Trust is only required in the Rust core library team;
-- **No `alloc` extern crate and Platform-Agnostic**: RustySSL avoids the `alloc` crate, enabling it to function without assuming the host has a heap allocator and enabling more embedded applications and kernel-level use saces. Additionally, leveraging Rust's libcore ensures cross-platform reliability, reducing complexity for the end-user;
+- **Minimal Dependencies and Supply Chain Security**: By relying solely on Rust's core library, RustyShield minimizes the risk of dependency-related issues and provides an increased level of supply chain security. Trust is only required in the Rust core library team;
+- **No `alloc` extern crate and Platform-Agnostic**: RustyShield avoids the `alloc` crate, enabling it to function without assuming the host has a heap allocator and enabling more embedded applications and kernel-level use saces. Additionally, leveraging Rust's libcore ensures cross-platform reliability, reducing complexity for the end-user;
 - **Consolidated Design Pattern**: By adhering to the [`Hash`, `Hasher`, and `BuildHasher` design pattern from Rust's core library](https://doc.rust-lang.org/core/hash/index.html), users can interchangeably use any algorithm with a basic understanding of these traits;
 - **Ecosystem Self-Sufficiency**: The project strengthens the Rust ecosystem's self-sufficiency by relying on its own implementations, reducing reliance on external variables through FFI calls.
 
@@ -58,40 +58,18 @@ Inspired by the Unix philosophy, but adapting to the purpose of this project:
 ## Supported Algorithms
 
 ```mermaid
-graph TB
+graph LR
 
-    subgraph RustySSL["RustySSL"]
-        rs_ssl["rs_ssl"]
+    subgraph RustyShield["RustyShield"]
+        rs_shield["rs_shield"]
         HashingFunctions["Hashing Functions"]
         Ciphers["Ciphers"]
         PublicKey["Public Key Functions"]
     end
 
-    rs_ssl -->|Provides| HashingFunctions
-    rs_ssl -->|Provides| Ciphers
-    rs_ssl -->|Provides| PublicKey
-```
-```mermaid
-graph LR
-
-    subgraph HashingFunctions["Hashing Functions"]
-        sha_families["SHA Families 1, 2 and 3"]
-        permutation_ext_output["Permutation Based and Extended Output Hash Functions"]
-        rs_hmac["HMAC"]
-        other_hash["Other Hashing Algorithms"]
-    end
-
-    subgraph Ciphers["Ciphers"]
-        symmetric_ciphers["Symmetric Ciphers"]
-        asymmetric_ciphers["Asymmetric Ciphers"]
-    end
-
-    subgraph PublicKey["Public Key Functions"]
-        rsa_dsa["RSA & DSA"]
-        diffie_hellman["Diffie-Hellman key exchange"]
-        elliptic_curve["Elliptic curve cryptography"]
-        other_pub_key["Other Public-key Algorithms"]
-    end
+    rs_shield -->|Provides| HashingFunctions
+    rs_shield -->|Provides| Ciphers
+    rs_shield -->|Provides| PublicKey
 ```
 
 | Ciphers                       | Hashing Functions                                                                 | Public-key                                  |
@@ -127,7 +105,7 @@ Contributions are very much welcomed from everyone.
 
 If you have a suggestion of an algorithm that you want to see included in this project, please open an issue proposing it.
 
-To contribute, please follow the [contribution guidelines](https://github.com/Azgrom/RustySSL/blob/master/CONTRIBUTING.md).
+To contribute, please follow the [contribution guidelines](https://github.com/Azgrom/RustyShield/CONTRIBUTING.md).
 
 ## Code of Conduct
 
@@ -135,6 +113,6 @@ The participation of each member of the Rust community is valued, and everyone i
 
 ## License
 
-RustySSL is licensed under GPL-2.0-only. 
+RustyShield is licensed under GPL-2.0-only. 
 
 In plain English, this means you are free to use, modify, and distribute the software, provided that any modification must also be licensed under GPL-2.0-only. Or, if more convenient, for a modification that is an improvement and conforms to the [contribution guidelines](,/CONTRIBUTING.md) to bring it to the project.

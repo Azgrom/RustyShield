@@ -1,8 +1,8 @@
-//! # RustySSL: Advanced Cryptographic Library for Modern Applications
+//! # RustyShield: Advanced Cryptographic Library for Modern Applications
 //!
 //! This library provides comprehensive cryptographic functions inspired by OpenSSL, within the Rust ecosystem.
-//! The vision behind RustySSL is to establish a solid foundation within the Rust language by seamlessly integrating with
-//! its core library. As a result, RustySSL furnishes a reliable, user-friendly, standards-compliant, and
+//! The vision behind RustyShield is to establish a solid foundation within the Rust language by seamlessly integrating with
+//! its core library. As a result, RustyShield furnishes a reliable, user-friendly, standards-compliant, and
 //! platform-agnostic suite of encryption tools.
 //!
 //! ## Usage
@@ -13,7 +13,7 @@
 //!
 //! ## Examples
 //!
-//! The following example demonstrate how to use some of the functionalities provided by RustySSL.
+//! The following example demonstrate how to use some of the functionalities provided by RustyShield.
 //!
 //! Although only the SHA-1 example is demonstrated, this pattern for extracting an `u64`, or `[u8; N]`, or a `String`
 //! will be consistent with all implementations below.
@@ -22,7 +22,7 @@
 //!
 //! ```rust
 //! # use std::hash::{BuildHasher, Hasher};
-//! # use rs_ssl::{Sha1State, HasherContext};
+//! # use rs_shield::{Sha1State, HasherContext};
 //! let mut sha1hasher = Sha1State::default().build_hasher();
 //! sha1hasher.write(b"hello");
 //! let u64result = sha1hasher.finish();

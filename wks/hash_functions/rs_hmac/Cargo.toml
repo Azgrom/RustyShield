@@ -1,11 +1,11 @@
 [package]
 description = """`rs_hmac` is a Rust implementation of the HMAC (Hash-Based Message Authentication Code) cryptographic
-hash algorithm, as part of the larger `rs_ssl` project. This package provides HMAC hashing functionality in a standalone
-manner, ideal for when only HMAC is required. Notably, this HMAC implementation is compatible with all hashing functions
-within this project, enabling versatile, custom cryptographic solutions. Alternatively, for those seeking a
-comprehensive set of cryptographic functions, this same algorithm is included within the broader `rs_ssl` library
-bundle. The focus of `rs_hmac`, like the larger project, is on performance, safety, and openness, with a commitment to
-ongoing maintenance and enhancement."""
+hash algorithm, as part of the larger `rs_shield` project. This package provides HMAC hashing functionality in a
+standalone manner, ideal for when only HMAC is required. Notably, this HMAC implementation is compatible with all
+hashing functions within this project, enabling versatile, custom cryptographic solutions. Alternatively, for those
+seeking a comprehensive set of cryptographic functions, this same algorithm is included within the broader `rs_shield`
+library bundle. The focus of `rs_hmac`, like the larger project, is on performance, safety, and openness, with a
+commitment to ongoing maintenance and enhancement."""
 edition.workspace = true
 license.workspace = true
 name = "rs_hmac"

@@ -1,5 +1,5 @@
 [package]
-name = "rs_ssl"
+name = "rs_shield"
 categories = ["embedded", "cryptography", "no-std",  "no-std::no-alloc", "algorithms"]
 description = """A comprehensive Rust library providing robust and efficient implementations of cryptographic hash
 functions including SHA and Keccak families, and HMAC, suitable for no_std environments. Compliant with the GPL-2.0-only
@@ -26,11 +26,11 @@ members = [
 [workspace.package]
 edition = "2021"
 license = "GPL-2.0-only"
-repository = "https://github.com/Azgrom/RustySSL"
-homepage = "https://docs.rs/rs_ssl/latest/rs_ssl/"
+repository = "https://github.com/Azgrom/RustyShield"
+homepage = "https://docs.rs/rs_shield/latest/rs_shield/"
 
 [[bin]]
-name = "rs_ssl_cli"
+name = "rs_shield_cli"
 path = "src/bin/mod.rs"
 
 [[bench]]

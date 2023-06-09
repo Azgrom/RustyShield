@@ -34,7 +34,7 @@ This Code of Conduct applies in all project spaces and in public spaces when an 
 
 ## Enforcement
 
-Abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at rs_ssl@pm.me. All complaints will be reviewed, investigated, and resolved in a manner that is deemed necessary and appropriate to the circumstances. The project team commits to maintaining confidentiality concerning the reporter of an incident. More details of specific enforcement policies may be posted separately.
+Abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at rs_shield@pm.me. All complaints will be reviewed, investigated, and resolved in a manner that is deemed necessary and appropriate to the circumstances. The project team commits to maintaining confidentiality concerning the reporter of an incident. More details of specific enforcement policies may be posted separately.
 
 Project maintainers who fail to adhere to or enforce the Code of Conduct in good faith may face temporary or permanent repercussions as determined by other members of the project's leadership.
 

@@ -1,10 +1,10 @@
 [package]
 authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
 description = """`rs_sha512_224` is a Rust implementation of the SHA-512/224 cryptographic hash algorithm, part of the
-larger `rs_ssl` project. This package provides SHA-512/224 hashing functionality in a standalone manner, ideal for when
-only SHA-512/224 is required. Alternatively, for those seeking a comprehensive set of cryptographic functions, this same
-algorithm is included within the broader `rs_ssl` library bundle. The focus of `rs_sha512_224` and the larger project
-is on performance, safety, and openness, with a commitment to ongoing maintenance and enhancement."""
+larger `rs_shield` project. This package provides SHA-512/224 hashing functionality in a standalone manner, ideal for
+when only SHA-512/224 is required. Alternatively, for those seeking a comprehensive set of cryptographic functions, this
+same algorithm is included within the broader `rs_shield` library bundle. The focus of `rs_sha512_224` and the larger
+project is on performance, safety, and openness, with a commitment to ongoing maintenance and enhancement."""
 edition.workspace = true
 homepage.workspace = true
 license.workspace = true

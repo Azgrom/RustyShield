@@ -12,7 +12,7 @@ Please keep an eye on this repository for future updates. We look forward to rel
 Thank you for your understanding and patience.
 
 ## Contributions
-While we're actively developing this implementation, we also welcome contributions! If you're an enthusiastic developer with experience in Rust and cryptographic algorithms and would like to contribute to the development of the `rs_rc2` implementation, we would be glad to have your help! Please refer to the [contribution guidelines](https://github.com/Azgrom/RustySSL/blob/master/CONTRIBUTING.md) for guidelines and rules about contributing to this project.
+While we're actively developing this implementation, we also welcome contributions! If you're an enthusiastic developer with experience in Rust and cryptographic algorithms and would like to contribute to the development of the `rs_rc2` implementation, we would be glad to have your help! Please refer to the [contribution guidelines](https://github.com/Azgrom/RustyShield/CONTRIBUTING.md) for guidelines and rules about contributing to this project.
 
 Please keep an eye on this repository for future updates. We look forward to releasing the `rs_rc2` crate soon!
 
