@@ -49,7 +49,7 @@ const RC: [u64; 24] = [
 /// # Sponge construction
 ///
 /// The sponge construction is a cryptographic primitive that can be used to build hash functions,
-/// stream ciphers, and more. It is based on an internal state and two operations: absorbing and
+/// stream cipher_functions, and more. It is based on an internal state and two operations: absorbing and
 /// squeezing. The internal state is divided into two parts: a public part called the rate and a
 /// secret part called the capacity. The Keccak sponge construction uses the Keccak-f permutation as
 /// its underlying function.

@@ -14,13 +14,13 @@ version = "0.1.2"
 
 [workspace]
 members = [
-    "wks/ciphers/*",
+    "wks/cipher_functions/*",
     "wks/rs_hasher_ctx",
     "wks/hash_functions/*",
     "wks/rs_internal_state",
     "wks/rs_internal_hasher",
     "wks/rs_n_bit_words",
-    "wks/public_key/*"
+    "wks/public_key_functions/*"
 ]
 
 [workspace.package]
@@ -53,21 +53,21 @@ debug = false
 [dependencies]
 rs_hasher_ctx = { path = "wks/rs_hasher_ctx", version = "0.1.*" }
 
-rs_aes = { path = "wks/ciphers/rs_aes", version = "0.1.*" }
-rs_blowfish = { path = "wks/ciphers/rs_blowfish", version = "0.1.*" }
-rs_camellia = { path = "wks/ciphers/rs_camellia", version = "0.1.*" }
-rs_cast_128 = { path = "wks/ciphers/rs_cast_128", version = "0.1.*" }
-rs_chacha20 = { path = "wks/ciphers/rs_chacha20", version = "0.1.*" }
-rs_des = { path = "wks/ciphers/rs_des", version = "0.1.*" }
-rs_gost_28147_89 = { path = "wks/ciphers/rs_gost_28147_89", version = "0.1.*" }
-rs_idea = { path = "wks/ciphers/rs_idea", version = "0.1.*" }
-rs_poly1305 = { path = "wks/ciphers/rs_poly1305", version = "0.1.*" }
-rs_rc2 = { path = "wks/ciphers/rs_rc2", version = "0.1.*" }
-rs_rc4 = { path = "wks/ciphers/rs_rc4", version = "0.1.*" }
-rs_rc5 = { path = "wks/ciphers/rs_rc5", version = "0.1.*" }
-rs_seed = { path = "wks/ciphers/rs_seed", version = "0.1.*" }
-rs_sm4 = { path = "wks/ciphers/rs_sm4", version = "0.1.*" }
-rs_triple_des = { path = "wks/ciphers/rs_triple_des", version = "0.1.*" }
+rs_aes = { path = "wks/cipher_functions/rs_aes", version = "0.1.*" }
+rs_blowfish = { path = "wks/cipher_functions/rs_blowfish", version = "0.1.*" }
+rs_camellia = { path = "wks/cipher_functions/rs_camellia", version = "0.1.*" }
+rs_cast_128 = { path = "wks/cipher_functions/rs_cast_128", version = "0.1.*" }
+rs_chacha20 = { path = "wks/cipher_functions/rs_chacha20", version = "0.1.*" }
+rs_des = { path = "wks/cipher_functions/rs_des", version = "0.1.*" }
+rs_gost_28147_89 = { path = "wks/cipher_functions/rs_gost_28147_89", version = "0.1.*" }
+rs_idea = { path = "wks/cipher_functions/rs_idea", version = "0.1.*" }
+rs_poly1305 = { path = "wks/cipher_functions/rs_poly1305", version = "0.1.*" }
+rs_rc2 = { path = "wks/cipher_functions/rs_rc2", version = "0.1.*" }
+rs_rc4 = { path = "wks/cipher_functions/rs_rc4", version = "0.1.*" }
+rs_rc5 = { path = "wks/cipher_functions/rs_rc5", version = "0.1.*" }
+rs_seed = { path = "wks/cipher_functions/rs_seed", version = "0.1.*" }
+rs_sm4 = { path = "wks/cipher_functions/rs_sm4", version = "0.1.*" }
+rs_triple_des = { path = "wks/cipher_functions/rs_triple_des", version = "0.1.*" }
 
 rs_blake2 = { path = "wks/hash_functions/rs_blake2", version = "0.1.*" }
 rs_gost_r34_11_94 = { path = "wks/hash_functions/rs_gost_r34_11_94", version = "0.1.*" }
@@ -94,16 +94,16 @@ rs_shake256 = { path = "wks/hash_functions/rs_shake256", version = "0.1.*" }
 rs_sm3 = { path = "wks/hash_functions/rs_sm3", version = "0.1.*" }
 rs_whirlpool = { path = "wks/hash_functions/rs_whirlpool", version = "0.1.*" }
 
-rs_diffie_hellman = { path = "wks/public_key/rs_diffie_hellman", version = "0.1.*" }
-rs_dsa = { path = "wks/public_key/rs_dsa", version = "0.1.*" }
-rs_ed448 = { path = "wks/public_key/rs_ed448", version = "0.1.*" }
-rs_ed25519 = { path = "wks/public_key/rs_ed25519", version = "0.1.*" }
-rs_elliptic_curve = { path = "wks/public_key/rs_elliptic_curve", version = "0.1.*" }
-rs_gost_r34_10_2001 = { path = "wks/public_key/rs_gost_r34_10_2001", version = "0.1.*" }
-rs_rsa = { path = "wks/public_key/rs_rsa", version = "0.1.*" }
-rs_sm2 = { path = "wks/public_key/rs_sm2", version = "0.1.*" }
-rs_x448 = { path = "wks/public_key/rs_x448", version = "0.1.*" }
-rs_x25519 = { path = "wks/public_key/rs_x25519", version = "0.1.*" }
+rs_diffie_hellman = { path = "wks/public_key_functions/rs_diffie_hellman", version = "0.1.*" }
+rs_dsa = { path = "wks/public_key_functions/rs_dsa", version = "0.1.*" }
+rs_ed448 = { path = "wks/public_key_functions/rs_ed448", version = "0.1.*" }
+rs_ed25519 = { path = "wks/public_key_functions/rs_ed25519", version = "0.1.*" }
+rs_elliptic_curve = { path = "wks/public_key_functions/rs_elliptic_curve", version = "0.1.*" }
+rs_gost_r34_10_2001 = { path = "wks/public_key_functions/rs_gost_r34_10_2001", version = "0.1.*" }
+rs_rsa = { path = "wks/public_key_functions/rs_rsa", version = "0.1.*" }
+rs_sm2 = { path = "wks/public_key_functions/rs_sm2", version = "0.1.*" }
+rs_x448 = { path = "wks/public_key_functions/rs_x448", version = "0.1.*" }
+rs_x25519 = { path = "wks/public_key_functions/rs_x25519", version = "0.1.*" }
 
 [dev-dependencies]
 criterion = "0.5.1"
