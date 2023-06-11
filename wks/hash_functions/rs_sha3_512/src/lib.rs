@@ -1,4 +1,4 @@
-//! # SHA3-512 `rs-sha3-512` - Secure Hash Algorithm KECCAK-based variant
+//! # SHA3-512 `rs_sha3_512` - Secure Hash Algorithm KECCAK-based variant
 //!
 //! The SHA3-512 hash function is part of the SHA-3 family, which was developed by the National Institute of Standards and
 //! Technology (NIST). It's a traditional, fixed output length hash function, generating a hash value of 512 bits.

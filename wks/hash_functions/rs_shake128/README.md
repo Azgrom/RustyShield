@@ -22,7 +22,7 @@ Beyond these specific recommendations, SHAKE128 could also find application in:
 
 These points should be carefully considered, given your overall security objectives and risk tolerance.
 
-For access to a comprehensive range of cryptographic functions, `rs_shake128` can be utilized as part of the `rs_ssl` library bundle.
+For access to a comprehensive range of cryptographic functions, `rs_shake128` can be utilized as part of the `rs_shield` library bundle.
 
 ## How To Use
 
@@ -58,10 +58,10 @@ Below are steps to use the `rs_shake128` crate in your Rust projects:
 
 ## More Information
 
-For a more detailed exploration of `rs_shake128`, an overview of other available cryptographic functions, and an introduction to the broader `rs_ssl` project, please consult the [RustySSL project page on crates.io](https://crates.io/crates/rs_ssl).
+For a more detailed exploration of `rs_shake128`, an overview of other available cryptographic functions, and an introduction to the broader `rs_shield` project, please consult the [RustyShield project page on crates.io](https://crates.io/crates/rs_shield).
 
 ## Contributions
-Potential contributors are encouraged to consult the [contribution guidelines](https://github.com/RustySSL/rs_ssl/CONTRIBUTING.md) on our GitHub page.
+Potential contributors are encouraged to consult the [contribution guidelines](https://github.com/Azgrom/RustyShield/CONTRIBUTING.md) on our GitHub page.
 
 ## License
 

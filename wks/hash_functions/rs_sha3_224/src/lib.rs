@@ -1,4 +1,4 @@
-//! # SHA3-224 `rs-sha3-224` - Secure Hash Algorithm 3 variant
+//! # SHA3-224 `rs_sha3_224` - Secure Hash Algorithm 3 variant
 //!
 //! The SHA3-224 hash function is part of the SHA-3 family, which was developed by the National Institute of Standards
 //! and Technology (NIST). It generates a 224-bit hash value, making it a strong choice for cryptographic security.

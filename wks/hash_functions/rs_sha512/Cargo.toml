@@ -1,17 +1,17 @@
 [package]
 authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
 description = """`rs_sha512` is a Rust implementation of the SHA-512 cryptographic hash algorithm, part of the larger
-`rs_ssl` project. This package provides SHA-512 hashing functionality in a standalone manner, ideal for when only
+`rs_shield` project. This package provides SHA-512 hashing functionality in a standalone manner, ideal for when only
 SHA-512 is required. Alternatively, for those seeking a comprehensive set of cryptographic functions, this same
-algorithm is included within the broader `rs_ssl` library bundle. The focus of `rs_sha512` and the larger project is on
-performance, safety, and openness, with a commitment to ongoing maintenance and enhancement."""
+algorithm is included within the broader `rs_shield` library bundle. The focus of `rs_sha512` and the larger project is
+on performance, safety, and openness, with a commitment to ongoing maintenance and enhancement."""
 edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 name = "rs_sha512"
 readme = "./README.md"
 repository.workspace = true
-version = "0.1.2"
+version = "0.1.3"
 
 [dependencies]
 rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.*" }
