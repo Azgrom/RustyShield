@@ -1,4 +1,4 @@
-//! # SHA3-384 `rs-sha3-384` - Secure Hash Algorithm KECCAK-based variant
+//! # SHA3-384 `rs_sha3_384` - Secure Hash Algorithm KECCAK-based variant
 //!
 //! The SHA3-384 hash function is part of the SHA-3 family, which was developed by the National Institute of Standards and
 //! Technology (NIST). Unlike SHAKE256, SHA3-384 produces a fixed-size output of 384 bits.

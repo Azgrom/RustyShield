@@ -1,4 +1,4 @@
-//! # SHA-384 `rs-sha384` - Secure Hash Algorithm 384
+//! # SHA-384 `rs_sha384` - Secure Hash Algorithm 384
 //!
 //! The SHA-384 hash function is part of the SHA-2 family, which was developed by the National Institute of Standards
 //! and Technology (NIST). SHA-384 provides a higher level of security than SHA-1 and SHA-256, producing a 384-bit hash

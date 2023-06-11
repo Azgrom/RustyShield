@@ -1,6 +1,6 @@
 # `rs_hmac`
 
-The `rs_hmac` crate provides an implementation of the Keyed-Hash Message Authentication Code (HMAC) that is compatible with all hash function algorithms present in the RustySSL library. HMAC is a specific type of message authentication code (MAC) involving a cryptographic hash function and a secret cryptographic key, used to confirm both the data integrity and the authenticity of a message.
+The `rs_hmac` crate provides an implementation of the Keyed-Hash Message Authentication Code (HMAC) that is compatible with all hash function algorithms present in the RustyShield library. HMAC is a specific type of message authentication code (MAC) involving a cryptographic hash function and a secret cryptographic key, used to confirm both the data integrity and the authenticity of a message.
 
 This implementation of HMAC is compliant with the Federal Information Processing Standards (FIPS) Publication 198[^1]. The National Institute of Standards and Technology (NIST) provides the following recommendation on HMAC usage:
 
@@ -32,7 +32,7 @@ Below are steps to use the `rs_hmac` crate in your Rust projects:
    rs_hmac = "0.1.*"
    ```
 
-2. Add any hash function available on `rs_ssl`. In this case we will use the `SHAKE128` algorithm as example:
+2. Add any hash function available on `rs_shield`. In this case we will use the `SHAKE128` algorithm as example:
 
    ```toml
    rs_shake128 = "0.1.*"
@@ -54,11 +54,11 @@ Below are steps to use the `rs_hmac` crate in your Rust projects:
 
 ## More Information
 
-For a more detailed exploration of `rs_hmac`, an overview of other available cryptographic functions, and an introduction to the broader `rs_ssl` project, please consult the [RustySSL project page on crates.io](https://crates.io/crates/rs_ssl).
+For a more detailed exploration of `rs_hmac`, an overview of other available cryptographic functions, and an introduction to the broader `rs_shield` project, please consult the [RustyShield project page on crates.io](https://crates.io/crates/rs_shield).
 
 ## Contributions
 
-Potential contributors are encouraged to consult the [contribution guidelines](https://github.com/RustySSL/rs_ssl/CONTRIBUTING.md) on our GitHub page.
+Potential contributors are encouraged to consult the [contribution guidelines](https://github.com/Azgrom/RustyShield/CONTRIBUTING.md) on our GitHub page.
 
 ## License
 

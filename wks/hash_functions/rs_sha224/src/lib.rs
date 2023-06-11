@@ -1,4 +1,4 @@
-//! # SHA-224 `rs-sha224` - Secure Hash Algorithm 224
+//! # SHA-224 `rs_sha224` - Secure Hash Algorithm 224
 //!
 //! The SHA-224 hash function is a variant of SHA-2, a set of cryptographic hash functions designed by the National
 //! Institute of Standards and Technology (NIST). It is often used in cryptographic applications and protocols where a
