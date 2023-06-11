@@ -1,4 +1,4 @@
-//! # SHA-512/256 `rs-sha512_256` - Secure Hash Algorithm 512/256
+//! # SHA-512/256 `rs_sha512_256` - Secure Hash Algorithm 512/256
 //!
 //! The SHA-512/256 hash function is a member of the SHA-2 (Secure Hash Algorithm 2) family, which was developed by the
 //! National Institute of Standards and

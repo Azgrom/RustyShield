@@ -3,7 +3,7 @@ use core::hash::Hasher;
 use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
 use rs_internal_hasher::HashAlgorithm;
 
-/// `Sha512Hasher` is a type that provides the SHA-512 hashing algorithm in RustySSL.
+/// `Sha512Hasher` is a type that provides the SHA-512 hashing algorithm in RustyShield.
 ///
 /// A "Hasher" in the context of cryptographic hashing refers to the object that manages the process of converting input
 /// data into a fixed-size sequence of bytes. The Hasher is responsible for maintaining the internal state of the

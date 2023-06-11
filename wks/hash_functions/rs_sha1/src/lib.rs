@@ -1,4 +1,4 @@
-//! # SHA-1 `rs-sha1` - Secure Hash Algorithm 1
+//! # SHA-1 `rs_sha1` - Secure Hash Algorithm 1
 //!
 //! The SHA-1 hash function is part of the SHA family, which was developed by the National Institute of Standards and
 //! Technology (NIST).
@@ -62,7 +62,6 @@
 //! [NIST](https://www.nist.gov/) advises against using SHA-1 for cryptographic functions due to potential
 //! vulnerabilities to collision attacks. For non-cryptographic functions, however, SHA-1 is still widely used and
 //! deemed safe.
-//!
 
 #![no_std]
 

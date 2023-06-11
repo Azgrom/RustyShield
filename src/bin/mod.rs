@@ -1,5 +1,5 @@
 use core::hash::{BuildHasher, Hasher};
-use rs_ssl::HasherContext;
+use rs_shield::HasherContext;
 use std::{env, fs, process};
 
 use rs_sha3_224::Sha3_224State;

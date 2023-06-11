@@ -1,4 +1,4 @@
-//! # SHAKE128 `rs-shake128` - Secure Hash Algorithm KECCAK 128
+//! # SHAKE128 `rs_shake128` - Secure Hash Algorithm KECCAK 128
 //!
 //! SHAKE128 is a member of the SHA-3 family of cryptographic hash functions, specifically a part of the extendable-output
 //! function (XOF) instances based on KECCAK. It was designed by the National Institute of Standards and

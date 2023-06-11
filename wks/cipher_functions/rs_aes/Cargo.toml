@@ -1,0 +1,25 @@
+[package]
+authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
+description = """The rs_aes crate is currently a placeholder for an upcoming cryptographic hashing algorithm
+implementation in Rust. This algorithm is currently under development and will be released as soon as possible. Please
+note that until it is available, the code will be configured to panic by default."""
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+name = "rs_aes"
+readme = "./README.md"
+repository.workspace = true
+version = "0.1.2"
+
+[[bench]]
+name = "benches"
+harness = false
+
+[dependencies]
+rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.*" }
+rs_internal_state = { path = "../../rs_internal_state", version = "0.1.*" }
+rs_internal_hasher = { path = "../../rs_internal_hasher", version = "0.1.*" }
+rs_n_bit_words = { path = "../../rs_n_bit_words", version = "0.1.*" }
+
+[dev-dependencies]
+criterion = "0.5.1"
