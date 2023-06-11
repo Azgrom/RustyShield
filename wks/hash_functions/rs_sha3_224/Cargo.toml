@@ -11,7 +11,7 @@ license.workspace = true
 name = "rs_sha3_224"
 readme = "./README.md"
 repository.workspace = true
-version = "0.1.1"
+version = "0.1.2"
 
 [dependencies]
 rs_hasher_ctx = { path = "../../rs_hasher_ctx", version = "0.1.*" }

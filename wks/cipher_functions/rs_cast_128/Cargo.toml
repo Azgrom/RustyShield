@@ -9,4 +9,4 @@ license.workspace = true
 name = "rs_cast_128"
 readme = "./README.md"
 repository.workspace = true
-version = "0.1.1"
+version = "0.1.2"

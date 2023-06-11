@@ -62,7 +62,6 @@
 //! [NIST](https://www.nist.gov/) advises against using SHA-1 for cryptographic functions due to potential
 //! vulnerabilities to collision attacks. For non-cryptographic functions, however, SHA-1 is still widely used and
 //! deemed safe.
-//!
 
 #![no_std]
 
