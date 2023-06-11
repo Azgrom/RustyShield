@@ -1,14 +1,12 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+//! # ED448 - `rs_ed448` - Ed448-Goldilocks
+//!
+//! **Important Note: This crate is still a work in progress and is not ready for consumption.**
+//!
+//! Ed448-Goldilocks, usually referred as Ed448, is an elliptic curve offering 224 bits of security (448-bit key size) and designed for efficient implementation. It was introduced in 2015 and is used in applications like:
+//! - Transport Layer Security (TLS) protocol.
+//! - Secure Shell (SSH) protocol.
+//! - Internet Key Exchange (IKE) protocol.
+//!
+//! This crate implements Ed448 as part of the [RustyShield](https://docs.rs/rs_shield/latest/rs_shield/) project.
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+#![no_std]
