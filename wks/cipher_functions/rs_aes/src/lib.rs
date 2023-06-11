@@ -1,3 +1,16 @@
+//! # AES - `rs_aes` - Advanced Encryption Standard
+//!
+//! **Important Note: This crate is still a work in progress and is not ready for consumption.**
+//!
+//! AES (Advanced Encryption Standard) is a symmetric key block cipher published by the U.S. National Institute of
+//! Standards and Technology (NIST) in 2001. It's currently used in:
+//! - Secure communications protocols, such as HTTPS, IPsec, and SSL/TLS
+//! - Wireless communication standards, like Wi-Fi
+//! - Disk encryption systems
+//! - Secure file transfer protocols
+//!
+//! This crate implements AES as part of the [RustyShield](https://docs.rs/rs_shield/latest/rs_shield/) project.
+
 #![no_std]
 
 use core::ops::{Add, AddAssign, BitAnd, BitXor, Mul, Shl, Shr};
@@ -5,19 +18,19 @@ use rs_n_bit_words::NBitWord;
 
 /// `GF2ToThe8` represents a Galois Field with 2^8 (256) elements.
 ///
-/// A Galois Field, named after the mathematician Évariste Galois, is a field in which
-/// there are a finite number of elements. In this case, the field has 2^8 or 256 elements.
+/// A Galois Field, named after the mathematician Évariste Galois, is a field in which there are a finite number of
+/// elements. In this case, the field has 2^8 or 256 elements.
 ///
-/// This struct is used to represent elements of this field, and is primarily used in
-/// applications where finite field arithmetic is required, such as error detection and
-/// correction codes, cryptography, and other areas of discrete mathematics.
+/// This struct is used to represent elements of this field, and is primarily used in applications where finite field
+/// arithmetic is required, such as error detection and correction codes, cryptography, and other areas of discrete
+/// mathematics.
 ///
-/// The `GF2ToThe8` struct uses an `NBitWord<u8>` internally to store its value, providing
-/// the necessary wraparound behavior for arithmetic operations in this field.
+/// The `GF2ToThe8` struct uses an `NBitWord<u8>` internally to store its value, providing the necessary wraparound
+/// behavior for arithmetic operations in this field.
 ///
-/// Arithmetic operations for `GF2ToThe8` elements are defined to follow the properties of
-/// Galois Field arithmetic, with addition corresponding to the XOR operation and multiplication
-/// being more complex, usually involving look-up tables or polynomial multiplication.
+/// Arithmetic operations for `GF2ToThe8` elements are defined to follow the properties of Galois Field arithmetic, with
+/// addition corresponding to the XOR operation and multiplication being more complex, usually involving look-up tables
+/// or polynomial multiplication.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct GF2ToThe8(NBitWord<u8>);
 
