@@ -1,11 +1,12 @@
 use crate::keccak::WIDTH;
 use core::ops::{Index, IndexMut};
-use core::slice::{Iter, IterMut};
+use core::slice::IterMut;
 use rs_n_bit_words::NBitWord;
+use crate::keccak::plane_iter::PlaneIter;
 
 #[derive(Clone, Copy, Default, Debug, Eq, Hash, PartialEq)]
 pub(crate) struct Plane<T> {
-    lanes: [NBitWord<T>; WIDTH],
+    pub(crate) lanes: [NBitWord<T>; WIDTH],
 }
 
 impl<T> Index<usize> for Plane<T> {
@@ -24,10 +25,10 @@ impl<T> IndexMut<usize> for Plane<T> {
 
 impl<'a, T> IntoIterator for &'a Plane<T> {
     type Item = &'a NBitWord<T>;
-    type IntoIter = Iter<'a, NBitWord<T>>;
+    type IntoIter = PlaneIter<'a, T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.lanes.iter()
+        PlaneIter::new(self)
     }
 }
 

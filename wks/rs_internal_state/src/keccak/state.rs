@@ -7,9 +7,7 @@ use crate::{
     keccak::theta::Theta,
     keccak::{HEIGHT, RC, WIDTH},
 };
-use core::iter::Flatten;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
-use core::slice::{Iter, IterMut};
 use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
 
 /// `KeccakState<T>` represents the internal state of the Keccak-based permutations with a variable width.
@@ -57,50 +55,6 @@ where
         self.planes[0][y] ^ self.planes[1][y] ^ self.planes[2][y] ^ self.planes[3][y] ^ self.planes[4][y]
     }
 }
-
-pub struct KeccakStateIter<'a, T> {
-    iter: Flatten<Iter<'a, Plane<T>>>,
-}
-
-impl<'a, T: Default + Copy> KeccakStateIter<'a, T> {
-    pub(crate) fn new(src: &'a KeccakState<T>) -> Self {
-        Self {
-            iter: src.planes.iter().flatten(),
-        }
-    }
-}
-
-impl<'a, T> ExactSizeIterator for KeccakStateIter<'a, T> {}
-
-impl<'a, T> Iterator for KeccakStateIter<'a, T> {
-    type Item = &'a NBitWord<T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next()
-    }
-}
-
-pub struct KeccakStateIterMut<'a, T> {
-    iter: Flatten<IterMut<'a, Plane<T>>>,
-}
-
-impl<'a, T: Default + Copy> KeccakStateIterMut<'a, T> {
-    pub(crate) fn new(src: &'a mut KeccakState<T>) -> Self {
-        Self {
-            iter: src.planes.iter_mut().flatten(),
-        }
-    }
-}
-
-impl<'a, T> Iterator for KeccakStateIterMut<'a, T> {
-    type Item = &'a mut NBitWord<T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next()
-    }
-}
-
-impl<'a, T> ExactSizeIterator for KeccakStateIterMut<'a, T> {}
 
 impl<T> KeccakState<T>
 where

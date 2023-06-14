@@ -133,5 +133,5 @@ fn assert_keccak_32bits_hmac_correctness() {
     assert_eq!(format!("{expected_result:02x}"), "bc44bfcab164871a4d6abf59cd287d62704f6799");
 
     let expected_result = Hmac::<NBitKeccakState<u32, { RATE / 2 }, OUTPUT_SIZE>, OUTPUT_SIZE>::digest(KEY, MSG);
-    assert_eq!(format!("{expected_result:02x}"), "822144ef7f4c1f5c4ce13eec78cf70da26e171b3");
+    assert_eq!(format!("{expected_result:02x}"), "883271081afe5c785fffb7abcadac164a1da31ad");
 }

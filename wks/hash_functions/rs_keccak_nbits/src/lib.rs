@@ -21,7 +21,7 @@
 //! let mut keccakhasher = NBitKeccakState::<u32, 10, 24>::default().build_hasher();
 //! keccakhasher.write(b"hello world");
 //! let result = keccakhasher.finish();
-//! assert_eq!(result, 0xE4B4F07EA10803E6);
+//! assert_eq!(result, 0xE4B4C1F4C2BBD6E6);
 //! ```
 //!
 //! Or, as a `HashSet`:
@@ -46,8 +46,8 @@
 //! let u64result2 = keccakhasher2.finish();
 //! let u64result3 = keccakhasher3.finish();
 //!
-//! assert_eq!(u64result1, 0x5A6B41FB00CB25F1);
-//! assert_eq!(u64result2, 0xA77CCB55197AE1DD);
+//! assert_eq!(u64result1, 0x5A6B41FBBA8E0EFE);
+//! assert_eq!(u64result2, 0xA77CCB556D1FAE0A);
 //! assert_eq!(u64result2, u64result3);
 //! assert_ne!(u64result1, u64result2);
 //! ```

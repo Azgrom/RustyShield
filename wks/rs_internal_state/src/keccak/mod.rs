@@ -1,6 +1,6 @@
-use crate::keccak::state::{KeccakState, KeccakStateIter, KeccakStateIterMut};
+use crate::keccak::state::KeccakState;
+use crate::keccak::state_iter::{KeccakStateIter, KeccakStateIterMut};
 use crate::keccak::xof::ExtendedOutputFunction;
-use alloc::borrow::ToOwned;
 use core::mem::size_of;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
 use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
@@ -10,8 +10,10 @@ mod from_bytes;
 pub(crate) mod iota;
 pub(crate) mod pi;
 pub(crate) mod plane;
+pub(crate) mod plane_iter;
 pub(crate) mod rho;
 pub(crate) mod state;
+pub(crate) mod state_iter;
 pub(crate) mod theta;
 pub(crate) mod xof;
 
@@ -114,7 +116,7 @@ where
         + Copy
         + Default
         + Not<Output = T>,
-    NBitWord<T>: From<u64> + LittleEndianBytes + Rotate + TSize<T>,
+    NBitWord<T>: Copy + From<u64> + LittleEndianBytes + Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     fn squeeze_u64(&self) -> u64 {
@@ -127,15 +129,16 @@ where
         let mut state = self.state.clone();
 
         while BYTE_COUNT_IN_U64 > completed_bytes {
-            for (le_bytes, lane) in u64_le_bytes.iter_mut().skip(completed_bytes).zip(
-                KeccakStateIter::new(&state)
-                    .take(bytes_in_rate)
-                    .flat_map(|lane| lane.to_le_bytes().as_ref().to_owned()),
-            ) {
-                *le_bytes = lane;
-            }
-
-            completed_bytes += bytes_in_rate;
+            u64_le_bytes
+                .chunks_mut(t_size)
+                .skip(completed_bytes)
+                .zip(KeccakStateIter::new(&state).take(bytes_in_rate))
+                .fold(&mut completed_bytes, |acc, (byte_ch, lane)| {
+                    let x = lane.to_le_bytes();
+                    *acc += x.as_ref().len();
+                    byte_ch.clone_from_slice(x.as_ref());
+                    acc
+                });
 
             if BYTE_COUNT_IN_U64 > completed_bytes {
                 state.apply_f();
@@ -152,15 +155,15 @@ where
         let mut completed_bytes = 0;
 
         while OUTPUT_SIZE > completed_bytes {
-            for (le_bytes, lane) in output
-                .chunks_mut(t_size)
+            output.chunks_mut(t_size)
                 .skip(completed_bytes / t_size)
                 .zip(KeccakStateIter::new(&self.state).take(words_to_tale))
-            {
-                le_bytes.clone_from_slice(&lane.to_le_bytes().as_ref()[..le_bytes.len()])
-            }
-
-            completed_bytes += RATE;
+                .fold(&mut completed_bytes, |acc, (byte_ch, lane)| {
+                    let x = lane.to_le_bytes();
+                    *acc += x.as_ref().len();
+                    byte_ch.clone_from_slice(&x.as_ref()[..byte_ch.len()]);
+                   acc
+                });
 
             if OUTPUT_SIZE > completed_bytes {
                 self.state.apply_f();

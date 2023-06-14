@@ -1,8 +1,8 @@
 extern crate alloc;
 
-use crate::NBitKeccakState;
+use crate::{NBitKeccakHasher, NBitKeccakState};
 use alloc::format;
-use core::hash::{BuildHasher, Hasher};
+use core::hash::{BuildHasher, Hash, Hasher};
 use rs_hasher_ctx::HasherContext;
 
 #[test]
@@ -53,4 +53,34 @@ fn u16_keccak_18rate_24bytes() {
             0x5D, 0x8F, 0xA3, 0xBF, 0x19, 0xA6
         ]
     );
+}
+
+#[test]
+fn first_module_level_example() {
+    let mut keccakhasher = NBitKeccakState::<u32, 10, 24>::default().build_hasher();
+    keccakhasher.write(b"hello world");
+    let result = keccakhasher.finish();
+    assert_eq!(result, 0xE4B4C1F4C2BBD6E6);
+}
+
+#[test]
+fn second_module_level_example() {
+    let hello = "hello";
+    let mut keccakhasher1: NBitKeccakHasher<u32, 18, 24> = NBitKeccakHasher::default();
+    let mut keccakhasher2: NBitKeccakHasher<u32, 18, 24> = NBitKeccakHasher::default();
+    let mut keccakhasher3: NBitKeccakHasher<u32, 18, 24> = NBitKeccakHasher::default();
+
+    keccakhasher1.write(hello.as_bytes());
+    hello.hash(&mut keccakhasher2);
+    keccakhasher3.write(hello.as_bytes());
+    keccakhasher3.write(&[0xFF]);
+
+    let u64result1 = keccakhasher1.finish();
+    let u64result2 = keccakhasher2.finish();
+    let u64result3 = keccakhasher3.finish();
+
+    assert_eq!(u64result1, 0x5A6B41FBBA8E0EFE);
+    assert_eq!(u64result2, 0xA77CCB556D1FAE0A);
+    assert_eq!(u64result2, u64result3);
+    assert_ne!(u64result1, u64result2);
 }
