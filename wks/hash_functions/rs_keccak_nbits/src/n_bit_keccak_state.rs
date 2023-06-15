@@ -25,6 +25,7 @@ use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
 /// # use rs_keccak_nbits::{NBitKeccakHasher, NBitKeccakState};
 /// let hello = b"hello";
 /// let world = b" world";
+/// // Keccak permutation of 200bits, 25 lanes of 8bits, with 6 bytes of rate and a output of 24 bytes
 ///
 /// const RATE: usize = 6;
 /// const OUTPUT_SIZE: usize = 24;

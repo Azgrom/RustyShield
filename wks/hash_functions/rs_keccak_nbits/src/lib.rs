@@ -18,6 +18,8 @@
 //! ```rust
 //! # use std::hash::{BuildHasher, Hasher};
 //! # use rs_keccak_nbits::{NBitKeccakState};
+//! // Keccak permutation of 800bits, 25 lanes of 32bits, with 10 bytes of rate, and a output length of 24 bytes
+//!
 //! let mut keccakhasher = NBitKeccakState::<u32, 10, 24>::default().build_hasher();
 //! keccakhasher.write(b"hello world");
 //! let result = keccakhasher.finish();
@@ -33,18 +35,20 @@
 //! # };
 //! # use rs_keccak_nbits::NBitKeccakHasher;
 //! let hello = "hello";
-//! let mut keccakhasher1: NBitKeccakHasher<u32, 18, 24> = NBitKeccakHasher::default();
-//! let mut keccakhasher2: NBitKeccakHasher<u32, 18, 24> = NBitKeccakHasher::default();
-//! let mut keccakhasher3: NBitKeccakHasher<u32, 18, 24> = NBitKeccakHasher::default();
+//! // Keccak permutation of 800bits, 25 lanes of 32bits, with 10 bytes of rate, and a output length of 24 bytes
 //!
-//! keccakhasher1.write(hello.as_bytes());
-//! hello.hash(&mut keccakhasher2);
-//! keccakhasher3.write(hello.as_bytes());
-//! keccakhasher3.write(&[0xFF]);
+//! let mut keccak_hasher1: NBitKeccakHasher<u32, 18, 24> = NBitKeccakHasher::default();
+//! let mut keccak_hasher2: NBitKeccakHasher<u32, 18, 24> = NBitKeccakHasher::default();
+//! let mut keccak_hasher3: NBitKeccakHasher<u32, 18, 24> = NBitKeccakHasher::default();
 //!
-//! let u64result1 = keccakhasher1.finish();
-//! let u64result2 = keccakhasher2.finish();
-//! let u64result3 = keccakhasher3.finish();
+//! keccak_hasher1.write(hello.as_bytes());
+//! hello.hash(&mut keccak_hasher2);
+//! keccak_hasher3.write(hello.as_bytes());
+//! keccak_hasher3.write(&[0xFF]);
+//!
+//! let u64result1 = keccak_hasher1.finish();
+//! let u64result2 = keccak_hasher2.finish();
+//! let u64result3 = keccak_hasher3.finish();
 //!
 //! assert_eq!(u64result1, 0x5A6B41FB00CB25F1);
 //! assert_eq!(u64result2, 0xA77CCB55197AE1DD);
