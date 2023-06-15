@@ -23,6 +23,7 @@ use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
 ///```rust
 /// # use std::hash::{BuildHasher, Hash, Hasher};
 /// # use rs_keccak_nbits::NBitKeccakHasher;
+/// // Keccak permutation of 200 bits, 25 lanes of 8bits, with 4 bytes of rate, and a output length of 20 bytes
 /// let data = b"hello";
 ///
 /// // Using Hash
