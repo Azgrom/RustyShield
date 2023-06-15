@@ -1,5 +1,5 @@
 use crate::n_bit_states::GenericStateHasher;
-use crate::{rotors::sha512rotor::Sha512Rotor as Rotor, DWords};
+use crate::DWords;
 use n_bit_words_lib::{NBitWord, TSize};
 
 #[derive(Clone, Debug, Hash, PartialEq)]

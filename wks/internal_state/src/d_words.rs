@@ -1,4 +1,5 @@
 use core::ops::{Index, IndexMut};
+use core::slice::Iter;
 use n_bit_words_lib::NBitWord;
 
 /// DWORDs struct that can later be expanded with SIMD to store 4 DWORDS in a single XMM register
@@ -71,5 +72,14 @@ impl<T> Index<usize> for DWords<T> {
 impl<T> IndexMut<usize> for DWords<T> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.0[index]
+    }
+}
+
+impl<'a, T> IntoIterator for &'a DWords<T> {
+    type Item = &'a NBitWord<T>;
+    type IntoIter = Iter<'a, NBitWord<T>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
     }
 }
