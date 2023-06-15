@@ -1,8 +1,8 @@
 use crate::{Sha3_384State, OUTPUT_SIZE};
 use core::hash::Hasher;
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
-use internal_hasher::HashAlgorithm;
-use internal_state::ExtendedOutputFunction;
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_internal_hasher::HashAlgorithm;
+use rs_internal_state::ExtendedOutputFunction;
 
 /// `Sha3_384Hasher` is a type that provides the SHA3-384 hashing algorithm in Rust.
 ///
@@ -53,9 +53,9 @@ impl From<Sha3_384Hasher> for Sha3_384State {
 
 impl From<Sha3_384State> for Sha3_384Hasher {
     fn from(value: Sha3_384State) -> Self {
-        Self(GenericHasher{
+        Self(GenericHasher {
             padding: <Sha3_384State as HashAlgorithm>::Padding::default(),
-            state: value
+            state: value,
         })
     }
 }

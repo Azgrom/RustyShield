@@ -1,4 +1,4 @@
-//! # SHAKE256 `rs-shake256` - Secure Hash Algorithm KECCAK-based variant
+//! # SHAKE256 `rs_shake256` - Secure Hash Algorithm KECCAK-based variant
 //!
 //! The SHAKE256 hash function is part of the SHA-3 family, which was developed by the National Institute of Standards and
 //! Technology (NIST). It's an Extendable Output Function (XOF), meaning it can generate a hash value of any length.
@@ -20,7 +20,7 @@
 //! let mut shake256hasher = Shake256State::<20>::default().build_hasher();
 //! shake256hasher.write(b"hello world");
 //! let result = shake256hasher.finish();
-//! assert_eq!(result, 0xB0D2B92CBB719736);
+//! assert_eq!(result, 0x369771BB2CB9D2B0);
 //! ```
 //!
 //! Or, as a `HashSet`:
@@ -46,8 +46,8 @@
 //! let u64result2 = shake256hasher2.finish();
 //! let u64result3 = shake256hasher3.finish();
 //!
-//! assert_eq!(u64result1, 0x73E7A1E45A073412);
-//! assert_eq!(u64result2, 0x7A658A3353BC20C4);
+//! assert_eq!(u64result1, 0x1234075AE4A1E773);
+//! assert_eq!(u64result2, 0xC420BC53338A657A);
 //! assert_eq!(u64result2, u64result3);
 //! assert_ne!(u64result1, u64result2);
 //! ```
@@ -65,7 +65,9 @@
 
 #![no_std]
 
-pub use crate::{shake256hasher::Shake256Hasher, shake256state::Shake256State};
+pub use rs_hasher_ctx::HasherContext;
+pub use shake256hasher::Shake256Hasher;
+pub use shake256state::Shake256State;
 
 mod shake256hasher;
 mod shake256state;

@@ -1,9 +1,9 @@
 use crate::{Sha1State, BYTES_LEN};
 use core::hash::Hasher;
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
-use internal_hasher::HashAlgorithm;
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher, HasherContext};
+use rs_internal_hasher::HashAlgorithm;
 
-/// `Sha1Hasher` is a type that provides the SHA-1 hashing algorithm in RustySSL.
+/// `Sha1Hasher` is a type that provides the SHA-1 hashing algorithm in RustyShield.
 ///
 /// A "Hasher" in the context of cryptographic hashing refers to the object that manages the process of converting input
 /// data into a fixed-size sequence of bytes. The Hasher is responsible for maintaining the internal state of the

@@ -1,9 +1,9 @@
 use crate::{Sha1Hasher, BYTES_LEN};
 use core::{hash::BuildHasher, ops::AddAssign};
-use hash_ctx_lib::ByteArrayWrapper;
-use internal_hasher::{GenericPad, HashAlgorithm, U64Size};
-use internal_state::{BytesLen, DWords, GenericStateHasher, Sha160BitsState};
-use n_bit_words_lib::NBitWord;
+use rs_hasher_ctx::ByteArrayWrapper;
+use rs_internal_hasher::{GenericPad, HashAlgorithm, U64Size};
+use rs_internal_state::{BytesLen, DWords, GenericStateHasher, Sha160BitsState};
+use rs_n_bit_words::NBitWord;
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;

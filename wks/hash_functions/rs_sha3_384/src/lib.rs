@@ -1,4 +1,4 @@
-//! # SHA3-384 `rs-sha3-384` - Secure Hash Algorithm KECCAK-based variant
+//! # SHA3-384 `rs_sha3_384` - Secure Hash Algorithm KECCAK-based variant
 //!
 //! The SHA3-384 hash function is part of the SHA-3 family, which was developed by the National Institute of Standards and
 //! Technology (NIST). Unlike SHAKE256, SHA3-384 produces a fixed-size output of 384 bits.
@@ -20,7 +20,7 @@
 //! let mut sha3_384hasher = Sha3_384State::default().build_hasher();
 //! sha3_384hasher.write(b"hello world");
 //! let result = sha3_384hasher.finish();
-//! assert_eq!(result, 0xF51B1BDE8DF2BF83);
+//! assert_eq!(result, 0x83BFF28DDE1B1BF5);
 //! ```
 //!
 //! Or, as a `HashSet`:
@@ -46,8 +46,8 @@
 //! let u64result2 = sha3_384hasher2.finish();
 //! let u64result3 = sha3_384hasher3.finish();
 //!
-//! assert_eq!(u64result1, 0x64F09E0111EA0A72);
-//! assert_eq!(u64result2, 0x475114145D6365DE);
+//! assert_eq!(u64result1, 0x720AEA11019EF064);
+//! assert_eq!(u64result2, 0xDE65635D14145147);
 //! assert_eq!(u64result2, u64result3);
 //! assert_ne!(u64result1, u64result2);
 //! ```
@@ -65,7 +65,9 @@
 
 #![no_std]
 
-pub use crate::{sha3_384hasher::Sha3_384Hasher, sha3_384state::Sha3_384State};
+pub use rs_hasher_ctx::HasherContext;
+pub use sha3_384hasher::Sha3_384Hasher;
+pub use sha3_384state::Sha3_384State;
 
 mod sha3_384hasher;
 mod sha3_384state;

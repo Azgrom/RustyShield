@@ -1,4 +1,4 @@
-//! # HMAC `rs-hmac` - Hash-based Message Authentication Code
+//! # HMAC `rs_hmac` - Hash-based Message Authentication Code
 //!
 //! This HMAC implementation is a specific type of message authentication code (MAC) involving a cryptographic hash
 //! function in combination with a secret cryptographic key. It was developed by the National Institute of Standards and
@@ -27,7 +27,7 @@
 //! let mut hmac = Hmac::<Sha3_256State, 32>::new(b"my secret and secure key");
 //! hmac.write(b"hello world");
 //! let result = hmac.finish();
-//! assert_eq!(result, 0xF9C0C982D2F30FE5);
+//! assert_eq!(result, 0xE50FF3D282C9C0F9);
 //! ```
 //!
 //! ## Use Cases
@@ -45,9 +45,10 @@
 #![no_std]
 
 use core::hash::{Hash, Hasher};
-use hash_ctx_lib::{ByteArrayWrapper, GenericHasher, HasherContext};
-use internal_hasher::{HashAlgorithm, LenPad};
-use internal_state::BytesLen;
+pub use rs_hasher_ctx::HasherContext;
+use rs_hasher_ctx::{ByteArrayWrapper, GenericHasher};
+use rs_internal_hasher::{HashAlgorithm, LenPad};
+use rs_internal_state::BytesLen;
 
 const INNER_PAD: u8 = 0x36;
 const OUTER_PAD: u8 = 0x5c;
@@ -130,7 +131,7 @@ where
     ///
     /// ```
     /// # use std::hash::Hasher;
-    /// use hash_ctx_lib::HasherContext;
+    /// use rs_hasher_ctx::HasherContext;
     /// use rs_hmac::Hmac;
     /// use rs_sha3_384::Sha3_384State;
     ///
@@ -141,7 +142,7 @@ where
     /// let u64result = hmac.finish();
     /// let bytes_result = HasherContext::finish(&mut hmac);
     ///
-    /// assert_eq!(u64result, 0x122C8376A6EB06CD);
+    /// assert_eq!(u64result, 0xCD06EBA676832C12);
     /// assert_eq!(
     ///     bytes_result,
     ///     [

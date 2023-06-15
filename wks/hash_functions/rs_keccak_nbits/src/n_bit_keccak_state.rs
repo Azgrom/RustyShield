@@ -1,11 +1,53 @@
 use crate::NBitKeccakHasher;
 use core::hash::BuildHasher;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitXor, BitXorAssign, Not, Sub};
-use hash_ctx_lib::ByteArrayWrapper;
-use internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
-use internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
-use n_bit_words_lib::{LittleEndianBytes, NBitWord, Rotate, TSize};
+use rs_hasher_ctx::ByteArrayWrapper;
+use rs_internal_hasher::{GenericPad, HashAlgorithm, KeccakU128Size};
+use rs_internal_state::{BytesLen, ExtendedOutputFunction, KeccakSponge};
+use rs_n_bit_words::{LittleEndianBytes, NBitWord, Rotate, TSize};
 
+/// `NBitKeccakState` represents the state of a Keccak-nBits hashing process.
+///
+/// It holds intermediate hash calculations. However, it's important to note that starting a hashing process from an
+/// arbitrary `NBitKeccakState` is not equivalent to resuming the original process that produced that state. Instead, it
+/// begins a new hashing process with a different set of initial values.
+///
+/// Therefore, a `NBitKeccakState` extracted from a `KeccakNBitsHasher` should not be used with the expectation of
+/// continuing the hashing operation from where it left off in the original `KeccakNBitsHasher`. It is  a snapshot of a
+/// particular point in the process, not a means to resume the process.
+///
+/// # Example
+///
+/// This example demonstrates how to persist the state of a Keccak-nBits hash operation:
+///
+/// ```rust
+/// # use std::hash::{BuildHasher, Hash, Hasher};
+/// # use rs_keccak_nbits::{NBitKeccakHasher, NBitKeccakState};
+/// let hello = b"hello";
+/// let world = b" world";
+/// // Keccak permutation of 200bits, 25 lanes of 8bits, with 6 bytes of rate and a output of 24 bytes
+///
+/// const RATE: usize = 6;
+/// const OUTPUT_SIZE: usize = 24;
+/// let mut default_keccakhasher = NBitKeccakState::<u8, RATE, OUTPUT_SIZE>::default().build_hasher();
+///
+/// default_keccakhasher.write(hello);
+///
+/// let intermediate_state: NBitKeccakState<u8, RATE, OUTPUT_SIZE> = default_keccakhasher.clone().into();
+///
+/// default_keccakhasher.write(world);
+/// let mut from_keccakstate: NBitKeccakHasher<u8, RATE, OUTPUT_SIZE> = intermediate_state.into();
+/// from_keccakstate.write(world);
+///
+/// let default_hello_world_result = default_keccakhasher.finish();
+/// let from_arbitrary_state_result = from_keccakstate.finish();
+/// assert_ne!(default_hello_world_result, from_arbitrary_state_result);
+/// ```
+///
+/// ## Note
+/// In this example, even though the internal state are the same between `default_keccakhasher` and `from_keccakstate`
+/// before the `Hasher::finish` call, the results are different due to `from_keccakstate` being instantiated with an
+/// empty pad while the `default_keccakhasher`'s pad is already populated with `b"hello"`.
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct NBitKeccakState<T, const RATE: usize, const OUTPUT_SIZE: usize>
 where
@@ -46,8 +88,15 @@ where
 impl<T, const RATE: usize, const OUTPUT_SIZE: usize> ExtendedOutputFunction<OUTPUT_SIZE>
     for NBitKeccakState<T, RATE, OUTPUT_SIZE>
 where
-    T: BitAnd + BitAndAssign + BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor + BitXorAssign + Copy + Default + Not,
-    NBitWord<T>: From<u64> + LittleEndianBytes + Not<Output = NBitWord<T>> + Rotate + TSize<T>,
+    T: BitAnd
+        + BitAndAssign
+        + BitOr<NBitWord<T>, Output = NBitWord<T>>
+        + BitXor<Output = T>
+        + BitXorAssign
+        + Copy
+        + Default
+        + Not<Output = T>,
+    NBitWord<T>: From<u64> + LittleEndianBytes + Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     fn squeeze_u64(&self) -> u64 {
@@ -62,8 +111,15 @@ where
 impl<T, const RATE: usize, const OUTPUT_SIZE: usize> From<NBitKeccakState<T, RATE, OUTPUT_SIZE>>
     for ByteArrayWrapper<OUTPUT_SIZE>
 where
-    T: BitAnd + BitAndAssign + BitOr<NBitWord<T>, Output = NBitWord<T>> + BitXor + BitXorAssign + Copy + Default + Not,
-    NBitWord<T>: From<u64> + LittleEndianBytes + Not<Output = NBitWord<T>> + Rotate + TSize<T>,
+    T: BitAnd
+        + BitAndAssign
+        + BitOr<NBitWord<T>, Output = NBitWord<T>>
+        + BitXor<Output = T>
+        + BitXorAssign
+        + Copy
+        + Default
+        + Not<Output = T>,
+    NBitWord<T>: From<u64> + LittleEndianBytes + Not + Rotate + TSize<T>,
     u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     fn from(value: NBitKeccakState<T, RATE, OUTPUT_SIZE>) -> Self {

@@ -1,8 +1,8 @@
 extern crate alloc;
-use crate::Sha1State;
+use crate::{Sha1Hasher, Sha1State};
 use alloc::format;
 use core::hash::{BuildHasher, Hash, Hasher};
-use hash_ctx_lib::HasherContext;
+use rs_hasher_ctx::HasherContext;
 
 #[test]
 fn sha1_empty_string_prefix_collision_resiliency() {
@@ -128,4 +128,24 @@ fn test_phrases_with_their_bytes_sequences() {
             0x60u8, 0x18u8, 0x90u8, 0xafu8, 0xd8u8, 0x07u8, 0x09u8
         ]
     );
+}
+
+#[test]
+fn test() {
+    let mut sha1hasher = Sha1Hasher::default();
+
+    sha1hasher.write(b"your string here");
+
+    let u64result = sha1hasher.finish();
+    let bytes_result = HasherContext::finish(&mut sha1hasher);
+    assert_eq!(u64result, 0x7D2C170805790AFA);
+    assert_eq!(format!("{bytes_result:02x}"), "7d2c170805790afac408349a9c266a123d1961be");
+    assert_eq!(format!("{bytes_result:02X}"), "7D2C170805790AFAC408349A9C266A123D1961BE");
+    assert_eq!(
+        bytes_result,
+        [
+            0x7D, 0x2C, 0x17, 0x08, 0x05, 0x79, 0x0A, 0xFA, 0xC4, 0x08, 0x34, 0x9A, 0x9C, 0x26, 0x6A, 0x12, 0x3D, 0x19,
+            0x61, 0xBE
+        ]
+    )
 }

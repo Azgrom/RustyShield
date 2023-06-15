@@ -121,7 +121,7 @@ fn assert_keccak_16bits_hmac_correctness() {
     assert_eq!(format!("{expected_result:02x}"), "d36576785712cd25a5578535cffdfc16a2178574");
 
     let expected_result = Hmac::<NBitKeccakState<u16, { RATE / 2 }, OUTPUT_SIZE>, OUTPUT_SIZE>::digest(KEY, MSG);
-    assert_eq!(format!("{expected_result:02x}"), "2b7dd5a09a98e602325500000000000000000000");
+    assert_eq!(format!("{expected_result:02x}"), "1e43f0b5777d97f67d2fbfee09147f527f7abc2f");
 }
 
 #[test]
@@ -133,5 +133,5 @@ fn assert_keccak_32bits_hmac_correctness() {
     assert_eq!(format!("{expected_result:02x}"), "bc44bfcab164871a4d6abf59cd287d62704f6799");
 
     let expected_result = Hmac::<NBitKeccakState<u32, { RATE / 2 }, OUTPUT_SIZE>, OUTPUT_SIZE>::digest(KEY, MSG);
-    assert_eq!(format!("{expected_result:02x}"), "c683c579e8739815000000000000000000000000");
+    assert_eq!(format!("{expected_result:02x}"), "883271081afe5c785fffb7abcadac164a1da31ad");
 }

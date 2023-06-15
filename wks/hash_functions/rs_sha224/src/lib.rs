@@ -1,4 +1,4 @@
-//! # SHA-224 `rs-sha224` - Secure Hash Algorithm 224
+//! # SHA-224 `rs_sha224` - Secure Hash Algorithm 224
 //!
 //! The SHA-224 hash function is a variant of SHA-2, a set of cryptographic hash functions designed by the National
 //! Institute of Standards and Technology (NIST). It is often used in cryptographic applications and protocols where a
@@ -63,7 +63,9 @@
 
 #![no_std]
 
-pub use crate::{sha224hasher::Sha224Hasher, sha224state::Sha224State};
+pub use rs_hasher_ctx::HasherContext;
+pub use sha224hasher::Sha224Hasher;
+pub use sha224state::Sha224State;
 
 mod sha224hasher;
 mod sha224state;

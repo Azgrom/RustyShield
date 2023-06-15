@@ -1,8 +1,0 @@
-[package]
-name = "internal_hasher"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-internal_state = { path = "../internal_state" }
-n_bit_words = { path = "../n_bit_words" }

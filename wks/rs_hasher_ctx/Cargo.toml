@@ -1,0 +1,19 @@
+[package]
+authors = ["Rafael Lúcio <rafaellucio@pm.me>"]
+description = """rs_hasher_ctx is an internal crate of the RustyShield library. It provides the HasherContext trait used
+across various cryptographic hash function implementations within RustyShield. The trait overloads the
+`Hasher::finish()` function, unifying the approach to obtaining hash results. While primarily intended for use within
+RustyShield, rs_hasher_ctx can aid in minimizing dependency entries in external crates leveraging RustyShield's hashing
+capabilities."""
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+name = "rs_hasher_ctx"
+readme = "./README.md"
+repository.workspace = true
+version = "0.1.3"
+
+[dependencies]
+rs_internal_hasher = { path = "../rs_internal_hasher", version = "0.1.1" }
+rs_internal_state = { path = "../rs_internal_state", version = "0.1.1" }
+rs_n_bit_words = { path = "../rs_n_bit_words", version = "0.1.1" }

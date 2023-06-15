@@ -1,4 +1,4 @@
-//! # SHA-256 `rs-sha256` - Secure Hash Algorithm 256
+//! # SHA-256 `rs_sha256` - Secure Hash Algorithm 256
 //!
 //! SHA-256 is a member of the SHA-2 cryptographic hash functions designed by the National Institute of Standards and
 //! Technology (NIST). It is commonly employed in various security communication protocols and data integrity checks.
@@ -63,8 +63,9 @@
 
 #![no_std]
 
-pub use crate::sha256hasher::Sha256Hasher;
-pub use crate::sha256state::Sha256State;
+pub use rs_hasher_ctx::HasherContext;
+pub use sha256hasher::Sha256Hasher;
+pub use sha256state::Sha256State;
 
 mod sha256hasher;
 mod sha256state;
