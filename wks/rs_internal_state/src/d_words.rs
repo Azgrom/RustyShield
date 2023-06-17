@@ -1,4 +1,8 @@
-use core::ops::{Index, IndexMut};
+use core::ops::{RangeFrom, RangeTo};
+use core::{
+    ops::{Index, IndexMut},
+    slice::Iter,
+};
 use rs_n_bit_words::NBitWord;
 
 /// DWORDs struct that can later be expanded with SIMD to store 4 DWORDS in a single XMM register
@@ -65,6 +69,22 @@ impl<T> Index<usize> for DWords<T> {
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.0[index]
+    }
+}
+
+impl<T> Index<RangeFrom<usize>> for DWords<T> {
+    type Output = [NBitWord<T>];
+
+    fn index(&self, range_from: RangeFrom<usize>) -> &Self::Output {
+        &self.0[range_from]
+    }
+}
+
+impl<T> Index<RangeTo<usize>> for DWords<T> {
+    type Output = [NBitWord<T>];
+
+    fn index(&self, range_to: RangeTo<usize>) -> &Self::Output {
+        &self.0[range_to]
     }
 }
 

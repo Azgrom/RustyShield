@@ -2,14 +2,19 @@ use crate::{Sha1Hasher, BYTES_LEN};
 use core::{hash::BuildHasher, ops::AddAssign};
 use rs_hasher_ctx::ByteArrayWrapper;
 use rs_internal_hasher::{GenericPad, HashAlgorithm, U64Size};
-use rs_internal_state::{BytesLen, DWords, GenericStateHasher, Sha160BitsState};
-use rs_n_bit_words::NBitWord;
+use rs_internal_state::{BytesLen, DWords};
+use rs_n_bit_words::{NBitWord, Rotate, TSize};
 
 pub(crate) const H0: u32 = 0x67452301;
 pub(crate) const H1: u32 = 0xEFCDAB89;
 pub(crate) const H2: u32 = 0x98BADCFE;
 pub(crate) const H3: u32 = 0x10325476;
 pub(crate) const H4: u32 = 0xC3D2E1F0;
+
+const T_00_19: u32 = 0x5A827999;
+const T_20_39: u32 = 0x6ED9EBA1;
+const T_40_59: u32 = 0x8F1BBCDC;
+const T_60_79: u32 = 0xCA62C1D6;
 
 const HX: [u32; 5] = [H0, H1, H2, H3, H4];
 
@@ -55,8 +60,77 @@ const HX: [u32; 5] = [H0, H1, H2, H3, H4];
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Sha1State(pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>);
 
-impl AddAssign<Sha160BitsState> for Sha1State {
-    fn add_assign(&mut self, rhs: Sha160BitsState) {
+impl Sha1State {
+    fn next_words(words: &mut DWords<u32>) {
+        words[0] = (words[0] ^ words[2] ^ words[8] ^ words[13]).rotate_left(1);
+        words[1] = (words[1] ^ words[3] ^ words[9] ^ words[14]).rotate_left(1);
+        words[2] = (words[2] ^ words[4] ^ words[10] ^ words[15]).rotate_left(1);
+        words[3] = (words[3] ^ words[5] ^ words[11] ^ words[0]).rotate_left(1);
+        words[4] = (words[4] ^ words[6] ^ words[12] ^ words[1]).rotate_left(1);
+        words[5] = (words[5] ^ words[7] ^ words[13] ^ words[2]).rotate_left(1);
+        words[6] = (words[6] ^ words[8] ^ words[14] ^ words[3]).rotate_left(1);
+        words[7] = (words[7] ^ words[9] ^ words[15] ^ words[4]).rotate_left(1);
+        words[8] = (words[8] ^ words[10] ^ words[0] ^ words[5]).rotate_left(1);
+        words[9] = (words[9] ^ words[11] ^ words[1] ^ words[6]).rotate_left(1);
+        words[10] = (words[10] ^ words[12] ^ words[2] ^ words[7]).rotate_left(1);
+        words[11] = (words[11] ^ words[13] ^ words[3] ^ words[8]).rotate_left(1);
+        words[12] = (words[12] ^ words[14] ^ words[4] ^ words[9]).rotate_left(1);
+        words[13] = (words[13] ^ words[15] ^ words[5] ^ words[10]).rotate_left(1);
+        words[14] = (words[14] ^ words[0] ^ words[6] ^ words[11]).rotate_left(1);
+        words[15] = (words[15] ^ words[1] ^ words[7] ^ words[12]).rotate_left(1);
+    }
+
+    fn t_00_19_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
+        let t = state.0.rotate_left(5) + NBitWord::<u32>::ch(state.1, state.2, state.3) + state.4 + *word + T_00_19;
+
+        state.4 = state.3;
+        state.3 = state.2;
+        state.2 = state.1.rotate_right(2);
+        state.1 = state.0;
+        state.0 = t;
+
+        state
+    }
+
+    fn t_20_39_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
+        let t = state.0.rotate_left(5) + NBitWord::<u32>::parity(state.1, state.2, state.3) + state.4 + *word + T_20_39;
+
+        state.4 = state.3;
+        state.3 = state.2;
+        state.2 = state.1.rotate_right(2);
+        state.1 = state.0;
+        state.0 = t;
+
+        state
+    }
+
+    fn t_40_59_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
+        let t = state.0.rotate_left(5) + NBitWord::<u32>::maj(state.1, state.2, state.3) + state.4 + *word + T_40_59;
+
+        state.4 = state.3;
+        state.3 = state.2;
+        state.2 = state.1.rotate_right(2);
+        state.1 = state.0;
+        state.0 = t;
+
+        state
+    }
+
+    fn t_60_79_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
+        let t = state.0.rotate_left(5) + NBitWord::<u32>::parity(state.1, state.2, state.3) + state.4 + *word + T_60_79;
+
+        state.4 = state.3;
+        state.3 = state.2;
+        state.2 = state.1.rotate_right(2);
+        state.1 = state.0;
+        state.0 = t;
+
+        state
+    }
+}
+
+impl AddAssign for Sha1State {
+    fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0;
         self.1 += rhs.1;
         self.2 += rhs.2;
@@ -130,22 +204,27 @@ impl HashAlgorithm for Sha1State {
     type Output = ByteArrayWrapper<BYTES_LEN>;
 
     fn hash_block(&mut self, bytes: &[u8]) {
-        let mut state = Sha160BitsState(
-            self.0,
-            self.1,
-            self.2,
-            self.3,
-            self.4,
-            DWords::<u32>::from(<&[u8; 64]>::try_from(bytes).unwrap()),
-        );
+        let mut words = DWords::<u32>::from(<&[u8; 64]>::try_from(bytes).unwrap());
+        let mut sha1state = self.clone();
 
-        state.block_00_15();
-        state.block_16_31();
-        state.block_32_47();
-        state.block_48_63();
-        state.block_64_79();
+        words.into_iter().fold(&mut sha1state, Self::t_00_19_round);
 
-        *self += state;
+        Self::next_words(&mut words);
+        words[..4].iter().fold(&mut sha1state, Self::t_00_19_round);
+        words[4..].iter().fold(&mut sha1state, Self::t_20_39_round);
+
+        Self::next_words(&mut words);
+        words[..8].iter().fold(&mut sha1state, Self::t_20_39_round);
+        words[8..].iter().fold(&mut sha1state, Self::t_40_59_round);
+
+        Self::next_words(&mut words);
+        words[..12].iter().fold(&mut sha1state, Self::t_40_59_round);
+        words[12..].iter().fold(&mut sha1state, Self::t_60_79_round);
+
+        Self::next_words(&mut words);
+        words.into_iter().fold(&mut sha1state, Self::t_60_79_round);
+
+        *self += sha1state;
     }
 
     fn state_to_u64(&self) -> u64 {

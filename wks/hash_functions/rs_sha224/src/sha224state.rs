@@ -2,8 +2,8 @@ use crate::{Sha224Hasher, BYTES_LEN};
 use core::{hash::BuildHasher, ops::AddAssign};
 use rs_hasher_ctx::ByteArrayWrapper;
 use rs_internal_hasher::{GenericPad, HashAlgorithm, U64Size};
-use rs_internal_state::{BytesLen, DWords, GenericStateHasher, Sha256BitsState};
-use rs_n_bit_words::NBitWord;
+use rs_internal_state::{BytesLen, DWords, Sha256BitsState};
+use rs_n_bit_words::{NBitWord, TSize};
 
 const H0: u32 = 0xC1059ED8;
 const H1: u32 = 0x367CD507;
@@ -67,8 +67,25 @@ pub struct Sha224State(
     pub NBitWord<u32>,
 );
 
-impl AddAssign<Sha256BitsState> for Sha224State {
-    fn add_assign(&mut self, rhs: Sha256BitsState) {
+impl Sha224State {
+    fn round<'a>(state: &'a mut Self, t: (&NBitWord<u32>, &u32)) -> &'a mut Self {
+        let t0 = state.4.sigma1() + NBitWord::<u32>::ch(state.4, state.5, state.6) + state.7 + *t.0 + *t.1;
+        let t1 = state.0.sigma0() + NBitWord::<u32>::maj(state.0, state.1, state.2);
+        state.7 = state.6;
+        state.6 = state.5;
+        state.5 = state.4;
+        state.4 = state.3 + t0;
+        state.3 = state.2;
+        state.2 = state.1;
+        state.1 = state.0;
+        state.0 = t0 + t1;
+
+        state
+    }
+}
+
+impl AddAssign for Sha224State {
+    fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0;
         self.1 += rhs.1;
         self.2 += rhs.2;
@@ -153,24 +170,21 @@ impl HashAlgorithm for Sha224State {
     type Output = ByteArrayWrapper<BYTES_LEN>;
 
     fn hash_block(&mut self, bytes: &[u8]) {
-        let mut state = Sha256BitsState(
-            self.0,
-            self.1,
-            self.2,
-            self.3,
-            self.4,
-            self.5,
-            self.6,
-            self.7,
-            DWords::<u32>::from(<&[u8; 64]>::try_from(bytes).unwrap()),
-        );
+        let mut sha224state = self.clone();
+        let mut words = DWords::<u32>::from(<&[u8; 64]>::try_from(bytes).unwrap());
 
-        state.block_00_15();
-        state.block_16_31();
-        state.block_32_47();
-        state.block_48_63();
+        words.into_iter().zip(Sha256BitsState::K_00_TO_15.iter()).fold(&mut sha224state, Self::round);
 
-        *self += state;
+        Sha256BitsState::next_words(&mut words);
+        words.into_iter().zip(Sha256BitsState::K_16_TO_31.iter()).fold(&mut sha224state, Self::round);
+
+        Sha256BitsState::next_words(&mut words);
+        words.into_iter().zip(Sha256BitsState::K_32_TO_47.iter()).fold(&mut sha224state, Self::round);
+
+        Sha256BitsState::next_words(&mut words);
+        words.into_iter().zip(Sha256BitsState::K_48_TO_63.iter()).fold(&mut sha224state, Self::round);
+
+        *self += sha224state;
     }
 
     fn state_to_u64(&self) -> u64 {
