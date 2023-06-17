@@ -155,14 +155,15 @@ where
         let mut completed_bytes = 0;
 
         while OUTPUT_SIZE > completed_bytes {
-            output.chunks_mut(t_size)
+            output
+                .chunks_mut(t_size)
                 .skip(completed_bytes / t_size)
                 .zip(KeccakStateIter::new(&self.state).take(words_to_tale))
                 .fold(&mut completed_bytes, |acc, (byte_ch, lane)| {
                     let x = lane.to_le_bytes();
                     *acc += x.as_ref().len();
                     byte_ch.clone_from_slice(&x.as_ref()[..byte_ch.len()]);
-                   acc
+                    acc
                 });
 
             if OUTPUT_SIZE > completed_bytes {

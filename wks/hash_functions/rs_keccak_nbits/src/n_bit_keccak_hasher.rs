@@ -82,8 +82,8 @@ where
 
 impl<T, const RATE: usize, const OUTPUT_SIZE: usize> From<NBitKeccakState<T, RATE, OUTPUT_SIZE>>
     for NBitKeccakHasher<T, RATE, OUTPUT_SIZE>
-    where
-        T: Copy
+where
+    T: Copy
         + Default
         + BitAnd
         + BitAndAssign
@@ -91,8 +91,8 @@ impl<T, const RATE: usize, const OUTPUT_SIZE: usize> From<NBitKeccakState<T, RAT
         + BitXor<Output = T>
         + BitXorAssign
         + Not<Output = T>,
-        NBitWord<T>: From<u64> + LittleEndianBytes + Not<Output = NBitWord<T>> + Rotate + TSize<T>,
-        u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
+    NBitWord<T>: From<u64> + LittleEndianBytes + Not<Output = NBitWord<T>> + Rotate + TSize<T>,
+    u32: Sub<NBitWord<T>, Output = NBitWord<T>>,
 {
     fn from(value: NBitKeccakState<T, RATE, OUTPUT_SIZE>) -> Self {
         Self(GenericHasher {

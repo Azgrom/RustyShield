@@ -1,12 +1,15 @@
-use core::iter::{FlatMap, Flatten};
-use core::slice::{Iter, IterMut};
-use rs_n_bit_words::NBitWord;
 use crate::keccak::plane::Plane;
 use crate::keccak::plane_iter::PlaneIter;
 use crate::KeccakState;
+use core::iter::{FlatMap, Flatten};
+use core::slice::{Iter, IterMut};
+use rs_n_bit_words::NBitWord;
+
+type PlaneArrayIntoLaneArrayFlatMap<'a, T> =
+    FlatMap<Iter<'a, Plane<T>>, PlaneIter<'a, T>, for<'b> fn(&'a Plane<T>) -> PlaneIter<'a, T>>;
 
 pub(crate) struct KeccakStateIter<'a, T> {
-    iter: FlatMap<Iter<'a, Plane<T>>, PlaneIter<'a, T>, for<'b> fn(&'a Plane<T>) -> PlaneIter<'a, T>>,
+    iter: PlaneArrayIntoLaneArrayFlatMap<'a, T>,
 }
 
 impl<'a, T: Default + Copy> KeccakStateIter<'a, T> {
