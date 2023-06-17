@@ -161,8 +161,8 @@ where
             hasher.write(key);
             let bytes_output: ByteArrayWrapper<OUTPUT_SIZE> = HasherContext::finish(&mut hasher).into();
 
-            inner_key.as_mut()[..H::len()].clone_from_slice(bytes_output.as_ref());
-            outer_key.as_mut()[..H::len()].clone_from_slice(bytes_output.as_ref());
+            inner_key.as_mut()[..H::len()].clone_from_slice(&bytes_output.as_ref()[..H::len()]);
+            outer_key.as_mut()[..H::len()].clone_from_slice(&bytes_output.as_ref()[..H::len()]);
         } else {
             inner_key.as_mut()[..key.len()].clone_from_slice(key);
             outer_key.as_mut()[..key.len()].clone_from_slice(key);
@@ -205,7 +205,7 @@ where
     /// use rs_sha1::{Sha1Hasher, Sha1State};
     ///
     /// let key = b"key";
-    /// let  msg = b"The quick brown fox jumps over the lazy dog";
+    /// let msg = b"The quick brown fox jumps over the lazy dog";
     /// let resulting_sha1state = Hmac::<Sha1State, 20>::digest(key, msg);
     ///
     /// assert_eq!(format!("{:02x}", resulting_sha1state), "de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9");
