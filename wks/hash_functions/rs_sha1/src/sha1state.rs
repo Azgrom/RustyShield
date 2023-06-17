@@ -61,7 +61,7 @@ const HX: [u32; 5] = [H0, H1, H2, H3, H4];
 pub struct Sha1State(pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>, pub NBitWord<u32>);
 
 impl Sha1State {
-    fn next_words(words: &mut DWords<u32>) {
+    pub(crate) fn next_words(words: &mut DWords<u32>) {
         words[0] = (words[0] ^ words[2] ^ words[8] ^ words[13]).rotate_left(1);
         words[1] = (words[1] ^ words[3] ^ words[9] ^ words[14]).rotate_left(1);
         words[2] = (words[2] ^ words[4] ^ words[10] ^ words[15]).rotate_left(1);
@@ -80,7 +80,7 @@ impl Sha1State {
         words[15] = (words[15] ^ words[1] ^ words[7] ^ words[12]).rotate_left(1);
     }
 
-    fn t_00_19_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
+    pub(crate) fn t_00_19_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
         let t = state.0.rotate_left(5) + NBitWord::<u32>::ch(state.1, state.2, state.3) + state.4 + *word + T_00_19;
 
         state.4 = state.3;
@@ -92,7 +92,7 @@ impl Sha1State {
         state
     }
 
-    fn t_20_39_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
+    pub(crate) fn t_20_39_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
         let t = state.0.rotate_left(5) + NBitWord::<u32>::parity(state.1, state.2, state.3) + state.4 + *word + T_20_39;
 
         state.4 = state.3;
@@ -104,7 +104,7 @@ impl Sha1State {
         state
     }
 
-    fn t_40_59_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
+    pub(crate) fn t_40_59_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
         let t = state.0.rotate_left(5) + NBitWord::<u32>::maj(state.1, state.2, state.3) + state.4 + *word + T_40_59;
 
         state.4 = state.3;
@@ -116,7 +116,7 @@ impl Sha1State {
         state
     }
 
-    fn t_60_79_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
+    pub(crate) fn t_60_79_round<'a>(state: &'a mut Sha1State, word: &NBitWord<u32>) -> &'a mut Sha1State {
         let t = state.0.rotate_left(5) + NBitWord::<u32>::parity(state.1, state.2, state.3) + state.4 + *word + T_60_79;
 
         state.4 = state.3;
